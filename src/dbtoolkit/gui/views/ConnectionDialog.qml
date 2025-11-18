@@ -96,7 +96,7 @@ Dialog {
             placeholderText: "Host"
             text: "localhost"
             Layout.fillWidth: true
-            enabled: typeCombo.currentText !== "sqlite"
+            enabled: !typeCombo.currentText.includes("SQLite")
         }
         
         TextField {
@@ -104,16 +104,14 @@ Dialog {
             placeholderText: "Port"
             text: getDefaultPort()
             Layout.fillWidth: true
-            enabled: typeCombo.currentText !== "sqlite"
+            enabled: !typeCombo.currentText.includes("SQLite")
             validator: IntValidator { bottom: 1; top: 65535 }
             
             function getDefaultPort() {
-                switch(typeCombo.selectedType) {
-                    case "postgresql": return "5432"
-                    case "mysql": return "3306"
-                    case "mongodb": return "27017"
-                    default: return ""
-                }
+                if (typeCombo.currentText.includes("PostgreSQL")) return "5432"
+                if (typeCombo.currentText.includes("MySQL")) return "3306"
+                if (typeCombo.currentText.includes("MongoDB")) return "27017"
+                return ""
             }
         }
         
@@ -121,7 +119,7 @@ Dialog {
             id: usernameField
             placeholderText: "Username"
             Layout.fillWidth: true
-            enabled: typeCombo.currentText !== "sqlite"
+            enabled: !typeCombo.currentText.includes("SQLite")
         }
         
         TextField {
@@ -129,21 +127,21 @@ Dialog {
             placeholderText: "Password"
             echoMode: TextInput.Password
             Layout.fillWidth: true
-            enabled: typeCombo.currentText !== "sqlite"
+            enabled: !typeCombo.currentText.includes("SQLite")
         }
         
         TextField {
             id: databaseField
             placeholderText: "Database Name"
             Layout.fillWidth: true
-            enabled: typeCombo.currentText !== "sqlite"
+            enabled: !typeCombo.currentText.includes("SQLite")
         }
         
         TextField {
             id: filePathField
             placeholderText: "SQLite File Path"
             Layout.fillWidth: true
-            enabled: typeCombo.currentText === "sqlite"
+            enabled: typeCombo.currentText.includes("SQLite")
         }
         
         Item {

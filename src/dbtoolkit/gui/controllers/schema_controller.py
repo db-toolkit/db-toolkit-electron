@@ -8,7 +8,7 @@ from ...core.storage import connection_storage
 from ...connectors.factory import ConnectorFactory
 from ...utils.cache import metadata_cache
 from ...utils.constants import QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION, DEFAULT_CACHE_TTL
-from ..models.schema_model import SchemaModel
+from ..models.tree_model import TreeModel
 
 
 class SchemaWorker(QThread):
@@ -106,14 +106,14 @@ class SchemaController(QObject):
     def __init__(self):
         """Initialize schema controller."""
         super().__init__()
-        self._schema_model = SchemaModel()
+        self._schema_model = TreeModel()
         self._loading = False
         self._error = ""
         self._current_connection_id = ""
         self._worker: Optional[SchemaWorker] = None
     
-    @Property(SchemaModel, notify=schemaModelChanged)
-    def schemaModel(self) -> SchemaModel:
+    @Property(TreeModel, notify=schemaModelChanged)
+    def schemaModel(self) -> TreeModel:
         """Get schema model for QML."""
         return self._schema_model
     
@@ -163,6 +163,12 @@ class SchemaController(QObject):
     def _on_schema_loaded(self, schema_data: List[Dict[str, Any]]) -> None:
         """Handle schema data loaded."""
         self._schema_model.load_schema_data(schema_data)
+        self.schemaModelChanged.emit()
+    
+    @Slot(int)
+    def toggle_item(self, row: int) -> None:
+        """Toggle expanded state of tree item."""
+        self._schema_model.toggle_expanded(row)
         self.schemaModelChanged.emit()
     
     def _on_error(self, error_message: str) -> None:

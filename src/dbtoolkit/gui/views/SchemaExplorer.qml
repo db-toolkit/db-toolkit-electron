@@ -77,37 +77,67 @@ Rectangle {
             }
         }
         
-        // Schema list view (simplified for now)
+        // Schema tree view
         ScrollView {
             Layout.fillWidth: true
             Layout.fillHeight: true
             
             ListView {
-                id: schemaListView
+                id: schemaTreeView
                 anchors.fill: parent
-                model: ListModel {
-                    id: schemaListModel
-                }
+                model: schemaController.schemaModel
                 
                 delegate: Rectangle {
-                    width: schemaListView.width
-                    height: 40
+                    width: schemaTreeView.width
+                    height: 35
                     color: mouseArea.containsMouse ? Material.color(Material.Grey, Material.Shade100) : "transparent"
                     
                     RowLayout {
                         anchors.fill: parent
-                        anchors.margins: 10
-                        spacing: 10
+                        anchors.leftMargin: 10 + (model.level * 20)
+                        anchors.rightMargin: 10
+                        anchors.topMargin: 5
+                        anchors.bottomMargin: 5
+                        spacing: 8
                         
+                        // Expand/collapse indicator
                         Text {
-                            text: "📊"
-                            font.pixelSize: 16
+                            text: model.hasChildren ? (model.expanded ? "▼" : "▶") : "  "
+                            font.pixelSize: 10
+                            color: Material.color(Material.Grey)
+                            Layout.preferredWidth: 15
+                            visible: model.hasChildren
                         }
                         
+                        // Type icon
                         Text {
-                            text: model.name || "Schema Item"
+                            text: getIcon()
                             font.pixelSize: 14
+                            
+                            function getIcon() {
+                                switch(model.type) {
+                                    case "schema": return "🗂️"
+                                    case "table": return "📋"
+                                    case "column": return "📄"
+                                    default: return "📁"
+                                }
+                            }
+                        }
+                        
+                        // Name
+                        Text {
+                            text: model.name
+                            font.pixelSize: 13
                             Layout.fillWidth: true
+                            elide: Text.ElideRight
+                        }
+                        
+                        // Data type for columns
+                        Text {
+                            text: model.dataType
+                            font.pixelSize: 11
+                            color: Material.color(Material.Grey)
+                            visible: model.type === "column" && model.dataType
                         }
                     }
                     
@@ -115,8 +145,17 @@ Rectangle {
                         id: mouseArea
                         anchors.fill: parent
                         hoverEnabled: true
+                        
                         onClicked: {
-                            console.log("Clicked:", model.name)
+                            if (model.hasChildren) {
+                                schemaController.toggle_item(index)
+                            }
+                        }
+                        
+                        onDoubleClicked: {
+                            if (model.type === "table") {
+                                console.log("Load table data:", model.name)
+                            }
                         }
                     }
                 }
@@ -153,9 +192,6 @@ Rectangle {
     onConnectionIdChanged: {
         if (connectionId !== "") {
             schemaController.load_schema(connectionId)
-            // For now, add some dummy data
-            schemaListModel.clear()
-            schemaListModel.append({"name": "Loading schema..."})
         }
     }
 }

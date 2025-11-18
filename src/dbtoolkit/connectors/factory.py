@@ -4,6 +4,9 @@ from typing import Type
 from ..core.models import DatabaseConnection, DatabaseType
 from .base import DatabaseConnector
 from .postgresql import PostgreSQLConnector
+from .mysql import MySQLConnector
+from .sqlite import SQLiteConnector
+from .mongodb import MongoDBConnector
 
 
 class ConnectorFactory:
@@ -11,10 +14,9 @@ class ConnectorFactory:
     
     _connectors = {
         DatabaseType.POSTGRESQL: PostgreSQLConnector,
-        # TODO: Add other connectors
-        # DatabaseType.MYSQL: MySQLConnector,
-        # DatabaseType.SQLITE: SQLiteConnector,
-        # DatabaseType.MONGODB: MongoDBConnector,
+        DatabaseType.MYSQL: MySQLConnector,
+        DatabaseType.SQLITE: SQLiteConnector,
+        DatabaseType.MONGODB: MongoDBConnector,
     }
     
     @classmethod
