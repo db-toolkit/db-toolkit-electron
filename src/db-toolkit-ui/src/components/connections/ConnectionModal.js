@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../common/Modal';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
+  const { settings } = useSettingsContext();
   const [formData, setFormData] = useState({
     name: '',
-    db_type: 'postgresql',
+    db_type: settings?.default_db_type || 'postgresql',
     host: 'localhost',
     port: 5432,
     database: '',
@@ -28,7 +30,7 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
     } else {
       setFormData({
         name: '',
-        db_type: 'postgresql',
+        db_type: settings?.default_db_type || 'postgresql',
         host: 'localhost',
         port: 5432,
         database: '',

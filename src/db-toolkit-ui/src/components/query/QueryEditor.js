@@ -159,8 +159,10 @@ export function QueryEditor({ query, onChange, onExecute, onExplain, loading, sc
   }, [error, query]);
 
   const handleEditorWillMount = (monaco) => {
-    // Register SQL snippets
-    registerSqlSnippets(monaco);
+    // Register SQL snippets if enabled
+    if (settings?.editor_snippets_enabled !== false) {
+      registerSqlSnippets(monaco);
+    }
 
     // Define custom themes (Monaco has built-in SQL syntax highlighting)
     monaco.editor.defineTheme('sql-light', {
@@ -235,7 +237,8 @@ export function QueryEditor({ query, onChange, onExecute, onExplain, loading, sc
             formatOnPaste: settings?.auto_format_on_paste || false,
             formatOnType: true,
             suggestOnTriggerCharacters: settings?.editor_auto_complete !== false,
-            quickSuggestions: settings?.editor_auto_complete !== false,
+            quickSuggestions: settings?.editor_auto_complete !== false ? true : false,
+            snippetSuggestions: settings?.editor_snippets_enabled !== false ? 'inline' : 'none',
             fontFamily: '"JetBrains Mono", "Fira Code", Consolas, monospace',
             glyphMargin: true,
           }}

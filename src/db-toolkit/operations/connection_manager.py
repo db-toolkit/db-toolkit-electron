@@ -1,10 +1,12 @@
 """Connection management operations."""
 
+import asyncio
 from typing import Dict, List, Optional
 
 from connectors.base import BaseConnector
 from connectors.factory import ConnectorFactory
 from core.models import DatabaseConnection
+from core.settings_storage import SettingsStorage
 from operations.operation_lock import operation_lock
 
 
@@ -15,12 +17,23 @@ class ConnectionManager:
         """Initialize connection manager."""
         self._active_connections: Dict[str, BaseConnector] = {}
         self._connection_metadata: Dict[str, DatabaseConnection] = {}
+        self._settings_storage = SettingsStorage()
 
-    async def connect(self, connection: DatabaseConnection) -> bool:
-        """Establish database connection."""
+    async def connect(self, connection: DatabaseConnection, timeout: Optional[int] = None) -> bool:
+        """Establish database connection with timeout."""
         try:
+            # Get timeout from settings if not provided
+            if timeout is None:
+                settings = await self._settings_storage.get_settings()
+                timeout = settings.connection_timeout
+            
             connector = ConnectorFactory.create_connector(connection.db_type)
-            success = await connector.connect(connection)
+            
+            # Connect with timeout
+            success = await asyncio.wait_for(
+                connector.connect(connection),
+                timeout=timeout
+            )
 
             if success:
                 self._active_connections[connection.id] = connector
@@ -28,6 +41,8 @@ class ConnectionManager:
                 return True
             return False
 
+        except asyncio.TimeoutError:
+            return False
         except Exception:
             return False
 
@@ -45,9 +60,22 @@ class ConnectionManager:
             return success
         return False
 
-    async def get_connector(self, connection_id: str) -> Optional[BaseConnector]:
-        """Get active connector by connection ID."""
-        return self._active_connections.get(connection_id)
+    async def get_connector(self, connection_id: str, auto_reconnect: bool = True) -> Optional[BaseConnector]:
+        """Get active connector by connection ID with auto-reconnect."""
+        connector = self._active_connections.get(connection_id)
+        
+        # Check if auto-reconnect is enabled and connection is lost
+        if connector and not connector.is_connected and auto_reconnect:
+            settings = await self._settings_storage.get_settings()
+            if settings.auto_reconnect:
+                connection = self._connection_metadata.get(connection_id)
+                if connection:
+                    # Try to reconnect
+                    success = await self.connect(connection)
+                    if success:
+                        return self._active_connections.get(connection_id)
+        
+        return connector
 
     async def get_connection(self, connection_id: str) -> Optional[DatabaseConnection]:
         """Get connection metadata by ID."""
