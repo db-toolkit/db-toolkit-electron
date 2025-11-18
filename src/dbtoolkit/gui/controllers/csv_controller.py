@@ -10,6 +10,7 @@ from ...core.csv_models import ImportConfig, ExportConfig, ColumnMapping, Import
 from ...operations.csv_importer import CSVImporter
 from ...operations.csv_exporter import CSVExporter
 from ...utils.constants import QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION
+import asyncio
 
 
 class CSVWorker(QThread):
@@ -222,7 +223,22 @@ class CSVController(QObject):
     
     def _on_operation_completed(self, success: bool, message: str, result_data: Dict[str, Any]) -> None:
         """Handle operation completion."""
+        if success:
+            # Refresh schema and data after successful import/export
+            self._refresh_after_operation()
+        
         self.operationCompleted.emit(success, message, result_data)
+    
+    def _refresh_after_operation(self) -> None:
+        """Refresh schema and data views after CSV operations."""
+        from ...operations.schema_updater import SchemaUpdater
+        
+        if self._current_connection_id:
+            connection = connection_storage.get_connection(self._current_connection_id)
+            if connection:
+                updater = SchemaUpdater(connection)
+                # Invalidate cache to force refresh of schema and data
+                asyncio.create_task(updater.invalidate_schema_cache())
     
     def _set_operating(self, operating: bool) -> None:
         """Set operating state."""
