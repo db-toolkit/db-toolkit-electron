@@ -11,6 +11,7 @@ from .controllers.connection_controller import ConnectionController
 from .controllers.schema_controller import SchemaController
 from .controllers.query_controller import QueryController
 from .controllers.data_controller import DataController
+from .controllers.csv_controller import CSVController
 from .models.tree_model import TreeModel
 from ..utils.constants import QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION
 
@@ -32,6 +33,7 @@ def main():
     qmlRegisterType(SchemaController, QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION, 0, "SchemaController")
     qmlRegisterType(QueryController, QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION, 0, "QueryController")
     qmlRegisterType(DataController, QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION, 0, "DataController")
+    qmlRegisterType(CSVController, QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION, 0, "CSVController")
     qmlRegisterType(TreeModel, QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION, 0, "TreeModel")
     
     # Create QML engine
