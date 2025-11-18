@@ -52,4 +52,10 @@ export const sessionAPI = {
   clear: () => api.delete('/session/clear'),
 };
 
+export const settingsAPI = {
+  get: () => api.get('/settings'),
+  update: (data) => api.put('/settings', data),
+  reset: () => api.post('/settings/reset'),
+};
+
 export default api;
