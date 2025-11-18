@@ -4,7 +4,7 @@ import ConnectionsPage from './pages/ConnectionsPage';
 import SchemaPage from './pages/SchemaPage';
 import QueryPage from './pages/QueryPage';
 import './styles/App.css';
-import './styles/codemirror.css';
+import './styles/split.css';
 
 function App() {
   return (

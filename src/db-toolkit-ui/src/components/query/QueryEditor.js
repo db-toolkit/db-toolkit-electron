@@ -1,114 +1,27 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Play } from 'lucide-react';
-import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightActiveLine, drawSelection } from '@codemirror/view';
-import { EditorState } from '@codemirror/state';
-import { sql, PostgreSQL } from '@codemirror/lang-sql';
-import { autocompletion, closeBrackets } from '@codemirror/autocomplete';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
-import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from '@codemirror/language';
-import { oneDark } from '@codemirror/theme-one-dark';
+import Editor from '@monaco-editor/react';
 import { Button } from '../common/Button';
 import { useTheme } from '../../contexts/ThemeContext';
 
-export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
+export function QueryEditor({ query, onChange, onExecute, loading }) {
   const editorRef = useRef(null);
-  const viewRef = useRef(null);
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
 
-  useEffect(() => {
-    if (!editorRef.current) return;
-
-    const tables = {};
-    if (schema) {
-      Object.entries(schema).forEach(([schemaName, schemaData]) => {
-        schemaData.tables?.forEach(table => {
-          tables[table.name] = table.columns?.map(col => col.name) || [];
-        });
-      });
-    }
-
-    const extensions = [
-      lineNumbers(),
-      highlightActiveLineGutter(),
-      highlightActiveLine(),
-      history(),
-      drawSelection(),
-      bracketMatching(),
-      closeBrackets(),
-      autocompletion(),
-      sql({ dialect: PostgreSQL, schema: tables }),
-      syntaxHighlighting(defaultHighlightStyle),
-      keymap.of([
-        ...defaultKeymap,
-        ...historyKeymap,
-        { key: 'Ctrl-Enter', run: () => { onExecute(); return true; } },
-        { key: 'Cmd-Enter', run: () => { onExecute(); return true; } },
-      ]),
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          onChange(update.state.doc.toString());
-        }
-      }),
-      EditorView.theme({
-        '&': {
-          height: '300px',
-          fontSize: '14px',
-          border: '1px solid #e5e7eb',
-        },
-        '.cm-content': {
-          fontFamily: '"JetBrains Mono", "Fira Code", Consolas, monospace',
-          padding: '10px 0',
-          caretColor: '#3b82f6',
-        },
-        '.cm-cursor': {
-          borderLeftColor: '#3b82f6',
-          borderLeftWidth: '2px',
-        },
-        '.cm-scroller': {
-          overflow: 'auto',
-          fontFamily: '"JetBrains Mono", "Fira Code", Consolas, monospace',
-        },
-        '.cm-gutters': {
-          backgroundColor: '#f9fafb',
-          color: '#9ca3af',
-          border: 'none',
-        },
-      }, { dark: false }),
-    ];
-
-    if (isDark) {
-      extensions.push(oneDark);
-    }
-
-    const startState = EditorState.create({
-      doc: query,
-      extensions,
-    });
-
-    const view = new EditorView({
-      state: startState,
-      parent: editorRef.current,
-    });
-
-    viewRef.current = view;
-
-    return () => {
-      view.destroy();
-    };
-  }, [schema, isDark]);
-
-  useEffect(() => {
-    if (viewRef.current && query !== viewRef.current.state.doc.toString()) {
-      viewRef.current.dispatch({
-        changes: { from: 0, to: viewRef.current.state.doc.length, insert: query },
-      });
-    }
-  }, [query]);
+  const handleEditorDidMount = (editor) => {
+    editorRef.current = editor;
+    
+    editor.addCommand(
+      window.monaco.KeyMod.CtrlCmd | window.monaco.KeyCode.Enter,
+      () => {
+        onExecute();
+      }
+    );
+  };
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center justify-between mb-3">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">SQL Editor</h3>
         <Button
           size="sm"
@@ -120,10 +33,30 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
           Run (Ctrl+Enter)
         </Button>
       </div>
-      <div
-        ref={editorRef}
-        className="rounded-lg overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700"
-      />
+      <div className="flex-1">
+        <Editor
+          height="100%"
+          defaultLanguage="sql"
+          value={query}
+          onChange={onChange}
+          onMount={handleEditorDidMount}
+          theme={theme === 'dark' ? 'vs-dark' : 'vs'}
+          options={{
+            minimap: { enabled: false },
+            fontSize: 14,
+            lineNumbers: 'on',
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            tabSize: 2,
+            wordWrap: 'on',
+            formatOnPaste: true,
+            formatOnType: true,
+            suggestOnTriggerCharacters: true,
+            quickSuggestions: true,
+            fontFamily: '"JetBrains Mono", "Fira Code", Consolas, monospace',
+          }}
+        />
+      </div>
     </div>
   );
 }
