@@ -218,15 +218,30 @@ class CSVImporter:
             columns = list(batch_data[0].keys())
             placeholders = ", ".join(["%s"] * len(columns))
             
-            if config.on_duplicate == "update" and self.connection.db_type == DatabaseType.POSTGRESQL:
-                # PostgreSQL UPSERT
-                conflict_columns = "id"  # Simplified - would need actual primary key
-                update_clause = ", ".join([f"{col} = EXCLUDED.{col}" for col in columns if col != "id"])
-                query = f"""
-                INSERT INTO {table_name} ({', '.join(columns)}) 
-                VALUES ({placeholders})
-                ON CONFLICT ({conflict_columns}) DO UPDATE SET {update_clause}
-                """
+            if config.on_duplicate == "update":
+                # Get primary key columns for conflict resolution
+                pk_columns = await self._get_primary_key_columns(table_name, config.schema_name)
+                
+                if pk_columns and self.connection.db_type == DatabaseType.POSTGRESQL:
+                    # PostgreSQL UPSERT
+                    conflict_columns = ", ".join(pk_columns)
+                    update_clause = ", ".join([f"{col} = EXCLUDED.{col}" for col in columns if col not in pk_columns])
+                    query = f"""
+                    INSERT INTO {table_name} ({', '.join(columns)}) 
+                    VALUES ({placeholders})
+                    ON CONFLICT ({conflict_columns}) DO UPDATE SET {update_clause}
+                    """
+                elif pk_columns and self.connection.db_type == DatabaseType.MYSQL:
+                    # MySQL UPSERT
+                    update_clause = ", ".join([f"{col} = VALUES({col})" for col in columns if col not in pk_columns])
+                    query = f"""
+                    INSERT INTO {table_name} ({', '.join(columns)}) 
+                    VALUES ({placeholders})
+                    ON DUPLICATE KEY UPDATE {update_clause}
+                    """
+                else:
+                    # Fallback to simple INSERT
+                    query = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})"
             else:
                 # Simple INSERT
                 query = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})"
@@ -244,3 +259,46 @@ class CSVImporter:
             
         except Exception:
             return False
+    
+    async def _get_primary_key_columns(self, table_name: str, schema_name: Optional[str]) -> List[str]:
+        """Get primary key columns for the table."""
+        try:
+            if self.connection.db_type == DatabaseType.POSTGRESQL:
+                schema = schema_name or 'public'
+                query = """
+                SELECT kcu.column_name
+                FROM information_schema.table_constraints tc
+                JOIN information_schema.key_column_usage kcu 
+                    ON tc.constraint_name = kcu.constraint_name
+                WHERE tc.constraint_type = 'PRIMARY KEY' 
+                    AND tc.table_name = %s AND tc.table_schema = %s
+                ORDER BY kcu.ordinal_position
+                """
+                query = query.replace('%s', f"'{table_name.split('.')[-1]}'").replace('%s', f"'{schema}'")
+                
+            elif self.connection.db_type == DatabaseType.MYSQL:
+                db_name = schema_name or self.connection.database
+                query = f"""
+                SELECT COLUMN_NAME as column_name
+                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+                WHERE CONSTRAINT_NAME = 'PRIMARY' 
+                    AND TABLE_NAME = '{table_name.split('.')[-1]}' 
+                    AND TABLE_SCHEMA = '{db_name}'
+                ORDER BY ORDINAL_POSITION
+                """
+                
+            elif self.connection.db_type == DatabaseType.SQLITE:
+                query = f"PRAGMA table_info({table_name.split('.')[-1]})"
+                
+            else:
+                return []
+            
+            result = await self.connector.execute_query(query)
+            
+            if self.connection.db_type == DatabaseType.SQLITE:
+                return [row['name'] for row in result if row.get('pk')]
+            else:
+                return [row['column_name'] for row in result]
+                
+        except Exception:
+            return []
