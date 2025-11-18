@@ -26,6 +26,20 @@ async def create_connection(request: ConnectionRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@router.put("/connections/{connection_id}", response_model=DatabaseConnection)
+async def update_connection(connection_id: str, request: ConnectionRequest):
+    """Update connection."""
+    connection = await storage.get_connection(connection_id)
+    if not connection:
+        raise HTTPException(status_code=404, detail="Connection not found")
+    
+    try:
+        updated = await storage.update_connection(connection_id, **request.model_dump())
+        return updated
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @router.delete("/connections/{connection_id}")
 async def delete_connection(connection_id: str):
     """Delete connection."""

@@ -48,6 +48,21 @@ class ConnectionStorage:
         
         return connection
     
+    async def update_connection(self, connection_id: str, **kwargs) -> Optional[DatabaseConnection]:
+        """Update connection by ID."""
+        connections = await self.get_all_connections()
+        
+        for i, conn in enumerate(connections):
+            if conn.id == connection_id:
+                updated_data = conn.model_dump()
+                updated_data.update(kwargs)
+                updated_data['id'] = connection_id  # Preserve ID
+                connections[i] = DatabaseConnection(**updated_data)
+                await self._save_connections(connections)
+                return connections[i]
+        
+        return None
+    
     async def remove_connection(self, connection_id: str) -> bool:
         """Remove connection by ID."""
         connections = await self.get_all_connections()
