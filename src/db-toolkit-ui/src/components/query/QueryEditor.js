@@ -38,19 +38,9 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
         }
       }
     );
-  };
 
-  // Register autocomplete provider when schema changes
-  useEffect(() => {
-    if (!monacoRef.current || !schema) {
-      console.log('Autocomplete not ready:', { hasMonaco: !!monacoRef.current, hasSchema: !!schema });
-      return;
-    }
-
-    console.log('Registering autocomplete with schema:', schema);
-    const monaco = monacoRef.current;
-    
-    const disposable = monaco.languages.registerCompletionItemProvider('sql', {
+    // Register autocomplete
+    monaco.languages.registerCompletionItemProvider('sql', {
       triggerCharacters: ['.', ' '],
       provideCompletionItems: (model, position) => {
         const word = model.getWordUntilPosition(position);
@@ -63,12 +53,11 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
 
         const suggestions = [];
 
-        // Always suggest tables and columns (user can filter)
-        if (schema.schemas) {
+        // Get current schema from closure
+        if (schema?.schemas) {
           Object.entries(schema.schemas).forEach(([schemaName, schemaData]) => {
             if (schemaData.tables) {
               Object.entries(schemaData.tables).forEach(([tableName, tableData]) => {
-                // Add table suggestions
                 suggestions.push({
                   label: tableName,
                   kind: monaco.languages.CompletionItemKind.Class,
@@ -87,7 +76,6 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
                   sortText: `2_${schemaName}.${tableName}`,
                 });
 
-                // Add column suggestions
                 if (tableData.columns) {
                   tableData.columns.forEach(column => {
                     suggestions.push({
@@ -105,13 +93,10 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
           });
         }
 
-        console.log(`Generated ${suggestions.length} suggestions`);
         return { suggestions };
       },
     });
-
-    return () => disposable.dispose();
-  }, [schema]);
+  };
 
   const handleEditorWillMount = (monaco) => {
     // Define custom themes (Monaco has built-in SQL syntax highlighting)
