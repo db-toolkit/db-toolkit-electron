@@ -4,6 +4,7 @@ import Editor from '@monaco-editor/react';
 import { format } from 'sql-formatter';
 import { Button } from '../common/Button';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { registerSqlSnippets } from './sqlSnippets';
 import './QueryEditor.css';
 
@@ -12,6 +13,7 @@ export function QueryEditor({ query, onChange, onExecute, onExplain, loading, sc
   const monacoRef = useRef(null);
   const decorationsRef = useRef([]);
   const { theme } = useTheme();
+  const { settings } = useSettingsContext();
 
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
@@ -224,13 +226,13 @@ export function QueryEditor({ query, onChange, onExecute, onExplain, loading, sc
           theme={theme === 'dark' ? 'sql-dark' : 'sql-light'}
           options={{
             minimap: { enabled: false },
-            fontSize: 14,
+            fontSize: settings?.editor_font_size || 14,
             lineNumbers: 'on',
             scrollBeyondLastLine: false,
             automaticLayout: true,
             tabSize: 2,
             wordWrap: 'on',
-            formatOnPaste: true,
+            formatOnPaste: settings?.auto_format_on_paste || false,
             formatOnType: true,
             suggestOnTriggerCharacters: true,
             quickSuggestions: true,

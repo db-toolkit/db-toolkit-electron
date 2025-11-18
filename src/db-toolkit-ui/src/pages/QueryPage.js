@@ -4,6 +4,7 @@ import { Download } from 'lucide-react';
 import Split from 'react-split';
 import { useQuery, useSchema } from '../hooks';
 import { useExplain } from '../hooks/useExplain';
+import { useSettingsContext } from '../contexts/SettingsContext';
 import { Button } from '../components/common/Button';
 import { ErrorMessage } from '../components/common/ErrorMessage';
 import { QueryEditor } from '../components/query/QueryEditor';
@@ -29,6 +30,7 @@ function QueryPage() {
   const [queryError, setQueryError] = useState(null);
   const [showExplainModal, setShowExplainModal] = useState(false);
   const { explainResult, loading: explainLoading, explainQuery } = useExplain(connectionId);
+  const { settings } = useSettingsContext();
 
   const handleExplain = async () => {
     if (!query.trim()) return;
@@ -45,7 +47,9 @@ function QueryPage() {
     setQueryError(null);
     const startTime = Date.now();
     try {
-      await executeQuery(query);
+      const limit = settings?.default_query_limit || 1000;
+      const timeout = settings?.default_query_timeout || 30;
+      await executeQuery(query, limit, 0, timeout);
       setExecutionTime(Date.now() - startTime);
     } catch (err) {
       console.error('Query failed:', err);
