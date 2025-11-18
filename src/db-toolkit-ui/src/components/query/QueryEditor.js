@@ -1,23 +1,132 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { Play } from 'lucide-react';
 import Editor from '@monaco-editor/react';
+import { format } from 'sql-formatter';
 import { Button } from '../common/Button';
 import { useTheme } from '../../contexts/ThemeContext';
 
-export function QueryEditor({ query, onChange, onExecute, loading }) {
+export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
   const editorRef = useRef(null);
+  const monacoRef = useRef(null);
   const { theme } = useTheme();
 
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
     
+    // Execute query: Ctrl+Enter
     editor.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
       () => {
         onExecute();
       }
     );
+
+    // Format query: Ctrl+Shift+F
+    editor.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF,
+      () => {
+        try {
+          const formatted = format(editor.getValue(), {
+            language: 'postgresql',
+            tabWidth: 2,
+            keywordCase: 'upper',
+          });
+          editor.setValue(formatted);
+        } catch (err) {
+          console.error('Format error:', err);
+        }
+      }
+    );
   };
+
+  // Register autocomplete provider when schema changes
+  useEffect(() => {
+    if (!monacoRef.current || !schema) return;
+
+    const monaco = monacoRef.current;
+    const disposable = monaco.languages.registerCompletionItemProvider('sql', {
+      provideCompletionItems: (model, position) => {
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
+
+        const suggestions = [];
+
+        // Get text before cursor to determine context
+        const textBeforeCursor = model.getValueInRange({
+          startLineNumber: 1,
+          startColumn: 1,
+          endLineNumber: position.lineNumber,
+          endColumn: position.column,
+        }).toUpperCase();
+
+        // Suggest tables after FROM, JOIN, INTO, UPDATE
+        const tableKeywords = ['FROM', 'JOIN', 'INTO', 'UPDATE'];
+        const shouldSuggestTables = tableKeywords.some(kw => 
+          textBeforeCursor.includes(kw) && 
+          textBeforeCursor.lastIndexOf(kw) > textBeforeCursor.lastIndexOf('WHERE')
+        );
+
+        if (shouldSuggestTables && schema.schemas) {
+          Object.entries(schema.schemas).forEach(([schemaName, schemaData]) => {
+            if (schemaData.tables) {
+              Object.keys(schemaData.tables).forEach(tableName => {
+                suggestions.push({
+                  label: tableName,
+                  kind: monaco.languages.CompletionItemKind.Class,
+                  detail: `Table in ${schemaName}`,
+                  insertText: tableName,
+                  range,
+                });
+
+                // Also suggest schema.table format
+                suggestions.push({
+                  label: `${schemaName}.${tableName}`,
+                  kind: monaco.languages.CompletionItemKind.Class,
+                  detail: 'Qualified table name',
+                  insertText: `${schemaName}.${tableName}`,
+                  range,
+                });
+              });
+            }
+          });
+        }
+
+        // Suggest columns after SELECT, WHERE, SET, ORDER BY, GROUP BY
+        const columnKeywords = ['SELECT', 'WHERE', 'SET', 'ORDER BY', 'GROUP BY', 'HAVING'];
+        const shouldSuggestColumns = columnKeywords.some(kw => textBeforeCursor.includes(kw));
+
+        if (shouldSuggestColumns && schema.schemas) {
+          Object.entries(schema.schemas).forEach(([schemaName, schemaData]) => {
+            if (schemaData.tables) {
+              Object.entries(schemaData.tables).forEach(([tableName, tableData]) => {
+                if (tableData.columns) {
+                  tableData.columns.forEach(column => {
+                    suggestions.push({
+                      label: column.column_name,
+                      kind: monaco.languages.CompletionItemKind.Field,
+                      detail: `${column.data_type} - ${schemaName}.${tableName}`,
+                      insertText: column.column_name,
+                      range,
+                    });
+                  });
+                }
+              });
+            }
+          });
+        }
+
+        return { suggestions };
+      },
+    });
+
+    return () => disposable.dispose();
+  }, [schema]);
 
   const handleEditorWillMount = (monaco) => {
     monaco.languages.register({ id: 'sql' });
@@ -134,8 +243,9 @@ export function QueryEditor({ query, onChange, onExecute, loading }) {
           defaultLanguage="sql"
           value={query}
           onChange={onChange}
+          beforeMount={handleEditorWillMount}
           onMount={handleEditorDidMount}
-          theme={theme === 'dark' ? 'vs-dark' : 'vs'}
+          theme={theme === 'dark' ? 'sql-dark' : 'sql-light'}
           options={{
             minimap: { enabled: false },
             fontSize: 14,

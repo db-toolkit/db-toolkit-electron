@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Download } from 'lucide-react';
 import Split from 'react-split';
-import { useQuery } from '../hooks';
+import { useQuery, useSchema } from '../hooks';
 import { Button } from '../components/common/Button';
 import { ErrorMessage } from '../components/common/ErrorMessage';
 import { QueryEditor } from '../components/query/QueryEditor';
@@ -15,6 +15,14 @@ function QueryPage() {
   const [showExport, setShowExport] = useState(false);
   const [executionTime, setExecutionTime] = useState(0);
   const { result, loading, error, executeQuery } = useQuery(connectionId);
+  const { schema, fetchSchemaTree } = useSchema(connectionId);
+
+  // Fetch schema for autocomplete
+  useEffect(() => {
+    if (connectionId) {
+      fetchSchemaTree().catch(err => console.error('Failed to load schema:', err));
+    }
+  }, [connectionId, fetchSchemaTree]);
 
   const handleExecute = async () => {
     if (!query.trim()) return;
@@ -67,6 +75,7 @@ function QueryPage() {
               onChange={setQuery}
               onExecute={handleExecute}
               loading={loading}
+              schema={schema}
             />
           </div>
 
