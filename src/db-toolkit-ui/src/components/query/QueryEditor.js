@@ -17,19 +17,100 @@ export function QueryEditor({ query, onChange, onExecute, loading }) {
         onExecute();
       }
     );
+  };
 
-    monaco.languages.registerCompletionItemProvider('sql', {
-      provideCompletionItems: () => {
-        const suggestions = [
-          { label: 'SELECT', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'SELECT ' },
-          { label: 'FROM', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'FROM ' },
-          { label: 'WHERE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'WHERE ' },
-          { label: 'INSERT', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'INSERT INTO ' },
-          { label: 'UPDATE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'UPDATE ' },
-          { label: 'DELETE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'DELETE FROM ' },
-        ];
-        return { suggestions };
+  const handleEditorWillMount = (monaco) => {
+    monaco.languages.register({ id: 'sql' });
+    
+    monaco.languages.setMonarchTokensProvider('sql', {
+      keywords: [
+        'SELECT', 'FROM', 'WHERE', 'INSERT', 'INTO', 'UPDATE', 'DELETE', 'CREATE', 'ALTER', 'DROP',
+        'TABLE', 'INDEX', 'VIEW', 'JOIN', 'INNER', 'LEFT', 'RIGHT', 'OUTER', 'ON', 'AND', 'OR',
+        'NOT', 'NULL', 'IS', 'IN', 'LIKE', 'BETWEEN', 'ORDER', 'BY', 'GROUP', 'HAVING', 'LIMIT',
+        'OFFSET', 'AS', 'DISTINCT', 'COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'UNION', 'ALL', 'EXISTS',
+        'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'PRIMARY', 'KEY', 'FOREIGN', 'REFERENCES', 'DEFAULT',
+        'CHECK', 'UNIQUE', 'CASCADE', 'SET', 'VALUES', 'RETURNING'
+      ],
+      operators: ['=', '>', '<', '!', '~', '?', ':', '==', '<=', '>=', '!=', '&&', '||', '++', '--', '+', '-', '*', '/', '&', '|', '^', '%', '<<', '>>', '>>>', '+=', '-=', '*=', '/=', '&=', '|=', '^=', '%=', '<<=', '>>=', '>>>='],
+      tokenizer: {
+        root: [
+          [/[a-z_$][\w$]*/, {
+            cases: {
+              '@keywords': 'keyword',
+              '@default': 'identifier'
+            }
+          }],
+          [/[A-Z][\w$]*/, {
+            cases: {
+              '@keywords': 'keyword',
+              '@default': 'type.identifier'
+            }
+          }],
+          { include: '@whitespace' },
+          [/[{}()\[\]]/, '@brackets'],
+          [/[<>](?!@symbols)/, '@brackets'],
+          [/@symbols/, {
+            cases: {
+              '@operators': 'operator',
+              '@default': ''
+            }
+          }],
+          [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+          [/0[xX][0-9a-fA-F]+/, 'number.hex'],
+          [/\d+/, 'number'],
+          [/[;,.]/, 'delimiter'],
+          [/'([^'\\]|\\.)*$/, 'string.invalid'],
+          [/'/, 'string', '@string'],
+          [/"([^"\\]|\\.)*$/, 'string.invalid'],
+          [/"/, 'string', '@stringDouble'],
+        ],
+        string: [
+          [/[^\\']+/, 'string'],
+          [/\\./, 'string.escape.invalid'],
+          [/'/, 'string', '@pop']
+        ],
+        stringDouble: [
+          [/[^\\"]+/, 'string'],
+          [/\\./, 'string.escape.invalid'],
+          [/"/, 'string', '@pop']
+        ],
+        whitespace: [
+          [/[ \t\r\n]+/, 'white'],
+          [/--.*$/, 'comment'],
+          [/\/\*/, 'comment', '@comment'],
+        ],
+        comment: [
+          [/[^\/*]+/, 'comment'],
+          [/\*\//, 'comment', '@pop'],
+          [/[\/*]/, 'comment']
+        ],
       },
+    });
+
+    monaco.editor.defineTheme('sql-light', {
+      base: 'vs',
+      inherit: true,
+      rules: [
+        { token: 'keyword', foreground: '0000FF', fontStyle: 'bold' },
+        { token: 'string', foreground: 'A31515' },
+        { token: 'number', foreground: '098658' },
+        { token: 'comment', foreground: '008000', fontStyle: 'italic' },
+        { token: 'operator', foreground: '000000' },
+      ],
+      colors: {}
+    });
+
+    monaco.editor.defineTheme('sql-dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'keyword', foreground: '569CD6', fontStyle: 'bold' },
+        { token: 'string', foreground: 'CE9178' },
+        { token: 'number', foreground: 'B5CEA8' },
+        { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
+        { token: 'operator', foreground: 'D4D4D4' },
+      ],
+      colors: {}
     });
   };
 
