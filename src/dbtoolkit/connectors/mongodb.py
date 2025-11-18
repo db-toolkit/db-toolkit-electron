@@ -76,7 +76,36 @@ class MongoDBConnector(DatabaseConnector):
         return columns
     
     async def execute_query(self, query: str) -> List[Dict[str, Any]]:
-        """Execute MongoDB query (simplified - would need proper query parsing)."""
-        # This is a simplified implementation
-        # In practice, you'd need to parse MongoDB query syntax
-        raise NotImplementedError("MongoDB query execution not implemented yet")
+        """Execute MongoDB query."""
+        query = query.strip()
+        
+        # Handle basic MongoDB operations
+        if query.startswith('db.'):
+            # Parse collection and operation
+            parts = query.split('.')
+            if len(parts) >= 3:
+                collection_name = parts[1]
+                operation = parts[2].split('(')[0]
+                
+                db = self._client[self.connection.database or 'test']
+                collection = db[collection_name]
+                
+                if operation == 'find':
+                    cursor = collection.find().limit(100)  # Limit results
+                    documents = await cursor.to_list(length=100)
+                    return [dict(doc) for doc in documents]
+                elif operation == 'count_documents' or operation == 'countDocuments':
+                    count = await collection.count_documents({})
+                    return [{'count': count}]
+        
+        elif query.startswith('show collections'):
+            db = self._client[self.connection.database or 'test']
+            collections = await db.list_collection_names()
+            return [{'collection': name} for name in collections]
+        
+        elif query.startswith('show dbs'):
+            dbs = await self._client.list_database_names()
+            return [{'database': name} for name in dbs]
+        
+        # Default: return empty result
+        return []

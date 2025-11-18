@@ -9,6 +9,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
 from .controllers.connection_controller import ConnectionController
 from .controllers.schema_controller import SchemaController
+from .controllers.query_controller import QueryController
 from .models.tree_model import TreeModel
 from ..utils.constants import QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION
 
@@ -28,6 +29,7 @@ def main():
     # Register QML types
     qmlRegisterType(ConnectionController, QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION, 0, "ConnectionController")
     qmlRegisterType(SchemaController, QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION, 0, "SchemaController")
+    qmlRegisterType(QueryController, QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION, 0, "QueryController")
     qmlRegisterType(TreeModel, QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION, 0, "TreeModel")
     
     # Create QML engine
