@@ -7,6 +7,7 @@ import { LoadingState } from '../components/common/LoadingState';
 import { EmptyState } from '../components/common/EmptyState';
 import { ErrorMessage } from '../components/common/ErrorMessage';
 import { SchemaTree } from '../components/schema/SchemaTree';
+import { TableDetails } from '../components/schema/TableDetails';
 
 function SchemaPage() {
   const { connectionId } = useParams();
@@ -66,14 +67,13 @@ function SchemaPage() {
 
         <div className="lg:col-span-2">
           {selectedTable ? (
-            <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-4">
-                {selectedTable.schema}.{selectedTable.table}
-              </h3>
-              <p className="text-gray-600">Table details will appear here</p>
-            </div>
+            <TableDetails
+              connectionId={connectionId}
+              schemaName={selectedTable.schema}
+              tableName={selectedTable.table}
+            />
           ) : (
-            <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-500">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center text-gray-500 dark:text-gray-400">
               <p>Select a table to view details</p>
             </div>
           )}

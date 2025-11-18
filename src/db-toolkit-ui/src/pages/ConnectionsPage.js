@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Database } from 'lucide-react';
 import { useConnections } from '../hooks';
+import { useToast } from '../contexts/ToastContext';
 import { Button } from '../components/common/Button';
 import { LoadingState } from '../components/common/LoadingState';
 import { EmptyState } from '../components/common/EmptyState';
@@ -12,15 +13,17 @@ import { ConnectionModal } from '../components/connections/ConnectionModal';
 
 function ConnectionsPage() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [showModal, setShowModal] = useState(false);
   const { connections, loading, error, createConnection, deleteConnection, connectToDatabase } = useConnections();
 
   const handleConnect = async (id) => {
     try {
       await connectToDatabase(id);
+      toast.success('Connected successfully');
       navigate(`/schema/${id}`);
     } catch (err) {
-      console.error('Connection failed:', err);
+      toast.error('Connection failed');
     }
   };
 
@@ -28,8 +31,9 @@ function ConnectionsPage() {
     if (window.confirm('Delete this connection?')) {
       try {
         await deleteConnection(id);
+        toast.success('Connection deleted');
       } catch (err) {
-        console.error('Delete failed:', err);
+        toast.error('Delete failed');
       }
     }
   };
@@ -37,9 +41,10 @@ function ConnectionsPage() {
   const handleCreate = async (data) => {
     try {
       await createConnection(data);
+      toast.success('Connection created');
       setShowModal(false);
     } catch (err) {
-      console.error('Create failed:', err);
+      toast.error('Failed to create connection');
     }
   };
 
