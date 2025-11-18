@@ -55,8 +55,9 @@ export function useConnections() {
       const response = await connectionsAPI.connect(id);
       return response.data;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const error = new Error(err.response?.data?.detail || 'Failed to connect. Please check your credentials and database server.');
+      error.response = err.response;
+      throw error;
     }
   }, []);
 

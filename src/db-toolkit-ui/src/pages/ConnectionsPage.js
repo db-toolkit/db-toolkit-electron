@@ -40,9 +40,8 @@ function ConnectionsPage() {
       toast.success('Connected successfully');
       navigate(`/schema/${id}`);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || 'Failed to connect. Please check your credentials and database server.';
       setShowErrorModal(true);
-      setModalError(errorMsg);
+      setModalError(err.message);
     }
   };
 
