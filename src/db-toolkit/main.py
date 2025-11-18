@@ -7,6 +7,7 @@ from core.routes.health import router as health_router
 from core.routes.schema import router as schema_router
 from core.routes.query import router as query_router
 from core.routes.data import router as data_router
+from core.routes.csv import router as csv_router
 
 app = FastAPI(
     title="DB Toolkit API",
@@ -30,3 +31,4 @@ app.include_router(connections_router, prefix="/api/v1", tags=["Connections"])
 app.include_router(schema_router, prefix="/api/v1", tags=["Schema"])
 app.include_router(query_router, prefix="/api/v1", tags=["Query"])
 app.include_router(data_router, prefix="/api/v1", tags=["Data"])
+app.include_router(csv_router, prefix="/api/v1", tags=["CSV"])
