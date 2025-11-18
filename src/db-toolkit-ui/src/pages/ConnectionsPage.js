@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Database } from 'lucide-react';
 import { useConnections } from '../hooks';
+import { useSession } from '../hooks/useSession';
 import { useToast } from '../contexts/ToastContext';
 import { Button } from '../components/common/Button';
 import { LoadingState } from '../components/common/LoadingState';
@@ -15,11 +16,20 @@ function ConnectionsPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const [showModal, setShowModal] = useState(false);
+  const [activeConnections, setActiveConnections] = useState(new Set());
   const { connections, loading, error, createConnection, deleteConnection, connectToDatabase } = useConnections();
+  const { sessionState, restoreSession } = useSession();
+
+  useEffect(() => {
+    if (sessionState?.active_connections) {
+      setActiveConnections(new Set(sessionState.active_connections));
+    }
+  }, [sessionState]);
 
   const handleConnect = async (id) => {
     try {
       await connectToDatabase(id);
+      setActiveConnections(prev => new Set([...prev, id]));
       toast.success('Connected successfully');
       navigate(`/schema/${id}`);
     } catch (err) {
@@ -84,6 +94,7 @@ function ConnectionsPage() {
               connection={conn}
               onConnect={handleConnect}
               onDelete={handleDelete}
+              isActive={activeConnections.has(conn.id)}
             />
           ))}
         </div>
