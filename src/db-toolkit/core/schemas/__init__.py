@@ -11,6 +11,7 @@ from .csv import (
 )
 from .data import DeleteRowRequest, InsertRowRequest, UpdateRowRequest
 from .query import QueryRequest, QueryResponse
+from .session import ConnectionState, SessionSettings, SessionState
 
 __all__ = [
     "ConnectionRequest",
@@ -25,4 +26,7 @@ __all__ = [
     "ValidateCSVResponse",
     "ImportCSVRequest",
     "ImportCSVResponse",
+    "ConnectionState",
+    "SessionState",
+    "SessionSettings",
 ]
