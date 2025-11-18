@@ -30,6 +30,17 @@ export function useConnections() {
     }
   }, []);
 
+  const updateConnection = useCallback(async (id, data) => {
+    try {
+      const response = await connectionsAPI.update(id, data);
+      setConnections((prev) => prev.map(conn => conn.id === id ? response.data : conn));
+      return response.data;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  }, []);
+
   const deleteConnection = useCallback(async (id) => {
     try {
       await connectionsAPI.delete(id);
@@ -81,6 +92,7 @@ export function useConnections() {
     error,
     fetchConnections,
     createConnection,
+    updateConnection,
     deleteConnection,
     testConnection,
     connectToDatabase,

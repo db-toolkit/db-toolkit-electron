@@ -1,7 +1,7 @@
-import { Database, Trash2, Play, Circle } from 'lucide-react';
+import { Database, Trash2, Play, Circle, Edit } from 'lucide-react';
 import { Button } from '../common/Button';
 
-export function ConnectionCard({ connection, onConnect, onDelete, isActive }) {
+export function ConnectionCard({ connection, onConnect, onDelete, onEdit, isActive }) {
   return (
     <div className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-4 hover:shadow-lg transition">
       <div className="flex items-start gap-3 mb-4">
@@ -31,6 +31,14 @@ export function ConnectionCard({ connection, onConnect, onDelete, isActive }) {
           className="flex-1 !text-white"
         >
           Connect
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={<Edit size={16} />}
+          onClick={() => onEdit(connection)}
+        >
+          Edit
         </Button>
         <Button
           variant="danger"

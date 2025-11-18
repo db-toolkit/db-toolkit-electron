@@ -12,6 +12,7 @@ const api = axios.create({
 export const connectionsAPI = {
   getAll: () => api.get('/connections'),
   create: (data) => api.post('/connections', data),
+  update: (id, data) => api.put(`/connections/${id}`, data),
   delete: (id) => api.delete(`/connections/${id}`),
   test: (id) => api.post(`/connections/${id}/test`),
   connect: (id) => api.post(`/connections/${id}/connect`),

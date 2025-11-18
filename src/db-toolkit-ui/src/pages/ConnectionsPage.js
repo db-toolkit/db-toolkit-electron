@@ -18,6 +18,7 @@ function ConnectionsPage() {
   const [showModal, setShowModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [modalError, setModalError] = useState('');
+  const [editingConnection, setEditingConnection] = useState(null);
   const [activeConnections, setActiveConnections] = useState(new Set());
   const { connections, loading, error, createConnection, deleteConnection, connectToDatabase } = useConnections();
   const { sessionState, restoreSession } = useSession();
@@ -56,14 +57,30 @@ function ConnectionsPage() {
     }
   };
 
-  const handleCreate = async (data) => {
+  const handleSave = async (data) => {
     try {
-      await createConnection(data);
-      toast.success('Connection created');
+      if (data.id) {
+        await updateConnection(data.id, data);
+        toast.success('Connection updated');
+      } else {
+        await createConnection(data);
+        toast.success('Connection created');
+      }
       setShowModal(false);
+      setEditingConnection(null);
     } catch (err) {
-      toast.error('Failed to create connection');
+      toast.error(data.id ? 'Failed to update connection' : 'Failed to create connection');
     }
+  };
+
+  const handleEdit = (connection) => {
+    setEditingConnection(connection);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingConnection(null);
   };
 
   if (loading) return <LoadingState fullScreen message="Loading connections..." />;
@@ -78,7 +95,7 @@ function ConnectionsPage() {
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Database Connections</h2>
-        <Button icon={<Plus size={20} />} onClick={() => setShowModal(true)}>
+        <Button icon={<Plus size={20} />} onClick={() => { setEditingConnection(null); setShowModal(true); }}>
           New Connection
         </Button>
       </div>
@@ -89,7 +106,7 @@ function ConnectionsPage() {
           title="No connections yet"
           description="Create your first database connection to get started"
           action={
-            <Button icon={<Plus size={20} />} onClick={() => setShowModal(true)}>
+            <Button icon={<Plus size={20} />} onClick={() => { setEditingConnection(null); setShowModal(true); }}>
               Create Connection
             </Button>
           }
@@ -102,6 +119,7 @@ function ConnectionsPage() {
               connection={conn}
               onConnect={handleConnect}
               onDelete={handleDelete}
+              onEdit={handleEdit}
               isActive={activeConnections.has(conn.id)}
             />
           ))}
@@ -110,8 +128,9 @@ function ConnectionsPage() {
 
       <ConnectionModal
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onSave={handleCreate}
+        onClose={handleCloseModal}
+        onSave={handleSave}
+        connection={editingConnection}
       />
 
       {showErrorModal && (

@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '../common/Modal';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 
-export function ConnectionModal({ isOpen, onClose, onSave }) {
+export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
   const [formData, setFormData] = useState({
     name: '',
     db_type: 'postgresql',
@@ -14,18 +14,42 @@ export function ConnectionModal({ isOpen, onClose, onSave }) {
     password: '',
   });
 
+  useEffect(() => {
+    if (connection) {
+      setFormData({
+        name: connection.name || '',
+        db_type: connection.db_type || 'postgresql',
+        host: connection.host || 'localhost',
+        port: connection.port || 5432,
+        database: connection.database || '',
+        username: connection.username || '',
+        password: connection.password || '',
+      });
+    } else {
+      setFormData({
+        name: '',
+        db_type: 'postgresql',
+        host: 'localhost',
+        port: 5432,
+        database: '',
+        username: '',
+        password: '',
+      });
+    }
+  }, [connection, isOpen]);
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await onSave(formData);
+    await onSave(connection ? { ...formData, id: connection.id } : formData);
     onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="New Connection">
+    <Modal isOpen={isOpen} onClose={onClose} title={connection ? 'Edit Connection' : 'New Connection'}>
       <form onSubmit={handleSubmit}>
         <Input
           label="Connection Name"
@@ -93,7 +117,7 @@ export function ConnectionModal({ isOpen, onClose, onSave }) {
           <Button variant="outline" onClick={onClose} type="button">
             Cancel
           </Button>
-          <Button type="submit">Create Connection</Button>
+          <Button type="submit">{connection ? 'Save Changes' : 'Create Connection'}</Button>
         </div>
       </form>
     </Modal>
