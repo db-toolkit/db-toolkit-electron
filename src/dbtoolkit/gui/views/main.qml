@@ -3,7 +3,6 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt5Compat.GraphicalEffects
 import DBToolkit 1.0
-import dbtoolkit 1.0
 
 ApplicationWindow {
     id: window
@@ -14,11 +13,38 @@ ApplicationWindow {
     visible: true
     title: "DB Toolkit"
     
-    color: Theme.background
+    // Theme properties
+    readonly property bool isDark: Qt.styleHints.colorScheme === Qt.Dark
+    readonly property color themeBackground: isDark ? "#1e1e1e" : "#ffffff"
+    readonly property color themeSurface: isDark ? "#2d2d2d" : "#f5f5f5"
+    readonly property color themeSurfaceVariant: isDark ? "#3d3d3d" : "#e0e0e0"
+    readonly property color themePrimary: "#007acc"
+    readonly property string themePrimaryVariant: isDark ? "#005a9e" : "#0099ff"
+    readonly property color themeAccent: "#17a2b8"
+    readonly property color themeSuccess: "#28a745"
+    readonly property color themeOnSurface: isDark ? "#e0e0e0" : "#212529"
+    readonly property color themeOnPrimary: "#ffffff"
+    readonly property color themeTextSecondary: isDark ? "#b0b0b0" : "#6c757d"
+    readonly property color themeBorder: isDark ? "#404040" : "#dee2e6"
+    readonly property int themeSpacing: 8
+    readonly property int themeSpacingLarge: 16
+    readonly property int themeHeaderHeight: 56
+    readonly property int themeRadius: 8
+    readonly property int themeRadiusSmall: 4
+    readonly property int themeFontSize: 14
+    readonly property int themeFontSizeSmall: 12
+    readonly property int themeFontSizeLarge: 16
+    readonly property int themeFontSizeHeader: 24
+    readonly property int breakpointMobile: 768
     
-    property bool isMobile: Theme.isMobile(width)
-    property bool isTablet: Theme.isTablet(width)
-    property bool isDesktop: Theme.isDesktop(width)
+    function isMobile(width) { return width < breakpointMobile }
+    function responsiveValue(width, mobile, tablet, desktop) {
+        return width < breakpointMobile ? mobile : (desktop || tablet || mobile)
+    }
+    
+    color: themeBackground
+    
+    property bool isMobile: isMobile(width)
     property bool sidebarCollapsed: isMobile
     
 
@@ -31,16 +57,16 @@ ApplicationWindow {
     
     RowLayout {
         anchors.fill: parent
-        anchors.margins: isMobile ? Theme.spacing : Theme.spacingLarge
-        spacing: isMobile ? Theme.spacing : Theme.spacingLarge
+        anchors.margins: isMobile ? theme.spacing : theme.spacingLarge
+        spacing: isMobile ? theme.spacing : theme.spacingLarge
         
         // Left panel - Connections
         Rectangle {
-            Layout.preferredWidth: Theme.responsiveValue(width, width - Theme.spacingLarge * 2, 300, 300)
+            Layout.preferredWidth: theme.responsiveValue(width, width - theme.spacingLarge * 2, 300, 300)
             Layout.fillHeight: true
-            color: Theme.surface
-            radius: Theme.radius
-            border.color: Theme.border
+            color: theme.surface
+            radius: theme.radius
+            border.color: theme.border
             border.width: 1
             visible: !isMobile || !sidebarCollapsed
             
@@ -62,9 +88,9 @@ ApplicationWindow {
                 // Header
                 Rectangle {
                     Layout.fillWidth: true
-                    height: Theme.headerHeight
-                    radius: Theme.radius
-                    color: Theme.primary
+                    height: theme.headerHeight
+                    radius: theme.radius
+                    color: theme.primary
                     
                     RowLayout {
                         anchors.fill: parent
@@ -72,9 +98,9 @@ ApplicationWindow {
                         
                         Text {
                             text: "🔗 Connections"
-                            font.pixelSize: Theme.fontSizeLarge
+                            font.pixelSize: theme.fontSizeLarge
                             font.bold: true
-                            color: Theme.onPrimary
+                            color: theme.onPrimary
                             Layout.fillWidth: true
                         }
                         
@@ -84,14 +110,14 @@ ApplicationWindow {
                             onClicked: connectionDialog.open()
                             
                             background: Rectangle {
-                                color: Theme.onPrimary
-                                radius: Theme.radiusSmall
+                                color: theme.onPrimary
+                                radius: theme.radiusSmall
                             }
                             
                             contentItem: Text {
                                 text: parent.text
                                 font: parent.font
-                                color: Theme.primary
+                                color: theme.primary
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                             }
@@ -121,8 +147,8 @@ ApplicationWindow {
                         width: connectionsList.width - 10
                         height: 70
                         anchors.horizontalCenter: parent.horizontalCenter
-                        color: selectedConnectionId === modelData.id ? Theme.primaryVariant + "20" : Theme.surface
-                        border.color: selectedConnectionId === modelData.id ? Theme.primary : Theme.border
+                        color: selectedConnectionId === modelData.id ? theme.primaryVariant + "20" : theme.surface
+                        border.color: selectedConnectionId === modelData.id ? theme.primary : theme.border
                         border.width: selectedConnectionId === modelData.id ? 2 : 1
                         radius: 8
                         
@@ -137,10 +163,10 @@ ApplicationWindow {
                             width: 8
                             height: 8
                             radius: 4
-                            color: Theme.success
+                            color: theme.success
                             anchors.right: parent.right
                             anchors.top: parent.top
-                            anchors.margins: Theme.spacing
+                            anchors.margins: theme.spacing
                         }
                         
                         RowLayout {
@@ -178,7 +204,7 @@ ApplicationWindow {
                                         case "mysql": return "#00758f"
                                         case "sqlite": return "#003b57"
                                         case "mongodb": return "#4db33d"
-                                        default: return Material.color(Material.Grey)
+                                        default: return "#6c757d"
                                     }
                                 }
                             }
@@ -190,14 +216,14 @@ ApplicationWindow {
                                 Text {
                                     text: modelData.name
                                     font.bold: true
-                                    font.pixelSize: Theme.fontSize
-                                    color: selectedConnectionId === modelData.id ? Theme.primary : Theme.onSurface
+                                    font.pixelSize: theme.fontSize
+                                    color: selectedConnectionId === modelData.id ? theme.primary : theme.onSurface
                                 }
                                 
                                 Text {
                                     text: modelData.db_type.toUpperCase() + " • " + (modelData.host || modelData.file_path || "")
-                                    font.pixelSize: Theme.fontSizeSmall
-                                    color: Theme.textSecondary
+                                    font.pixelSize: theme.fontSizeSmall
+                                    color: theme.textSecondary
                                     elide: Text.ElideRight
                                     Layout.fillWidth: true
                                 }
@@ -227,7 +253,7 @@ ApplicationWindow {
             // Schema Explorer
             SchemaExplorer {
                 id: schemaExplorer
-                Layout.preferredWidth: Theme.responsiveValue(width, 0, 350, 350)
+                Layout.preferredWidth: theme.responsiveValue(width, 0, 350, 350)
                 Layout.fillHeight: true
                 connectionId: selectedConnectionId
                 visible: !isMobile
@@ -237,9 +263,9 @@ ApplicationWindow {
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                color: Theme.surface
-                radius: Theme.radius
-                border.color: Theme.border
+                color: theme.surface
+                radius: theme.radius
+                border.color: theme.border
                 border.width: 1
                 
                 // Drop shadow
@@ -261,7 +287,7 @@ ApplicationWindow {
                         width: 80
                         height: 80
                         radius: 40
-                        color: selectedConnectionId ? Theme.accent + "20" : Theme.surfaceVariant
+                        color: selectedConnectionId ? theme.accent + "20" : theme.surfaceVariant
                         Layout.alignment: Qt.AlignHCenter
                         
                         Text {
@@ -281,16 +307,16 @@ ApplicationWindow {
                     
                     Text {
                         text: "Query Editor"
-                        font.pixelSize: Theme.fontSizeHeader
+                        font.pixelSize: theme.fontSizeHeader
                         font.bold: true
-                        color: Theme.onSurface
+                        color: theme.onSurface
                         Layout.alignment: Qt.AlignHCenter
                     }
                     
                     Text {
                         text: selectedConnectionId ? "✨ Ready to execute queries" : "🔗 Select a connection to get started"
-                        font.pixelSize: Theme.fontSizeLarge
-                        color: Theme.textSecondary
+                        font.pixelSize: theme.fontSizeLarge
+                        color: theme.textSecondary
                         Layout.alignment: Qt.AlignHCenter
                     }
                     
@@ -302,14 +328,14 @@ ApplicationWindow {
                         enabled: true
                         
                         background: Rectangle {
-                            color: selectedConnectionId ? Theme.accent : Theme.primary
-                            radius: Theme.radiusSmall
+                            color: selectedConnectionId ? theme.accent : theme.primary
+                            radius: theme.radiusSmall
                         }
                         
                         contentItem: Text {
                             text: parent.text
                             font: parent.font
-                            color: Theme.onPrimary
+                            color: theme.onPrimary
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                         }
@@ -331,26 +357,7 @@ ApplicationWindow {
         }
     }
     
-    // Mobile navigation
-    MobileNavigation {
-        id: mobileNav
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        visible: isMobile
-        
-        onViewChanged: function(view) {
-            console.log("Mobile view changed to:", view)
-        }
-    }
-    
-    // Mobile overlay for sidebar
-    MobileOverlay {
-        id: mobileOverlay
-        sidebarVisible: isMobile && !sidebarCollapsed
-        
-        onCloseRequested: sidebarCollapsed = true
-    }
+
     
     ConnectionDialog {
         id: connectionDialog

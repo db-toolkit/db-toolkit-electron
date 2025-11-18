@@ -9,7 +9,7 @@ description = "GUI Database Management Application"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "PySide6>=6.6.0,<6.10.0",
+    "pyside6>=6.6.0,<6.10.0",
     "sqlalchemy>=2.0.0",
     "asyncpg>=0.29.0",
     "aiomysql>=0.2.0",

@@ -41,8 +41,10 @@ def main():
     # Create QML engine
     engine = QQmlApplicationEngine()
     
-    # Get the directory containing this file
+    # Add QML import paths
     current_dir = Path(__file__).parent
+    engine.addImportPath(str(current_dir / "qml"))
+    
     qml_file = current_dir / "views" / "main.qml"
     
     # Load main QML file

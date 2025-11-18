@@ -1,4 +1,3 @@
-pragma Singleton
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
@@ -12,7 +11,7 @@ QtObject {
     readonly property color surface: isDark ? "#2d2d2d" : "#f5f5f5"
     readonly property color surfaceVariant: isDark ? "#3d3d3d" : "#e0e0e0"
     readonly property color primary: "#007acc"
-    readonly property color primaryVariant: isDark ? "#005a9e" : "#0099ff"
+    readonly property string primaryVariant: isDark ? "#005a9e" : "#0099ff"
     readonly property color secondary: "#6c757d"
     readonly property color accent: "#17a2b8"
     readonly property color error: "#dc3545"
