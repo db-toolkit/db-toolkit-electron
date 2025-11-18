@@ -1,10 +1,13 @@
 /**
  * Modal to display query explain plan with AI analysis
  */
-import { X, AlertCircle, CheckCircle, AlertTriangle, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import { X, AlertCircle, CheckCircle, AlertTriangle, TrendingUp, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '../common/Button';
 
 export function ExplainPlanModal({ isOpen, onClose, explainResult, loading }) {
+  const [showRawPlan, setShowRawPlan] = useState(false);
+
   if (!isOpen) return null;
 
   const analysis = explainResult?.analysis;
@@ -143,12 +146,20 @@ export function ExplainPlanModal({ isOpen, onClose, explainResult, loading }) {
                 </div>
               )}
 
-              {/* Raw Explain Plan */}
+              {/* Raw Explain Plan - Collapsible */}
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Raw Execution Plan</h3>
-                <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-xs">
-                  {JSON.stringify(explainResult.explain_plan, null, 2)}
-                </pre>
+                <button
+                  onClick={() => setShowRawPlan(!showRawPlan)}
+                  className="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100 mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
+                  {showRawPlan ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                  Raw Execution Plan (Advanced)
+                </button>
+                {showRawPlan && (
+                  <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-xs">
+                    {JSON.stringify(explainResult.explain_plan, null, 2)}
+                  </pre>
+                )}
               </div>
             </div>
           )}
