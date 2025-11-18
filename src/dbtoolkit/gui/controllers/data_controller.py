@@ -8,6 +8,7 @@ from ...core.storage import connection_storage
 from ...core.data_editor import EditSession, ValidationError
 from ...operations.data_editor import DataEditor
 from ...utils.constants import QML_IMPORT_NAME, QML_IMPORT_MAJOR_VERSION
+import asyncio
 
 
 class DataEditWorker(QThread):
@@ -158,10 +159,24 @@ class DataController(QObject):
                 self._pending_changes += 1
             elif "committed" in message.lower() or "rolled back" in message.lower():
                 self._pending_changes = 0
+                # Trigger schema/data refresh
+                self._refresh_after_commit()
             
             self.changesChanged.emit()
         
         self.editCompleted.emit(success, message)
+    
+    def _refresh_after_commit(self) -> None:
+        """Refresh schema and data after commit."""
+        # Signal to refresh data views
+        from ...operations.schema_updater import SchemaUpdater
+        
+        if self._current_connection_id:
+            connection = connection_storage.get_connection(self._current_connection_id)
+            if connection:
+                updater = SchemaUpdater(connection)
+                # Invalidate cache to force refresh
+                asyncio.create_task(updater.invalidate_schema_cache())
     
     def _set_editing(self, editing: bool) -> None:
         """Set editing state."""
