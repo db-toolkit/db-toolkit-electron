@@ -41,3 +41,8 @@ target-version = ["py311"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/db-toolkit"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+]

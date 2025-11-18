@@ -3,7 +3,7 @@
 import time
 import unittest
 
-from utils.cache import Cache
+from utils.cache import SchemaCache as Cache
 
 
 class TestCache(unittest.TestCase):
