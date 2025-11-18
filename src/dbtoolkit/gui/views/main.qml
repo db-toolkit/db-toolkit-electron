@@ -1,29 +1,27 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Controls.Material 2.15
 import QtQuick.Layouts 1.15
 import Qt5Compat.GraphicalEffects
 import DBToolkit 1.0
+import dbtoolkit 1.0
 
 ApplicationWindow {
     id: window
     width: 1200
     height: 800
+    minimumWidth: 320
+    minimumHeight: 480
     visible: true
     title: "DB Toolkit"
     
-    Material.theme: Material.Light
-    Material.primary: Material.Indigo
-    Material.accent: Material.Teal
+    color: Theme.background
     
-    // Background gradient
-    Rectangle {
-        anchors.fill: parent
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "#f8fafc" }
-            GradientStop { position: 1.0; color: "#e2e8f0" }
-        }
-    }
+    property bool isMobile: Theme.isMobile(width)
+    property bool isTablet: Theme.isTablet(width)
+    property bool isDesktop: Theme.isDesktop(width)
+    property bool sidebarCollapsed: isMobile
+    
+
     
     property string selectedConnectionId: ""
     
@@ -33,15 +31,18 @@ ApplicationWindow {
     
     RowLayout {
         anchors.fill: parent
-        anchors.margins: 10
-        spacing: 10
+        anchors.margins: isMobile ? Theme.spacing : Theme.spacingLarge
+        spacing: isMobile ? Theme.spacing : Theme.spacingLarge
         
         // Left panel - Connections
         Rectangle {
-            Layout.preferredWidth: 300
+            Layout.preferredWidth: Theme.responsiveValue(width, width - Theme.spacingLarge * 2, 300, 300)
             Layout.fillHeight: true
-            color: "white"
-            radius: 12
+            color: Theme.surface
+            radius: Theme.radius
+            border.color: Theme.border
+            border.width: 1
+            visible: !isMobile || !sidebarCollapsed
             
             // Drop shadow effect
             layer.enabled: true
@@ -58,15 +59,12 @@ ApplicationWindow {
                 anchors.margins: 15
                 spacing: 10
                 
-                // Header with gradient
+                // Header
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 60
-                    radius: 8
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: Material.color(Material.Indigo) }
-                        GradientStop { position: 1.0; color: Material.color(Material.Indigo, Material.Shade700) }
-                    }
+                    height: Theme.headerHeight
+                    radius: Theme.radius
+                    color: Theme.primary
                     
                     RowLayout {
                         anchors.fill: parent
@@ -74,18 +72,29 @@ ApplicationWindow {
                         
                         Text {
                             text: "🔗 Connections"
-                            font.pixelSize: 18
+                            font.pixelSize: Theme.fontSizeLarge
                             font.bold: true
-                            color: "white"
+                            color: Theme.onPrimary
                             Layout.fillWidth: true
                         }
                         
                         Button {
                             text: "+"
                             font.bold: true
-                            Material.background: "white"
-                            Material.foreground: Material.color(Material.Indigo)
                             onClicked: connectionDialog.open()
+                            
+                            background: Rectangle {
+                                color: Theme.onPrimary
+                                radius: Theme.radiusSmall
+                            }
+                            
+                            contentItem: Text {
+                                text: parent.text
+                                font: parent.font
+                                color: Theme.primary
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
                             
                             // Hover animation
                             scale: mouseArea.containsMouse ? 1.05 : 1.0
@@ -112,8 +121,8 @@ ApplicationWindow {
                         width: connectionsList.width - 10
                         height: 70
                         anchors.horizontalCenter: parent.horizontalCenter
-                        color: selectedConnectionId === modelData.id ? Material.color(Material.Indigo, Material.Shade50) : "white"
-                        border.color: selectedConnectionId === modelData.id ? Material.color(Material.Indigo, Material.Shade200) : Material.color(Material.Grey, Material.Shade200)
+                        color: selectedConnectionId === modelData.id ? Theme.primaryVariant + "20" : Theme.surface
+                        border.color: selectedConnectionId === modelData.id ? Theme.primary : Theme.border
                         border.width: selectedConnectionId === modelData.id ? 2 : 1
                         radius: 8
                         
@@ -128,10 +137,10 @@ ApplicationWindow {
                             width: 8
                             height: 8
                             radius: 4
-                            color: Material.color(Material.Green)
+                            color: Theme.success
                             anchors.right: parent.right
                             anchors.top: parent.top
-                            anchors.margins: 8
+                            anchors.margins: Theme.spacing
                         }
                         
                         RowLayout {
@@ -181,14 +190,14 @@ ApplicationWindow {
                                 Text {
                                     text: modelData.name
                                     font.bold: true
-                                    font.pixelSize: 14
-                                    color: selectedConnectionId === modelData.id ? Material.color(Material.Indigo) : "#1a202c"
+                                    font.pixelSize: Theme.fontSize
+                                    color: selectedConnectionId === modelData.id ? Theme.primary : Theme.onSurface
                                 }
                                 
                                 Text {
                                     text: modelData.db_type.toUpperCase() + " • " + (modelData.host || modelData.file_path || "")
-                                    font.pixelSize: 11
-                                    color: Material.color(Material.Grey, Material.Shade600)
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    color: Theme.textSecondary
                                     elide: Text.ElideRight
                                     Layout.fillWidth: true
                                 }
@@ -218,17 +227,20 @@ ApplicationWindow {
             // Schema Explorer
             SchemaExplorer {
                 id: schemaExplorer
-                Layout.preferredWidth: 350
+                Layout.preferredWidth: Theme.responsiveValue(width, 0, 350, 350)
                 Layout.fillHeight: true
                 connectionId: selectedConnectionId
+                visible: !isMobile
             }
             
             // Query/Data area
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                color: "white"
-                radius: 12
+                color: Theme.surface
+                radius: Theme.radius
+                border.color: Theme.border
+                border.width: 1
                 
                 // Drop shadow
                 layer.enabled: true
@@ -249,7 +261,7 @@ ApplicationWindow {
                         width: 80
                         height: 80
                         radius: 40
-                        color: selectedConnectionId ? Material.color(Material.Teal, Material.Shade100) : Material.color(Material.Grey, Material.Shade100)
+                        color: selectedConnectionId ? Theme.accent + "20" : Theme.surfaceVariant
                         Layout.alignment: Qt.AlignHCenter
                         
                         Text {
@@ -269,27 +281,38 @@ ApplicationWindow {
                     
                     Text {
                         text: "Query Editor"
-                        font.pixelSize: 28
+                        font.pixelSize: Theme.fontSizeHeader
                         font.bold: true
-                        color: "#1a202c"
+                        color: Theme.onSurface
                         Layout.alignment: Qt.AlignHCenter
                     }
                     
                     Text {
                         text: selectedConnectionId ? "✨ Ready to execute queries" : "🔗 Select a connection to get started"
-                        font.pixelSize: 16
-                        color: Material.color(Material.Grey, Material.Shade600)
+                        font.pixelSize: Theme.fontSizeLarge
+                        color: Theme.textSecondary
                         Layout.alignment: Qt.AlignHCenter
                     }
                     
                     // Action button
                     Button {
                         text: selectedConnectionId ? "Open Query Editor" : "Add Connection"
-                        Material.background: selectedConnectionId ? Material.color(Material.Teal) : Material.color(Material.Indigo)
-                        Material.foreground: "white"
                         font.bold: true
                         Layout.alignment: Qt.AlignHCenter
                         enabled: true
+                        
+                        background: Rectangle {
+                            color: selectedConnectionId ? Theme.accent : Theme.primary
+                            radius: Theme.radiusSmall
+                        }
+                        
+                        contentItem: Text {
+                            text: parent.text
+                            font: parent.font
+                            color: Theme.onPrimary
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
                         
                         onClicked: {
                             if (selectedConnectionId) {
@@ -306,6 +329,27 @@ ApplicationWindow {
                 }
             }
         }
+    }
+    
+    // Mobile navigation
+    MobileNavigation {
+        id: mobileNav
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        visible: isMobile
+        
+        onViewChanged: function(view) {
+            console.log("Mobile view changed to:", view)
+        }
+    }
+    
+    // Mobile overlay for sidebar
+    MobileOverlay {
+        id: mobileOverlay
+        sidebarVisible: isMobile && !sidebarCollapsed
+        
+        onCloseRequested: sidebarCollapsed = true
     }
     
     ConnectionDialog {
