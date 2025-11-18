@@ -23,6 +23,7 @@ from core.routes.data import router as data_router
 from core.routes.csv import router as csv_router
 from core.routes.session import router as session_router
 from core.routes.settings import router as settings_router
+from core.routes.data_explorer import router as data_explorer_router
 
 app = FastAPI(
     title="DB Toolkit API",
@@ -50,3 +51,4 @@ app.include_router(data_router, prefix="/api/v1", tags=["Data"])
 app.include_router(csv_router, prefix="/api/v1", tags=["CSV"])
 app.include_router(session_router, prefix="/api/v1", tags=["Session"])
 app.include_router(settings_router, prefix="/api/v1", tags=["Settings"])
+app.include_router(data_explorer_router, prefix="/api/v1", tags=["Data Explorer"])

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { RefreshCw, Code, FolderTree, Upload } from 'lucide-react';
+import { RefreshCw, Code, FolderTree, Upload, Table } from 'lucide-react';
 import { useSchema } from '../hooks';
 import { Button } from '../components/common/Button';
 import { LoadingState } from '../components/common/LoadingState';
@@ -65,6 +65,13 @@ function SchemaPage() {
             onClick={refreshSchema}
           >
             Refresh
+          </Button>
+          <Button
+            variant="secondary"
+            icon={<Table size={20} />}
+            onClick={() => navigate(`/data-explorer/${connectionId}`)}
+          >
+            Data Explorer
           </Button>
           <Button
             icon={<Code size={20} />}
