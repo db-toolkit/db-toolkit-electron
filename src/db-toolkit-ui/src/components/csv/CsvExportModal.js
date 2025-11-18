@@ -19,28 +19,32 @@ export function CsvExportModal({ isOpen, onClose, connectionId, query }) {
       return;
     }
 
+    if (!query.trim()) {
+      toast.error('No query to export');
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await csvAPI.export({
         connection_id: connectionId,
         query,
-        filename: filename.endsWith('.csv') ? filename : `${filename}.csv`,
-        delimiter,
-        include_headers: includeHeaders,
+        table: '',
       });
 
       const blob = new Blob([response.data.csv_content], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = response.data.filename;
+      a.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
       a.click();
       window.URL.revokeObjectURL(url);
 
-      toast.success(`Exported ${response.data.rows_exported} rows`);
+      toast.success(`Exported ${response.data.row_count} rows`);
       onClose();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Export failed');
+      const errorMsg = error.response?.data?.detail || 'Export failed';
+      toast.error(typeof errorMsg === 'string' ? errorMsg : 'Export failed');
     } finally {
       setLoading(false);
     }
