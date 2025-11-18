@@ -1,72 +1,83 @@
+/* CodeMirror base styles */
 .cm-editor {
   height: 100%;
 }
 
 .cm-scroller {
-  font-family: 'Courier New', monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  line-height: 1.6;
 }
 
 .cm-content {
-  padding: 8px;
+  padding: 10px 0;
 }
 
 .cm-line {
-  padding: 0 4px;
+  padding: 0 10px;
 }
 
-/* Dark mode support */
-.dark .cm-editor {
-  background-color: #1f2937;
-  color: #f9fafb;
+/* Cursor styling */
+.cm-cursor {
+  border-left: 2px solid #3b82f6;
+  animation: blink 1.2s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cm-focused .cm-cursor {
+  animation: blink 1.2s step-end infinite;
+}
+
+/* Line numbers */
+.cm-gutters {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  border-right: 1px solid #e5e7eb;
+  padding-right: 8px;
 }
 
 .dark .cm-gutters {
-  background-color: #111827;
-  color: #9ca3af;
+  background-color: #1f2937;
+  color: #6b7280;
   border-right: 1px solid #374151;
 }
 
-.dark .cm-activeLineGutter {
-  background-color: #374151;
+/* Active line */
+.cm-activeLine {
+  background-color: #f0f9ff;
 }
 
 .dark .cm-activeLine {
-  background-color: #374151;
+  background-color: #1e3a5f;
 }
 
-/* SQL syntax highlighting */
-.cm-keyword {
-  color: #c678dd;
-  font-weight: bold;
+.cm-activeLineGutter {
+  background-color: #dbeafe;
 }
 
-.cm-string {
-  color: #98c379;
+.dark .cm-activeLineGutter {
+  background-color: #1e3a5f;
 }
 
-.cm-number {
-  color: #d19a66;
+/* Selection */
+.cm-selectionBackground {
+  background-color: #bfdbfe !important;
 }
 
-.cm-comment {
-  color: #5c6370;
-  font-style: italic;
-}
-
-.cm-operator {
-  color: #56b6c2;
-}
-
-.cm-variableName {
-  color: #e06c75;
+.dark .cm-selectionBackground {
+  background-color: #1e40af !important;
 }
 
 /* Autocomplete */
 .cm-tooltip-autocomplete {
   background-color: white;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
 }
 
 .dark .cm-tooltip-autocomplete {
@@ -84,7 +95,7 @@
 
 .cm-completionMatchedText {
   color: #2563eb;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .dark .cm-completionMatchedText {

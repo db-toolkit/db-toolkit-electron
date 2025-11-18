@@ -1,15 +1,18 @@
 import { useEffect, useRef } from 'react';
 import { Play } from 'lucide-react';
-import { EditorView, keymap } from '@codemirror/view';
+import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightActiveLine, drawSelection } from '@codemirror/view';
 import { EditorState } from '@codemirror/state';
-import { sql, SQLDialect } from '@codemirror/lang-sql';
-import { autocompletion } from '@codemirror/autocomplete';
-import { defaultKeymap } from '@codemirror/commands';
+import { sql, PostgreSQL } from '@codemirror/lang-sql';
+import { autocompletion, closeBrackets } from '@codemirror/autocomplete';
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from '@codemirror/language';
+import { oneDark } from '@codemirror/theme-one-dark';
 import { Button } from '../common/Button';
 
 export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
   const editorRef = useRef(null);
   const viewRef = useRef(null);
+  const isDark = document.documentElement.classList.contains('dark');
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -23,31 +26,62 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
       });
     }
 
-    const dialect = SQLDialect.define({
-      keywords: 'select from where join inner left right outer on and or not in like between order by group having limit offset insert update delete create alter drop table index',
-    });
+    const extensions = [
+      lineNumbers(),
+      highlightActiveLineGutter(),
+      highlightActiveLine(),
+      history(),
+      drawSelection(),
+      bracketMatching(),
+      closeBrackets(),
+      autocompletion(),
+      sql({ dialect: PostgreSQL, schema: tables }),
+      syntaxHighlighting(defaultHighlightStyle),
+      keymap.of([
+        ...defaultKeymap,
+        ...historyKeymap,
+        { key: 'Ctrl-Enter', run: () => { onExecute(); return true; } },
+        { key: 'Cmd-Enter', run: () => { onExecute(); return true; } },
+      ]),
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+          onChange(update.state.doc.toString());
+        }
+      }),
+      EditorView.theme({
+        '&': {
+          height: '300px',
+          fontSize: '14px',
+          border: '1px solid #e5e7eb',
+        },
+        '.cm-content': {
+          fontFamily: '"JetBrains Mono", "Fira Code", Consolas, monospace',
+          padding: '10px 0',
+          caretColor: '#3b82f6',
+        },
+        '.cm-cursor': {
+          borderLeftColor: '#3b82f6',
+          borderLeftWidth: '2px',
+        },
+        '.cm-scroller': {
+          overflow: 'auto',
+          fontFamily: '"JetBrains Mono", "Fira Code", Consolas, monospace',
+        },
+        '.cm-gutters': {
+          backgroundColor: '#f9fafb',
+          color: '#9ca3af',
+          border: 'none',
+        },
+      }, { dark: false }),
+    ];
+
+    if (isDark) {
+      extensions.push(oneDark);
+    }
 
     const startState = EditorState.create({
       doc: query,
-      extensions: [
-        sql({ dialect, schema: tables }),
-        autocompletion(),
-        keymap.of([
-          ...defaultKeymap,
-          { key: 'Ctrl-Enter', run: () => { onExecute(); return true; } },
-          { key: 'Cmd-Enter', run: () => { onExecute(); return true; } },
-        ]),
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
-            onChange(update.state.doc.toString());
-          }
-        }),
-        EditorView.theme({
-          '&': { height: '200px' },
-          '.cm-scroller': { overflow: 'auto' },
-          '.cm-content': { fontFamily: 'monospace', fontSize: '14px' },
-        }),
-      ],
+      extensions,
     });
 
     const view = new EditorView({
@@ -60,7 +94,7 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
     return () => {
       view.destroy();
     };
-  }, [schema]);
+  }, [schema, isDark]);
 
   useEffect(() => {
     if (viewRef.current && query !== viewRef.current.state.doc.toString()) {
@@ -71,9 +105,9 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
   }, [query]);
 
   return (
-    <div className="mb-4">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">SQL Editor</h3>
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">SQL Editor</h3>
         <Button
           size="sm"
           icon={<Play size={16} />}
@@ -81,12 +115,12 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
           disabled={loading || !query.trim()}
           loading={loading}
         >
-          Execute (Ctrl+Enter)
+          Run (Ctrl+Enter)
         </Button>
       </div>
       <div
         ref={editorRef}
-        className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg overflow-hidden"
+        className="rounded-lg overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700"
       />
     </div>
   );
