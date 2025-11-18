@@ -33,8 +33,18 @@ function SettingsPage() {
     setLocalSettings(settings);
   }
 
-  const handleChange = (key, value) => {
+  const handleChange = async (key, value) => {
     setLocalSettings(prev => ({ ...prev, [key]: value }));
+    
+    // Apply theme immediately
+    if (key === 'theme') {
+      try {
+        await updateSettings({ [key]: value });
+        toast.success('Theme updated');
+      } catch (err) {
+        toast.error('Failed to update theme');
+      }
+    }
   };
 
   const handleSave = async () => {

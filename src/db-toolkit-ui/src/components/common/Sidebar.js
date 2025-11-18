@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { Database, Home, Settings } from 'lucide-react';
+import { Database, Home } from 'lucide-react';
 
 function Sidebar() {
   return (
@@ -18,13 +18,6 @@ function Sidebar() {
         >
           <Home size={20} />
           <span>Connections</span>
-        </Link>
-        <Link
-          to="/settings"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-900 transition"
-        >
-          <Settings size={20} />
-          <span>Settings</span>
         </Link>
       </nav>
     </aside>
