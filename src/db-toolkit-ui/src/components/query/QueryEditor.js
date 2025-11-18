@@ -42,10 +42,16 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
 
   // Register autocomplete provider when schema changes
   useEffect(() => {
-    if (!monacoRef.current || !schema) return;
+    if (!monacoRef.current || !schema) {
+      console.log('Autocomplete not ready:', { hasMonaco: !!monacoRef.current, hasSchema: !!schema });
+      return;
+    }
 
+    console.log('Registering autocomplete with schema:', schema);
     const monaco = monacoRef.current;
+    
     const disposable = monaco.languages.registerCompletionItemProvider('sql', {
+      triggerCharacters: ['.', ' '],
       provideCompletionItems: (model, position) => {
         const word = model.getWordUntilPosition(position);
         const range = {
@@ -57,54 +63,31 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
 
         const suggestions = [];
 
-        // Get text before cursor to determine context
-        const textBeforeCursor = model.getValueInRange({
-          startLineNumber: 1,
-          startColumn: 1,
-          endLineNumber: position.lineNumber,
-          endColumn: position.column,
-        }).toUpperCase();
-
-        // Suggest tables after FROM, JOIN, INTO, UPDATE
-        const tableKeywords = ['FROM', 'JOIN', 'INTO', 'UPDATE'];
-        const shouldSuggestTables = tableKeywords.some(kw => 
-          textBeforeCursor.includes(kw) && 
-          textBeforeCursor.lastIndexOf(kw) > textBeforeCursor.lastIndexOf('WHERE')
-        );
-
-        if (shouldSuggestTables && schema.schemas) {
+        // Always suggest tables and columns (user can filter)
+        if (schema.schemas) {
           Object.entries(schema.schemas).forEach(([schemaName, schemaData]) => {
             if (schemaData.tables) {
-              Object.keys(schemaData.tables).forEach(tableName => {
+              Object.entries(schemaData.tables).forEach(([tableName, tableData]) => {
+                // Add table suggestions
                 suggestions.push({
                   label: tableName,
                   kind: monaco.languages.CompletionItemKind.Class,
                   detail: `Table in ${schemaName}`,
                   insertText: tableName,
                   range,
+                  sortText: `1_${tableName}`,
                 });
 
-                // Also suggest schema.table format
                 suggestions.push({
                   label: `${schemaName}.${tableName}`,
                   kind: monaco.languages.CompletionItemKind.Class,
                   detail: 'Qualified table name',
                   insertText: `${schemaName}.${tableName}`,
                   range,
+                  sortText: `2_${schemaName}.${tableName}`,
                 });
-              });
-            }
-          });
-        }
 
-        // Suggest columns after SELECT, WHERE, SET, ORDER BY, GROUP BY
-        const columnKeywords = ['SELECT', 'WHERE', 'SET', 'ORDER BY', 'GROUP BY', 'HAVING'];
-        const shouldSuggestColumns = columnKeywords.some(kw => textBeforeCursor.includes(kw));
-
-        if (shouldSuggestColumns && schema.schemas) {
-          Object.entries(schema.schemas).forEach(([schemaName, schemaData]) => {
-            if (schemaData.tables) {
-              Object.entries(schemaData.tables).forEach(([tableName, tableData]) => {
+                // Add column suggestions
                 if (tableData.columns) {
                   tableData.columns.forEach(column => {
                     suggestions.push({
@@ -113,6 +96,7 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
                       detail: `${column.data_type} - ${schemaName}.${tableName}`,
                       insertText: column.column_name,
                       range,
+                      sortText: `3_${column.column_name}`,
                     });
                   });
                 }
@@ -121,6 +105,7 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema }) {
           });
         }
 
+        console.log(`Generated ${suggestions.length} suggestions`);
         return { suggestions };
       },
     });
