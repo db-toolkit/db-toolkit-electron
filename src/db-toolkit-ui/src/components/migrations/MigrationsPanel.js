@@ -124,7 +124,8 @@ function MigrationsPanel({ isOpen, onClose }) {
 
         <div 
           ref={outputRef}
-          className="h-full overflow-y-auto p-4 font-mono text-sm bg-gray-900 text-gray-100"
+          className="overflow-y-auto p-4 font-mono text-sm bg-gray-900 text-gray-100"
+          style={{ height: isMaximized ? 'calc(100vh - 120px)' : 'calc(24rem - 120px)' }}
         >
           {output.length === 0 ? (
             <div className="text-gray-500">Select a connection and run migration commands...</div>
