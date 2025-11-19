@@ -99,9 +99,8 @@ function StatusBar() {
     : 0;
 
   return (
-    <div className="relative h-6 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex items-center px-4 text-xs text-gray-600 dark:text-gray-400">
-      <Terminal size={14} className="mr-3 cursor-pointer hover:text-gray-900 dark:hover:text-gray-200" title="Terminal" />
-      <span className="mx-2">|</span>
+    <div className="relative h-6 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 text-xs text-gray-600 dark:text-gray-400">
+      <div className="flex items-center">
       <div className="relative"
         onMouseEnter={() => setHoveredMetric('connections')}
         onMouseLeave={() => setHoveredMetric(null)}
@@ -210,6 +209,9 @@ function StatusBar() {
           </div>
         )}
       </div>
+      </div>
+      
+      <Terminal size={14} className="cursor-pointer hover:text-gray-900 dark:hover:text-gray-200" title="Terminal" />
     </div>
   );
 }
