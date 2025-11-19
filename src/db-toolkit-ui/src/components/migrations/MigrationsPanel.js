@@ -55,9 +55,11 @@ function MigrationsPanel({ isOpen, onClose }) {
   const { executeCommand, isRunning } = useMigratorStream(addOutput);
 
   useEffect(() => {
-    const projects = JSON.parse(localStorage.getItem('migration-projects') || '[]');
-    setSavedProjects(projects);
-  }, []);
+    if (isOpen) {
+      const projects = JSON.parse(localStorage.getItem('migration-projects') || '[]');
+      setSavedProjects(projects);
+    }
+  }, [isOpen]);
 
   const handleSelectFolder = async () => {
     const path = await window.electron.ipcRenderer.invoke('select-folder');
