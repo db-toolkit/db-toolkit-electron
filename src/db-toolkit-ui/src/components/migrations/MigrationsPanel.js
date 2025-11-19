@@ -45,6 +45,7 @@ function MigrationsPanel({ isOpen, onClose }) {
         if (result.output) addOutput(result.output, 'success');
         toast.info('Command completed successfully');
       } else {
+        if (result.output) addOutput(result.output, 'error');
         if (result.error) addOutput(result.error, 'error');
         toast.error('Command failed');
       }
