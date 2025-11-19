@@ -99,15 +99,28 @@ class BackupManager:
             else:
                 raise ValueError(f"Backup not supported for {connection.db_type}")
             
-            if compress and not backup.file_path.endswith(".gz"):
-                await self._compress_file(backup.file_path)
+            if compress:
+                uncompressed_file = backup.file_path.replace(".gz", "")
+                if Path(uncompressed_file).exists() and not backup.file_path.endswith(".gz"):
+                    await self._compress_file(uncompressed_file)
+                elif Path(uncompressed_file).exists():
+                    # File exists but path already has .gz, compress it
+                    await self._compress_file(uncompressed_file)
+                    # Update backup path
+                    backup.file_path = uncompressed_file + ".gz"
             
-            file_size = Path(backup.file_path).stat().st_size
+            # Get final file path after compression
+            final_path = backup.file_path if Path(backup.file_path).exists() else backup.file_path.replace(".gz", "")
+            if not Path(final_path).exists():
+                final_path = backup.file_path.replace(".gz", "") + ".gz"
+            
+            file_size = Path(final_path).stat().st_size if Path(final_path).exists() else 0
             await self.storage.update_backup(
                 backup.id,
                 status=BackupStatus.COMPLETED,
                 completed_at=datetime.now().isoformat(),
                 file_size=file_size,
+                file_path=final_path,
             )
             await backup_notifier.notify_backup_update(backup.id, BackupStatus.COMPLETED.value, {"file_size": file_size})
         except Exception as e:
