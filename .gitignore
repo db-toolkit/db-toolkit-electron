@@ -22,7 +22,6 @@ IMPLEMENTATION_PLAN.md
 # Frontend (Node.js)
 node_modules/
 src/db-toolkit-ui/node_modules/
-src/db-toolkit-ui/build/
 src/db-toolkit-ui/.env.local
 src/db-toolkit-ui/.env.development.local
 src/db-toolkit-ui/.env.test.local
