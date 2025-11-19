@@ -207,6 +207,7 @@ function DataExplorerPage() {
 
   const breadcrumbItems = [];
   if (connectionId) {
+    breadcrumbItems.push({ label: 'Connections', href: '/' });
     breadcrumbItems.push({ label: connectionName, href: null });
     if (selectedTable) {
       breadcrumbItems.push({ label: selectedTable.schema });
