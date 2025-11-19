@@ -74,18 +74,31 @@
       "icon": "build/icons/icon.icns",
       "category": "public.app-category.developer-tools",
       "target": [
-        "dmg",
-        "zip"
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
       ],
-      "artifactName": "${productName}-mac.${ext}"
+      "minimumSystemVersion": "10.13",
+      "artifactName": "${productName}-mac-${arch}.${ext}"
     },
     "win": {
       "icon": "build/icons/icon.ico",
       "target": [
-        "nsis",
-        "portable"
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64", "ia32"]
+        }
       ],
-      "artifactName": "${productName}-win.${ext}"
+      "artifactName": "${productName}-win-${arch}.${ext}"
     },
     "linux": {
       "icon": "build/icons/icon.png",
