@@ -21,6 +21,7 @@ function DataExplorerPage() {
   const toast = useToast();
   const [connectionId, setConnectionId] = useState(null);
   const [connectionName, setConnectionName] = useState('');
+  const [connecting, setConnecting] = useState(null);
   const { schema, loading: schemaLoading, fetchSchemaTree } = useSchema(connectionId);
   const [selectedTable, setSelectedTable] = useState(null);
   const [data, setData] = useState([]);
@@ -36,6 +37,7 @@ function DataExplorerPage() {
   const [cellModal, setCellModal] = useState({ isOpen: false, data: null, column: null });
 
   const handleConnect = async (id) => {
+    setConnecting(id);
     try {
       await connectToDatabase(id);
       const conn = connections.find(c => c.id === id);
@@ -44,6 +46,8 @@ function DataExplorerPage() {
       toast.success('Connected successfully');
     } catch (err) {
       toast.error('Failed to connect');
+    } finally {
+      setConnecting(null);
     }
   };
 
@@ -236,9 +240,10 @@ function DataExplorerPage() {
                 variant="success"
                 size="sm"
                 onClick={() => handleConnect(conn.id)}
+                disabled={connecting === conn.id}
                 className="w-full !text-white"
               >
-                Connect & Explore
+                {connecting === conn.id ? 'Connecting...' : 'Connect & Explore'}
               </Button>
             </div>
           ))}
@@ -359,14 +364,23 @@ function DataExplorerPage() {
             {loading ? (
               <LoadingState message="Loading data..." />
             ) : selectedTable ? (
-              <DataGrid
-                data={data}
-                columns={columns}
-                onSort={handleSort}
-                sortColumn={sortColumn}
-                sortOrder={sortOrder}
-                onCellClick={handleCellClick}
-              />
+              data.length > 0 ? (
+                <DataGrid
+                  data={data}
+                  columns={columns}
+                  onSort={handleSort}
+                  sortColumn={sortColumn}
+                  sortOrder={sortOrder}
+                  onCellClick={handleCellClick}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                  <div className="text-center">
+                    <p className="text-lg font-medium mb-2">No data found</p>
+                    <p className="text-sm">This table is empty or has no accessible data</p>
+                  </div>
+                </div>
+              )
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
                 Select a table to view data
