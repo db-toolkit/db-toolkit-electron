@@ -1,6 +1,9 @@
 const { app, BrowserWindow, Menu, dialog } = require('electron');
 const path = require('path');
 
+// Set app name before anything else
+app.name = 'DB Toolkit';
+
 function createMenu() {
   const template = [
     {
@@ -95,7 +98,6 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  app.name = 'DB Toolkit';
   createMenu();
   createWindow();
 });
