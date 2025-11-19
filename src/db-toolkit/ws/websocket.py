@@ -1,7 +1,7 @@
 """WebSocket routes."""
 
 from fastapi import WebSocket, WebSocketDisconnect
-from websockets.backup_notifier import backup_notifier
+from ws.backup_notifier import backup_notifier
 
 
 async def websocket_backups(websocket: WebSocket):

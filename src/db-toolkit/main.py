@@ -27,7 +27,7 @@ from core.routes.session import router as session_router
 from core.routes.settings import router as settings_router
 from core.routes.data_explorer import router as data_explorer_router
 from core.routes.backup import router as backup_router
-from websockets.websocket import websocket_backups
+from ws.websocket import websocket_backups
 
 app = FastAPI(
     title="DB Toolkit API",

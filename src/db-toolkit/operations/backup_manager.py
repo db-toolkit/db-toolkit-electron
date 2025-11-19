@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Optional, List
 from core.models import DatabaseConnection, BackupType, BackupStatus, Backup, BackupSchedule
 from core.backup_storage import BackupStorage
-from websockets.backup_notifier import backup_notifier
+from ws.backup_notifier import backup_notifier
 
 
 class BackupManager:

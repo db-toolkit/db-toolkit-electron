@@ -4,7 +4,7 @@ export function useBackupWebSocket(onUpdate) {
   const wsRef = useRef(null);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8000/ws/backups');
+    const ws = new WebSocket('ws://localhost:8001/ws/backups');
     wsRef.current = ws;
 
     ws.onopen = () => {
