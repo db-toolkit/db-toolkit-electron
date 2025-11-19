@@ -5,6 +5,26 @@ const path = require('path');
 app.name = 'DB Toolkit';
 
 function createMenu() {
+  const isDev = !app.isPackaged;
+  
+  const viewSubmenu = [
+    { role: 'reload' },
+    { role: 'forceReload' },
+  ];
+  
+  if (isDev) {
+    viewSubmenu.push({ role: 'toggleDevTools' });
+  }
+  
+  viewSubmenu.push(
+    { type: 'separator' },
+    { role: 'resetZoom' },
+    { role: 'zoomIn' },
+    { role: 'zoomOut' },
+    { type: 'separator' },
+    { role: 'togglefullscreen' }
+  );
+
   const template = [
     {
       label: 'DB Toolkit',
@@ -45,17 +65,7 @@ function createMenu() {
     },
     {
       label: 'View',
-      submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' }
-      ]
+      submenu: viewSubmenu
     },
     {
       label: 'Window',
