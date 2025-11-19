@@ -1,5 +1,6 @@
 import { Download, Trash2, RotateCcw, Database, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Button } from '../common/Button';
+import { ProgressBar } from '../common/ProgressBar';
 
 export function BackupCard({ backup, onRestore, onDownload, onDelete }) {
   const formatSize = (bytes) => {
@@ -45,6 +46,12 @@ export function BackupCard({ backup, onRestore, onDownload, onDelete }) {
           )}
         </div>
       </div>
+
+      {backup.status === 'in_progress' && (
+        <div className="mb-3">
+          <ProgressBar progress={backup.progress || 50} label="Backing up..." size="sm" />
+        </div>
+      )}
 
       {backup.error_message && (
         <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-sm text-red-700 dark:text-red-300">

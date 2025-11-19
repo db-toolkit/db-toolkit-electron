@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { ChevronRight, ChevronDown, Database, Table, Search } from 'lucide-react';
+import { useDebounce } from '../../utils/debounce';
 
 export function SchemaTree({ schema, onTableClick }) {
   const [expandedSchemas, setExpandedSchemas] = useState({});
   const [selectedTable, setSelectedTable] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   const toggleSchema = (schemaName) => {
     setExpandedSchemas((prev) => ({ ...prev, [schemaName]: !prev[schemaName] }));
@@ -20,8 +22,8 @@ export function SchemaTree({ schema, onTableClick }) {
   const filteredSchemas = Object.entries(schema.schemas).reduce((acc, [schemaName, schemaData]) => {
     const tables = schemaData?.tables || {};
     const filteredTables = Object.keys(tables).filter(tableName => 
-      tableName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      schemaName.toLowerCase().includes(searchQuery.toLowerCase())
+      tableName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      schemaName.toLowerCase().includes(debouncedSearch.toLowerCase())
     );
     
     if (filteredTables.length > 0) {

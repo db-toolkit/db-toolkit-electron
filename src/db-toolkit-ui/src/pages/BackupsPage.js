@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Database, Clock, Search } from 'lucide-react';
+import { useDebounce } from '../utils/debounce';
 import { useBackups } from '../hooks/useBackups';
 import { useConnections } from '../hooks';
 import { useToast } from '../contexts/ToastContext';
@@ -22,6 +23,7 @@ function BackupsPage() {
   const [schedules, setSchedules] = useState([]);
   const [activeTab, setActiveTab] = useState('backups');
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
   const { connections } = useConnections();
   const { backups, loading, createBackup, restoreBackup, downloadBackup, deleteBackup, fetchBackups } = useBackups();
 
@@ -155,12 +157,12 @@ function BackupsPage() {
   };
 
   const filteredBackups = backups.filter(backup => 
-    backup.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    backup.backup_type.toLowerCase().includes(searchQuery.toLowerCase())
+    backup.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    backup.backup_type.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
   const filteredSchedules = schedules.filter(schedule => 
-    schedule.name.toLowerCase().includes(searchQuery.toLowerCase())
+    schedule.name.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
   if (loading) return <LoadingState fullScreen message="Loading backups..." />;

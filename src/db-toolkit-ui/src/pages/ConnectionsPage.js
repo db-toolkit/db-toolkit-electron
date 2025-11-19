@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Database, Search } from 'lucide-react';
+import { useDebounce } from '../utils/debounce';
 import { useConnections } from '../hooks';
 import { useSession } from '../hooks/useSession';
 import { useToast } from '../contexts/ToastContext';
@@ -21,6 +22,7 @@ function ConnectionsPage() {
   const [modalError, setModalError] = useState('');
   const [editingConnection, setEditingConnection] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
   const { connections, loading, error, connectedIds, createConnection, updateConnection, deleteConnection, connectToDatabase } = useConnections();
   const { sessionState, restoreSession } = useSession();
 
@@ -90,9 +92,9 @@ function ConnectionsPage() {
   );
 
   const filteredConnections = connections.filter(conn => 
-    conn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conn.db_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (conn.host && conn.host.toLowerCase().includes(searchQuery.toLowerCase()))
+    conn.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    conn.db_type.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    (conn.host && conn.host.toLowerCase().includes(debouncedSearch.toLowerCase()))
   );
 
   return (

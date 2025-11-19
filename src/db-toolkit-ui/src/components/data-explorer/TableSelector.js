@@ -3,9 +3,11 @@
  */
 import { useState } from 'react';
 import { Database, Table, Search } from 'lucide-react';
+import { useDebounce } from '../../utils/debounce';
 
 export function TableSelector({ schema, selectedTable, onSelectTable }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   if (!schema?.schemas) {
     return (
@@ -16,9 +18,9 @@ export function TableSelector({ schema, selectedTable, onSelectTable }) {
   }
 
   const filterTables = (tables) => {
-    if (!searchQuery) return tables;
+    if (!debouncedSearch) return tables;
     return tables.filter(name => 
-      name.toLowerCase().includes(searchQuery.toLowerCase())
+      name.toLowerCase().includes(debouncedSearch.toLowerCase())
     );
   };
 
