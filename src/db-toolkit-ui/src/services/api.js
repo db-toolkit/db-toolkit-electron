@@ -143,8 +143,8 @@ export const settingsAPI = {
 };
 
 export const migratorAPI = {
-  execute: (command) => api.post('/migrator/execute', { command }),
-  getVersion: () => api.get('/migrator/version'),
+  execute: (command) => api.post('/execute', { command }),
+  getVersion: () => api.get('/version'),
 };
 
 export default api;
