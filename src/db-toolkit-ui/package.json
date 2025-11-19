@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "electron": "electron .",
     "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
-    "package": "electron-builder"
+    "package": "npm run build && electron-builder",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:win": "npm run build && electron-builder --win",
+    "package:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -50,22 +53,26 @@
     "appId": "com.dbtoolkit.app",
     "productName": "DB Toolkit",
     "files": [
-      "build/**/*",
+      "dist/**/*",
       "electron/**/*",
-      "node_modules/**/*"
+      "build/icons/**/*"
     ],
     "directories": {
-      "buildResources": "build/icons"
+      "buildResources": "build",
+      "output": "release"
     },
     "mac": {
       "icon": "build/icons/icon.icns",
-      "category": "public.app-category.developer-tools"
+      "category": "public.app-category.developer-tools",
+      "target": ["dmg", "zip"]
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/icon.ico",
+      "target": ["nsis", "portable"]
     },
     "linux": {
-      "icon": "build/icons/icon.png"
+      "icon": "build/icons/icon.png",
+      "target": ["AppImage", "deb"]
     }
   }
 }
