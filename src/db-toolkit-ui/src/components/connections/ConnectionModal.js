@@ -3,9 +3,13 @@ import { Modal } from '../common/Modal';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useToast } from '../../contexts/ToastContext';
+import api from '../../services/api';
 
 export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
   const { settings } = useSettingsContext();
+  const toast = useToast();
+  const [testing, setTesting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     db_type: settings?.default_db_type || 'postgresql',
@@ -42,6 +46,27 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleTest = async () => {
+    setTesting(true);
+    try {
+      const savedConnection = connection
+        ? await api.put(`/connections/${connection.id}`, formData)
+        : await api.post('/connections', formData);
+      
+      const response = await api.post(`/connections/${savedConnection.data.id}/test`);
+      
+      if (response.data.success) {
+        toast.success('Connection test successful!');
+      } else {
+        toast.error(response.data.message || 'Connection test failed');
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Connection test failed');
+    } finally {
+      setTesting(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -115,11 +140,21 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
           </>
         )}
 
-        <div className="flex gap-2 justify-end mt-6">
-          <Button variant="outline" onClick={onClose} type="button">
-            Cancel
+        <div className="flex gap-2 justify-between mt-6">
+          <Button 
+            variant="secondary" 
+            onClick={handleTest} 
+            type="button"
+            disabled={testing || !formData.name || !formData.database}
+          >
+            {testing ? 'Testing...' : 'Test Connection'}
           </Button>
-          <Button type="submit">{connection ? 'Save Changes' : 'Create Connection'}</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose} type="button">
+              Cancel
+            </Button>
+            <Button type="submit">{connection ? 'Save Changes' : 'Create Connection'}</Button>
+          </div>
         </div>
       </form>
     </Modal>

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Download } from 'lucide-react';
+import { Download, Plus, X } from 'lucide-react';
 import Split from 'react-split';
 import { useQuery, useSchema } from '../hooks';
 import { useExplain } from '../hooks/useExplain';
@@ -14,11 +14,39 @@ import { CsvExportModal } from '../components/csv';
 
 function QueryPage() {
   const { connectionId } = useParams();
-  const [query, setQuery] = useState('');
+  const [tabs, setTabs] = useState([{ id: 1, name: 'Query 1', query: '', result: null, executionTime: 0, error: null }]);
+  const [activeTabId, setActiveTabId] = useState(1);
   const [showExport, setShowExport] = useState(false);
-  const [executionTime, setExecutionTime] = useState(0);
-  const { result, loading, error, executeQuery } = useQuery(connectionId);
+  const { loading, executeQuery } = useQuery(connectionId);
   const { schema, fetchSchemaTree } = useSchema(connectionId);
+  
+  const activeTab = tabs.find(t => t.id === activeTabId);
+  const query = activeTab?.query || '';
+  const result = activeTab?.result || null;
+  const executionTime = activeTab?.executionTime || 0;
+  const error = activeTab?.error || null;
+
+  // Load saved tabs from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem(`query-tabs-${connectionId}`);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setTabs(parsed.tabs);
+        setActiveTabId(parsed.activeTabId);
+      } catch (err) {
+        console.error('Failed to load saved tabs:', err);
+      }
+    }
+  }, [connectionId]);
+
+  // Auto-save tabs to localStorage
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      localStorage.setItem(`query-tabs-${connectionId}`, JSON.stringify({ tabs, activeTabId }));
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [tabs, activeTabId, connectionId]);
 
   // Fetch schema for autocomplete
   useEffect(() => {
@@ -27,7 +55,25 @@ function QueryPage() {
     }
   }, [connectionId, fetchSchemaTree]);
 
-  const [queryError, setQueryError] = useState(null);
+  const setQuery = useCallback((newQuery) => {
+    setTabs(prev => prev.map(t => t.id === activeTabId ? { ...t, query: newQuery } : t));
+  }, [activeTabId]);
+
+  const addTab = () => {
+    const newId = Math.max(...tabs.map(t => t.id)) + 1;
+    setTabs(prev => [...prev, { id: newId, name: `Query ${newId}`, query: '', result: null, executionTime: 0, error: null }]);
+    setActiveTabId(newId);
+  };
+
+  const closeTab = (id) => {
+    if (tabs.length === 1) return;
+    const index = tabs.findIndex(t => t.id === id);
+    const newTabs = tabs.filter(t => t.id !== id);
+    setTabs(newTabs);
+    if (activeTabId === id) {
+      setActiveTabId(newTabs[Math.max(0, index - 1)].id);
+    }
+  };
   const [showExplainModal, setShowExplainModal] = useState(false);
   const { explainResult, loading: explainLoading, explainQuery } = useExplain(connectionId);
   const { settings } = useSettingsContext();
@@ -44,26 +90,55 @@ function QueryPage() {
 
   const handleExecute = async () => {
     if (!query.trim()) return;
-    setQueryError(null);
     const startTime = Date.now();
     try {
       const limit = settings?.default_query_limit || 1000;
       const timeout = settings?.default_query_timeout || 30;
-      await executeQuery(query, limit, 0, timeout);
-      setExecutionTime(Date.now() - startTime);
+      const queryResult = await executeQuery(query, limit, 0, timeout);
+      const time = Date.now() - startTime;
+      setTabs(prev => prev.map(t => t.id === activeTabId ? { ...t, result: queryResult, executionTime: time, error: null } : t));
     } catch (err) {
       console.error('Query failed:', err);
       const errorMsg = err.response?.data?.detail || err.message;
-      setQueryError(errorMsg);
-      setExecutionTime(Date.now() - startTime);
+      const time = Date.now() - startTime;
+      setTabs(prev => prev.map(t => t.id === activeTabId ? { ...t, error: errorMsg, executionTime: time } : t));
     }
   };
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Query Editor</h2>
-        <div className="flex gap-2">
+      <div className="flex justify-between items-center px-6 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-2 flex-1 overflow-x-auto">
+          {tabs.map(tab => (
+            <div
+              key={tab.id}
+              onClick={() => setActiveTabId(tab.id)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-t cursor-pointer transition ${
+                activeTabId === tab.id
+                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              <span className="text-sm font-medium whitespace-nowrap">{tab.name}</span>
+              {tabs.length > 1 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); closeTab(tab.id); }}
+                  className="hover:text-red-600 dark:hover:text-red-400"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            onClick={addTab}
+            className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+            title="New tab"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
+        <div className="flex gap-2 ml-4">
           {result && (
             <Button
               variant="secondary"
@@ -77,11 +152,7 @@ function QueryPage() {
         </div>
       </div>
 
-      {error && (
-        <div className="px-6 py-2">
-          <ErrorMessage message={error} />
-        </div>
-      )}
+
 
       <div className="flex-1 overflow-hidden">
         <Split
@@ -100,7 +171,7 @@ function QueryPage() {
               onExplain={handleExplain}
               loading={loading}
               schema={schema}
-              error={queryError}
+              error={error}
             />
           </div>
 

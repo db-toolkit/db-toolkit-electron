@@ -5,6 +5,7 @@ export function useConnections() {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [connectedIds, setConnectedIds] = useState(new Set());
 
   const fetchConnections = useCallback(async () => {
     setLoading(true);
@@ -64,6 +65,7 @@ export function useConnections() {
   const connectToDatabase = useCallback(async (id) => {
     try {
       const response = await connectionsAPI.connect(id);
+      setConnectedIds(prev => new Set(prev).add(id));
       return response.data;
     } catch (err) {
       const error = new Error(err.response?.data?.detail || 'Failed to connect. Please check your credentials and database server.');
@@ -75,6 +77,11 @@ export function useConnections() {
   const disconnectFromDatabase = useCallback(async (id) => {
     try {
       const response = await connectionsAPI.disconnect(id);
+      setConnectedIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -90,6 +97,7 @@ export function useConnections() {
     connections,
     loading,
     error,
+    connectedIds,
     fetchConnections,
     createConnection,
     updateConnection,

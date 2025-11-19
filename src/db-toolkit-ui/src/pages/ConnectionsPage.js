@@ -19,15 +19,10 @@ function ConnectionsPage() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [modalError, setModalError] = useState('');
   const [editingConnection, setEditingConnection] = useState(null);
-  const [activeConnections, setActiveConnections] = useState(new Set());
-  const { connections, loading, error, createConnection, updateConnection, deleteConnection, connectToDatabase } = useConnections();
+  const { connections, loading, error, connectedIds, createConnection, updateConnection, deleteConnection, connectToDatabase } = useConnections();
   const { sessionState, restoreSession } = useSession();
 
-  useEffect(() => {
-    if (sessionState?.active_connections) {
-      setActiveConnections(new Set(sessionState.active_connections));
-    }
-  }, [sessionState]);
+
 
   const handleConnect = async (id) => {
     try {
@@ -37,7 +32,7 @@ function ConnectionsPage() {
         setModalError('Failed to connect. Please check your credentials and database server.');
         return;
       }
-      setActiveConnections(prev => new Set([...prev, id]));
+
       toast.success('Connected successfully');
       navigate(`/schema/${id}`);
     } catch (err) {
@@ -121,7 +116,7 @@ function ConnectionsPage() {
               onConnect={handleConnect}
               onDelete={handleDelete}
               onEdit={handleEdit}
-              isActive={activeConnections.has(conn.id)}
+              isActive={connectedIds.has(conn.id)}
             />
           ))}
         </div>
