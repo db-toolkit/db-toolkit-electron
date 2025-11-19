@@ -155,6 +155,60 @@
           "keywords": ["numeric", "round", "ceil", "floor", "abs"]
         }
       ]
+    },
+    {
+      "id": "features",
+      "title": "Features",
+      "topics": [
+        {
+          "id": "query-editor",
+          "title": "Query Editor Usage",
+          "content": "The Query Editor provides a powerful environment for writing and executing SQL queries.\n\n**Features:**\n- Syntax highlighting for SQL\n- Auto-completion (Ctrl+Space)\n- Multiple query tabs\n- Query history tracking\n- Format SQL (Ctrl+Shift+F)\n\n**Keyboard Shortcuts:**\n- `Ctrl/Cmd + Enter` - Execute query\n- `Ctrl/Cmd + Shift + F` - Format SQL\n- `Ctrl/Cmd + /` - Toggle comment\n- `Ctrl/Cmd + S` - Save query\n\n**Tips:**\n- Use semicolons to separate multiple queries\n- Select specific text to execute only that query\n- Results are paginated automatically\n- Export results to CSV or JSON",
+          "keywords": ["query", "editor", "shortcuts", "sql"]
+        },
+        {
+          "id": "ai-explain",
+          "title": "AI Query Explanation",
+          "content": "Get AI-powered explanations of query execution plans.\n\n**How to Use:**\n1. Write your SQL query\n2. Click the \"Explain\" button\n3. View the execution plan\n4. Click \"Analyze with AI\" for detailed explanation\n\n**What You Get:**\n- Step-by-step query execution breakdown\n- Performance bottleneck identification\n- Index usage analysis\n- Optimization suggestions\n- Cost estimates\n\n**Example:**\n```sql\nEXPLAIN ANALYZE\nSELECT * FROM orders\nWHERE customer_id = 123\nORDER BY created_at DESC;\n```\n\n**Tips:**\n- Use EXPLAIN ANALYZE for actual execution stats\n- Look for sequential scans on large tables\n- Check if indexes are being used\n- Watch for expensive sorts and joins",
+          "keywords": ["ai", "explain", "analyze", "performance", "optimization"]
+        },
+        {
+          "id": "csv-import-export",
+          "title": "CSV Import/Export",
+          "content": "Import and export data using CSV files.\n\n**Export to CSV:**\n1. Execute a query\n2. Click \"Export\" button in results\n3. Choose CSV format\n4. Select columns to export\n5. Download file\n\n**Import from CSV:**\n1. Navigate to Data Explorer\n2. Select target table\n3. Click \"Import CSV\"\n4. Upload your CSV file\n5. Map columns to table fields\n6. Validate and import\n\n**CSV Format Requirements:**\n- First row should contain column headers\n- Use comma (,) as delimiter\n- Enclose text with quotes if contains commas\n- Date format: YYYY-MM-DD\n- Boolean: true/false or 1/0\n\n**Tips:**\n- Validate data before importing\n- Use transactions for large imports\n- Check for duplicate keys\n- Backup table before bulk import\n\n**Example CSV:**\n```csv\nname,email,age,active\nJohn Doe,john@example.com,30,true\nJane Smith,jane@example.com,25,true\n```",
+          "keywords": ["csv", "import", "export", "data", "file"]
+        }
+      ]
+    },
+    {
+      "id": "troubleshooting",
+      "title": "Troubleshooting",
+      "topics": [
+        {
+          "id": "connection-errors",
+          "title": "Common Connection Errors",
+          "content": "Solutions for database connection issues.\n\n**Error: Connection Refused**\n- Check if database server is running\n- Verify host and port are correct\n- Check firewall settings\n- Ensure database accepts remote connections\n\n**Error: Authentication Failed**\n- Verify username and password\n- Check user permissions in database\n- Ensure user has access from your IP\n- Try connecting with database client directly\n\n**Error: Database Does Not Exist**\n- Verify database name spelling\n- Check if database was created\n- Ensure you have access to the database\n- Try listing all databases first\n\n**Error: SSL/TLS Required**\n- Enable SSL in connection settings\n- Provide SSL certificate if required\n- Check if server requires encrypted connections\n\n**Error: Too Many Connections**\n- Close unused connections\n- Increase max_connections in database\n- Check for connection leaks in your app\n- Use connection pooling\n\n**Timeout Errors:**\n- Increase connection timeout setting\n- Check network latency\n- Verify no network issues between client and server\n- Try connecting from same network as server",
+          "keywords": ["connection", "error", "refused", "authentication", "timeout"]
+        },
+        {
+          "id": "performance-tips",
+          "title": "Performance Tips",
+          "content": "Optimize your database operations for better performance.\n\n**Query Optimization:**\n- Use indexes on frequently queried columns\n- Avoid SELECT * - specify needed columns\n- Use LIMIT for large result sets\n- Optimize JOIN operations\n- Use EXPLAIN to analyze query plans\n\n**Index Best Practices:**\n- Index foreign keys\n- Index columns used in WHERE clauses\n- Index columns used in ORDER BY\n- Don't over-index (slows INSERT/UPDATE)\n- Use composite indexes for multiple columns\n\n**Connection Management:**\n- Close connections when done\n- Use connection pooling\n- Limit concurrent connections\n- Set appropriate timeout values\n\n**Data Explorer:**\n- Use pagination for large tables\n- Apply filters before loading data\n- Limit displayed columns\n- Use search instead of loading all rows\n\n**Backup Performance:**\n- Schedule backups during off-peak hours\n- Use incremental backups when possible\n- Compress backup files\n- Store backups on fast storage\n\n**General Tips:**\n- Keep database statistics updated\n- Regularly vacuum/optimize tables\n- Monitor slow query log\n- Archive old data\n- Use appropriate data types",
+          "keywords": ["performance", "optimization", "speed", "slow", "index"]
+        },
+        {
+          "id": "backup-failures",
+          "title": "Backup Failures",
+          "content": "Troubleshoot backup and restore issues.\n\n**Backup Fails to Start:**\n- Check disk space on backup location\n- Verify write permissions\n- Ensure database is accessible\n- Check if another backup is running\n\n**Backup Incomplete:**\n- Increase backup timeout\n- Check for database locks\n- Verify network stability\n- Look for disk space issues\n\n**Restore Fails:**\n- Verify backup file integrity\n- Check backup file format\n- Ensure target database exists\n- Verify user has restore permissions\n- Check for version compatibility\n\n**Scheduled Backup Not Running:**\n- Verify schedule is enabled\n- Check application is running\n- Review backup logs for errors\n- Ensure system time is correct\n\n**Backup File Corrupted:**\n- Always verify backups after creation\n- Use checksums to validate integrity\n- Keep multiple backup copies\n- Test restore process regularly\n\n**Solutions:**\n```bash\n# Check backup file\nfile backup.sql\n\n# Verify backup size\nls -lh backup.sql\n\n# Test backup integrity (PostgreSQL)\npg_restore --list backup.dump\n\n# Test backup integrity (MySQL)\nmysqlcheck backup.sql\n```\n\n**Best Practices:**\n- Test restores regularly\n- Keep multiple backup versions\n- Store backups in different locations\n- Monitor backup success/failure\n- Document restore procedures",
+          "keywords": ["backup", "restore", "failure", "corrupted", "incomplete"]
+        },
+        {
+          "id": "migration-issues",
+          "title": "Migration Issues",
+          "content": "Solve common database migration problems.\n\n**Migration Init Fails:**\n- Ensure project directory is correct\n- Check if migrations folder already exists\n- Verify database connection\n- Use --base flag if Base class not found\n\n**Cannot Find Base Class:**\n```bash\n# Specify Base location explicitly\nmigrator init --base app.database:Base\nmigrator init --base src.models:Base\n```\n\n**Migration Creation Fails:**\n- Ensure models are importable\n- Check for syntax errors in models\n- Verify SQLAlchemy Base is defined\n- Check DATABASE_URL is set\n\n**Migration Apply Fails:**\n- Check database connectivity\n- Verify migration file syntax\n- Look for conflicting migrations\n- Check database user permissions\n- Review migration history\n\n**Rollback Issues:**\n- Ensure downgrade() is implemented\n- Check for data dependencies\n- Verify no manual schema changes\n- Review migration order\n\n**Common Errors:**\n\n**Error: DATABASE_URL not found**\n```bash\n# Set in .env file\nDATABASE_URL=postgresql://user:pass@localhost/db\n\n# Or export as environment variable\nexport DATABASE_URL=postgresql://user:pass@localhost/db\n```\n\n**Error: Table already exists**\n- Use `migrator stamp head` for existing databases\n- Check if migration was partially applied\n- Review migration history\n\n**Error: Column does not exist**\n- Ensure migrations are in correct order\n- Check if migration was skipped\n- Verify database schema state\n\n**Best Practices:**\n- Always backup before migrating\n- Test migrations on dev/staging first\n- Review generated migrations\n- Keep migrations small and focused\n- Document complex migrations",
+          "keywords": ["migration", "migrator", "alembic", "schema", "error"]
+        }
+      ]
     }
   ]
 }
