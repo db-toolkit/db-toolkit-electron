@@ -125,6 +125,32 @@ class BackupManager:
         tables: Optional[List[str]],
     ):
         """Backup PostgreSQL database."""
+        # Try pg_dump first
+        if await self._command_exists('pg_dump'):
+            await self._backup_postgresql_pgdump(backup, connection, tables)
+        else:
+            await self._backup_postgresql_native(backup, connection, tables)
+
+    async def _command_exists(self, command: str) -> bool:
+        """Check if command exists."""
+        try:
+            process = await asyncio.create_subprocess_exec(
+                'which', command,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            await process.communicate()
+            return process.returncode == 0
+        except Exception:
+            return False
+
+    async def _backup_postgresql_pgdump(
+        self,
+        backup: Backup,
+        connection: DatabaseConnection,
+        tables: Optional[List[str]],
+    ):
+        """Backup PostgreSQL using pg_dump."""
         cmd = [
             "pg_dump",
             "-h", connection.host,
@@ -157,6 +183,75 @@ class BackupManager:
         if process.returncode != 0:
             raise Exception(f"pg_dump failed: {stderr.decode()}")
 
+    async def _backup_postgresql_native(
+        self,
+        backup: Backup,
+        connection: DatabaseConnection,
+        tables: Optional[List[str]],
+    ):
+        """Backup PostgreSQL using native Python."""
+        import asyncpg
+        
+        output_file = backup.file_path.replace(".gz", "") if backup.compressed else backup.file_path
+        
+        conn = await asyncpg.connect(
+            host=connection.host,
+            port=connection.port or 5432,
+            user=connection.username,
+            password=connection.password,
+            database=connection.database,
+        )
+        
+        try:
+            with open(output_file, 'w') as f:
+                f.write(f"-- PostgreSQL Backup\n")
+                f.write(f"-- Database: {connection.database}\n\n")
+                
+                # Get tables to backup
+                if tables:
+                    table_list = tables
+                else:
+                    rows = await conn.fetch(
+                        "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+                    )
+                    table_list = [row['tablename'] for row in rows]
+                
+                for table in table_list:
+                    # Get table schema
+                    if backup.backup_type != BackupType.DATA_ONLY:
+                        schema = await conn.fetchval(
+                            "SELECT pg_get_tabledef($1::regclass)", table
+                        )
+                        if schema:
+                            f.write(f"\n-- Table: {table}\n")
+                            f.write(f"{schema};\n\n")
+                    
+                    # Get table data
+                    if backup.backup_type != BackupType.SCHEMA_ONLY:
+                        rows = await conn.fetch(f'SELECT * FROM "{table}"')
+                        if rows:
+                            columns = list(rows[0].keys())
+                            f.write(f"-- Data for table: {table}\n")
+                            
+                            for row in rows:
+                                values = []
+                                for col in columns:
+                                    val = row[col]
+                                    if val is None:
+                                        values.append('NULL')
+                                    elif isinstance(val, str):
+                                        values.append(f"'{val.replace(chr(39), chr(39)+chr(39))}'")
+                                    else:
+                                        values.append(str(val))
+                                
+                                f.write(
+                                    f'INSERT INTO "{table}" ({', '.join(f'"{c}"' for c in columns)}) '
+                                    f'VALUES ({', '.join(values)});\n'
+                                )
+                            f.write('\n')
+        finally:
+            await conn.close()
+
     async def _backup_mysql(
         self,
         backup: Backup,
@@ -164,6 +259,18 @@ class BackupManager:
         tables: Optional[List[str]],
     ):
         """Backup MySQL database."""
+        if await self._command_exists('mysqldump'):
+            await self._backup_mysql_mysqldump(backup, connection, tables)
+        else:
+            await self._backup_mysql_native(backup, connection, tables)
+
+    async def _backup_mysql_mysqldump(
+        self,
+        backup: Backup,
+        connection: DatabaseConnection,
+        tables: Optional[List[str]],
+    ):
+        """Backup MySQL using mysqldump."""
         cmd = [
             "mysqldump",
             "-h", connection.host,
@@ -197,6 +304,75 @@ class BackupManager:
         if process.returncode != 0:
             raise Exception(f"mysqldump failed: {stderr.decode()}")
 
+    async def _backup_mysql_native(
+        self,
+        backup: Backup,
+        connection: DatabaseConnection,
+        tables: Optional[List[str]],
+    ):
+        """Backup MySQL using native Python."""
+        import aiomysql
+        
+        output_file = backup.file_path.replace(".gz", "") if backup.compressed else backup.file_path
+        
+        conn = await aiomysql.connect(
+            host=connection.host,
+            port=connection.port or 3306,
+            user=connection.username,
+            password=connection.password,
+            db=connection.database,
+        )
+        
+        try:
+            async with conn.cursor() as cursor:
+                with open(output_file, 'w') as f:
+                    f.write(f"-- MySQL Backup\n")
+                    f.write(f"-- Database: {connection.database}\n\n")
+                    
+                    # Get tables
+                    if tables:
+                        table_list = tables
+                    else:
+                        await cursor.execute("SHOW TABLES")
+                        table_list = [row[0] for row in await cursor.fetchall()]
+                    
+                    for table in table_list:
+                        # Get CREATE TABLE
+                        if backup.backup_type != BackupType.DATA_ONLY:
+                            await cursor.execute(f"SHOW CREATE TABLE `{table}`")
+                            create_stmt = (await cursor.fetchone())[1]
+                            f.write(f"\n-- Table: {table}\n")
+                            f.write(f"DROP TABLE IF EXISTS `{table}`;\n")
+                            f.write(f"{create_stmt};\n\n")
+                        
+                        # Get data
+                        if backup.backup_type != BackupType.SCHEMA_ONLY:
+                            await cursor.execute(f"SELECT * FROM `{table}`")
+                            rows = await cursor.fetchall()
+                            
+                            if rows:
+                                await cursor.execute(f"DESCRIBE `{table}`")
+                                columns = [col[0] for col in await cursor.fetchall()]
+                                
+                                f.write(f"-- Data for table: {table}\n")
+                                for row in rows:
+                                    values = []
+                                    for val in row:
+                                        if val is None:
+                                            values.append('NULL')
+                                        elif isinstance(val, str):
+                                            values.append(f"'{val.replace(chr(39), chr(39)+chr(39))}'")
+                                        else:
+                                            values.append(str(val))
+                                    
+                                    f.write(
+                                        f'INSERT INTO `{table}` ({', '.join(f'`{c}`' for c in columns)}) '
+                                        f'VALUES ({', '.join(values)});\n'
+                                    )
+                                f.write('\n')
+        finally:
+            conn.close()
+
     async def _backup_sqlite(self, backup: Backup, connection: DatabaseConnection):
         """Backup SQLite database."""
         output_file = backup.file_path.replace(".gz", "") if backup.compressed else backup.file_path
@@ -209,6 +385,18 @@ class BackupManager:
         tables: Optional[List[str]],
     ):
         """Backup MongoDB database."""
+        if await self._command_exists('mongodump'):
+            await self._backup_mongodb_mongodump(backup, connection, tables)
+        else:
+            await self._backup_mongodb_native(backup, connection, tables)
+
+    async def _backup_mongodb_mongodump(
+        self,
+        backup: Backup,
+        connection: DatabaseConnection,
+        tables: Optional[List[str]],
+    ):
+        """Backup MongoDB using mongodump."""
         output_dir = backup.file_path.replace(".sql.gz", "").replace(".sql", "")
         
         cmd = [
@@ -241,6 +429,62 @@ class BackupManager:
         if backup.compressed:
             await self._compress_directory(output_dir, backup.file_path)
             await asyncio.to_thread(shutil.rmtree, output_dir)
+
+    async def _backup_mongodb_native(
+        self,
+        backup: Backup,
+        connection: DatabaseConnection,
+        tables: Optional[List[str]],
+    ):
+        """Backup MongoDB using native Python."""
+        import json
+        from motor.motor_asyncio import AsyncIOMotorClient
+        
+        output_file = backup.file_path.replace(".gz", "").replace(".sql", ".json")
+        
+        client = AsyncIOMotorClient(
+            host=connection.host,
+            port=connection.port or 27017,
+            username=connection.username,
+            password=connection.password,
+        )
+        
+        try:
+            db = client[connection.database]
+            
+            with open(output_file, 'w') as f:
+                f.write(f'{{"database": "{connection.database}", "collections": {{\n')
+                
+                # Get collections
+                if tables:
+                    collection_list = tables
+                else:
+                    collection_list = await db.list_collection_names()
+                
+                for i, collection_name in enumerate(collection_list):
+                    collection = db[collection_name]
+                    documents = await collection.find().to_list(length=None)
+                    
+                    f.write(f'  "{collection_name}": [\n')
+                    for j, doc in enumerate(documents):
+                        # Convert ObjectId to string
+                        if '_id' in doc:
+                            doc['_id'] = str(doc['_id'])
+                        f.write(f'    {json.dumps(doc, default=str)}')
+                        if j < len(documents) - 1:
+                            f.write(',\n')
+                        else:
+                            f.write('\n')
+                    
+                    f.write('  ]')
+                    if i < len(collection_list) - 1:
+                        f.write(',\n')
+                    else:
+                        f.write('\n')
+                
+                f.write('}}\n')
+        finally:
+            client.close()
 
     async def _compress_directory(self, dir_path: str, output_path: str):
         """Compress directory to tar.gz."""
