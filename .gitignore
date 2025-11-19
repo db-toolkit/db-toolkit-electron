@@ -34,3 +34,4 @@ src/db-toolkit-ui/yarn-error.log*
 # Electron
 src/db-toolkit-ui/dist/
 src/db-toolkit-ui/out/
+src/db-toolkit-ui/release/
