@@ -17,7 +17,5 @@ async def websocket_migrator(websocket: WebSocket):
                 continue
             
             await MigratorExecutor.execute_command_stream(command, websocket)
-    except Exception as e:
-        await websocket.send_json({"type": "error", "data": str(e)})
-    finally:
-        await websocket.close()
+    except Exception:
+        pass
