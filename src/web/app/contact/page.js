@@ -18,8 +18,8 @@ export default function Contact() {
               Contact Information
             </h2>
             
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
+            <div className="space-y-4">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 flex items-start gap-4">
                 <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
                   <Mail className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
@@ -31,7 +31,7 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 flex items-start gap-4">
                 <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
                   <Github className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
@@ -43,7 +43,7 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 flex items-start gap-4">
                 <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
                   <MessageSquare className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>

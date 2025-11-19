@@ -1,6 +1,14 @@
 import { Calendar, Clock, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+export function generateStaticParams() {
+  return [
+    { slug: 'getting-started' },
+    { slug: 'database-migrations' },
+    { slug: 'backup-strategies' }
+  ];
+}
+
 export default function BlogPost({ params }) {
   const post = {
     title: 'Getting Started with DB Toolkit',
