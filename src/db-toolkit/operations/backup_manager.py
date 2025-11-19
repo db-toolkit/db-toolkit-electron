@@ -91,6 +91,8 @@ class BackupManager:
                 await self._backup_mysql(backup, connection, tables)
             elif connection.db_type.value == "sqlite":
                 await self._backup_sqlite(backup, connection)
+            elif connection.db_type.value == "mongodb":
+                await self._backup_mongodb(backup, connection, tables)
             else:
                 raise ValueError(f"Backup not supported for {connection.db_type}")
             
@@ -195,6 +197,55 @@ class BackupManager:
         output_file = backup.file_path.replace(".gz", "") if backup.compressed else backup.file_path
         await asyncio.to_thread(shutil.copy2, connection.database, output_file)
 
+    async def _backup_mongodb(
+        self,
+        backup: Backup,
+        connection: DatabaseConnection,
+        tables: Optional[List[str]],
+    ):
+        """Backup MongoDB database."""
+        output_dir = backup.file_path.replace(".sql.gz", "").replace(".sql", "")
+        
+        cmd = [
+            "mongodump",
+            "--host", connection.host,
+            "--port", str(connection.port or 27017),
+            "--db", connection.database,
+            "--out", output_dir,
+        ]
+        
+        if connection.username:
+            cmd.extend(["--username", connection.username])
+        if connection.password:
+            cmd.extend(["--password", connection.password])
+        
+        if backup.backup_type == BackupType.TABLES and tables:
+            for table in tables:
+                cmd.extend(["--collection", table])
+        
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        _, stderr = await process.communicate()
+        
+        if process.returncode != 0:
+            raise Exception(f"mongodump failed: {stderr.decode()}")
+        
+        if backup.compressed:
+            await self._compress_directory(output_dir, backup.file_path)
+            await asyncio.to_thread(shutil.rmtree, output_dir)
+
+    async def _compress_directory(self, dir_path: str, output_path: str):
+        """Compress directory to tar.gz."""
+        def compress():
+            import tarfile
+            with tarfile.open(output_path, "w:gz") as tar:
+                tar.add(dir_path, arcname=Path(dir_path).name)
+        
+        await asyncio.to_thread(compress)
+
     async def _compress_file(self, file_path: str):
         """Compress backup file with gzip."""
         def compress():
@@ -226,6 +277,8 @@ class BackupManager:
                 await self._restore_mysql(file_path, target_connection)
             elif target_connection.db_type.value == "sqlite":
                 await self._restore_sqlite(file_path, target_connection)
+            elif target_connection.db_type.value == "mongodb":
+                await self._restore_mongodb(file_path, target_connection)
         finally:
             if backup.compressed and Path(file_path).exists():
                 Path(file_path).unlink()
@@ -291,6 +344,52 @@ class BackupManager:
     async def _restore_sqlite(self, file_path: str, connection: DatabaseConnection):
         """Restore SQLite database."""
         await asyncio.to_thread(shutil.copy2, file_path, connection.database)
+
+    async def _restore_mongodb(self, file_path: str, connection: DatabaseConnection):
+        """Restore MongoDB database."""
+        temp_dir = file_path + "_extract"
+        
+        if file_path.endswith(".gz"):
+            await self._decompress_directory(file_path, temp_dir)
+            restore_dir = temp_dir
+        else:
+            restore_dir = file_path
+        
+        try:
+            cmd = [
+                "mongorestore",
+                "--host", connection.host,
+                "--port", str(connection.port or 27017),
+                "--db", connection.database,
+                restore_dir,
+            ]
+            
+            if connection.username:
+                cmd.extend(["--username", connection.username])
+            if connection.password:
+                cmd.extend(["--password", connection.password])
+            
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            _, stderr = await process.communicate()
+            
+            if process.returncode != 0:
+                raise Exception(f"mongorestore failed: {stderr.decode()}")
+        finally:
+            if file_path.endswith(".gz") and Path(temp_dir).exists():
+                await asyncio.to_thread(shutil.rmtree, temp_dir)
+
+    async def _decompress_directory(self, compressed_path: str, output_dir: str):
+        """Decompress tar.gz directory."""
+        def decompress():
+            import tarfile
+            with tarfile.open(compressed_path, "r:gz") as tar:
+                tar.extractall(output_dir)
+        
+        await asyncio.to_thread(decompress)
 
     async def delete_backup(self, backup_id: str) -> bool:
         """Delete backup file and metadata."""
