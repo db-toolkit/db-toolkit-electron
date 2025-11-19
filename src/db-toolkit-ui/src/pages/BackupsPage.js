@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { Plus, Database, Clock } from 'lucide-react';
 import { useBackups } from '../hooks/useBackups';
 import { useConnections } from '../hooks';
@@ -11,6 +12,7 @@ import { BackupModal } from '../components/backup/BackupModal';
 import { ScheduleModal } from '../components/backup/ScheduleModal';
 import { ScheduleCard } from '../components/backup/ScheduleCard';
 import { useBackupWebSocket } from '../websockets/useBackupWebSocket';
+import { pageTransition } from '../utils/animations';
 import api from '../services/api';
 
 function BackupsPage() {
@@ -154,7 +156,7 @@ function BackupsPage() {
   if (loading) return <LoadingState fullScreen message="Loading backups..." />;
 
   return (
-    <div className="p-8">
+    <motion.div className="p-8" {...pageTransition}>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Database Backups</h2>
         <div className="flex gap-2">
@@ -250,7 +252,7 @@ function BackupsPage() {
         onSave={handleCreateSchedule}
         connections={connections}
       />
-    </div>
+    </motion.div>
   );
 }
 

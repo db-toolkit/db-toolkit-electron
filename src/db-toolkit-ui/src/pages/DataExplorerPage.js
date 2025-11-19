@@ -2,6 +2,7 @@
  * Data Explorer page for browsing table data
  */
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, RefreshCw, Database, Download, Filter } from 'lucide-react';
 import { useConnections, useSchema } from '../hooks';
 import { useToast } from '../contexts/ToastContext';
@@ -11,13 +12,16 @@ import { DataGrid } from '../components/data-explorer/DataGrid';
 import { TableSelector } from '../components/data-explorer/TableSelector';
 import { CellViewModal } from '../components/data-explorer/CellViewModal';
 import { ColumnFilter } from '../components/data-explorer/ColumnFilter';
+import { Breadcrumbs } from '../components/common/Breadcrumbs';
+import { pageTransition } from '../utils/animations';
 import api from '../services/api';
 
 function DataExplorerPage() {
   const { connections, connectToDatabase } = useConnections();
   const toast = useToast();
   const [connectionId, setConnectionId] = useState(null);
-  const { schema, fetchSchemaTree } = useSchema(connectionId);
+  const [connectionName, setConnectionName] = useState('');
+  const { schema, loading: schemaLoading, fetchSchemaTree } = useSchema(connectionId);
   const [selectedTable, setSelectedTable] = useState(null);
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
@@ -34,7 +38,9 @@ function DataExplorerPage() {
   const handleConnect = async (id) => {
     try {
       await connectToDatabase(id);
+      const conn = connections.find(c => c.id === id);
       setConnectionId(id);
+      setConnectionName(conn?.name || '');
       toast.success('Connected successfully');
     } catch (err) {
       toast.error('Failed to connect');
@@ -194,9 +200,18 @@ function DataExplorerPage() {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
+  const breadcrumbItems = [];
+  if (connectionId) {
+    breadcrumbItems.push({ label: connectionName, href: null });
+    if (selectedTable) {
+      breadcrumbItems.push({ label: selectedTable.schema });
+      breadcrumbItems.push({ label: selectedTable.table });
+    }
+  }
+
   if (!connectionId) {
     return (
-      <div className="p-8">
+      <motion.div className="p-8" {...pageTransition}>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Data Explorer</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-6">Select a connection to explore data</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -228,23 +243,26 @@ function DataExplorerPage() {
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-4">
+    <motion.div className="h-screen flex flex-col" {...pageTransition}>
+      <div className="px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Data Explorer</h2>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setConnectionId(null)}
-          >
-            Change Connection
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setConnectionId(null)}
+            >
+              Change Connection
+            </Button>
+          </div>
         </div>
+        <Breadcrumbs items={breadcrumbItems} />
         <div className="flex items-center gap-4">
           {selectedTable && (
             <>
@@ -308,11 +326,17 @@ function DataExplorerPage() {
 
       <div className="flex-1 flex overflow-hidden">
         <div className="w-64 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
-          <TableSelector
-            schema={schema}
-            selectedTable={selectedTable}
-            onSelectTable={handleSelectTable}
-          />
+          {schemaLoading ? (
+            <div className="p-4">
+              <LoadingState message="Loading schema..." />
+            </div>
+          ) : (
+            <TableSelector
+              schema={schema}
+              selectedTable={selectedTable}
+              onSelectTable={handleSelectTable}
+            />
+          )}
         </div>
 
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -358,7 +382,7 @@ function DataExplorerPage() {
         data={cellModal.data}
         column={cellModal.column}
       />
-    </div>
+    </motion.div>
   );
 }
 

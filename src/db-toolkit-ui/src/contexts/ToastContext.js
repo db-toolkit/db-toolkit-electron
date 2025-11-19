@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, AlertCircle, X } from 'lucide-react';
 
 const ToastContext = createContext();
@@ -24,9 +25,11 @@ export function ToastProvider({ children }) {
     <ToastContext.Provider value={{ success, error, info }}>
       {children}
       <div className="fixed top-4 right-4 z-50 space-y-2">
-        {toasts.map((toast) => (
-          <Toast key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
-        ))}
+        <AnimatePresence>
+          {toasts.map((toast) => (
+            <Toast key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );
@@ -46,13 +49,19 @@ function Toast({ toast, onClose }) {
   };
 
   return (
-    <div className={`flex items-center gap-3 p-4 border rounded-lg shadow-lg min-w-[300px] ${styles[toast.type]}`}>
+    <motion.div
+      initial={{ opacity: 0, x: 100, scale: 0.8 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 100, scale: 0.8 }}
+      transition={{ duration: 0.2 }}
+      className={`flex items-center gap-3 p-4 border rounded-lg shadow-lg min-w-[300px] ${styles[toast.type]}`}
+    >
       {icons[toast.type]}
       <p className="flex-1 text-sm text-gray-900 dark:text-gray-100">{toast.message}</p>
       <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
         <X size={16} />
       </button>
-    </div>
+    </motion.div>
   );
 }
 

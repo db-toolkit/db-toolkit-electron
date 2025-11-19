@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Plus, Database } from 'lucide-react';
 import { useConnections } from '../hooks';
 import { useSession } from '../hooks/useSession';
@@ -11,6 +11,7 @@ import { EmptyState } from '../components/common/EmptyState';
 import { ErrorMessage } from '../components/common/ErrorMessage';
 import { ConnectionCard } from '../components/connections/ConnectionCard';
 import { ConnectionModal } from '../components/connections/ConnectionModal';
+import { pageTransition } from '../utils/animations';
 
 function ConnectionsPage() {
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ function ConnectionsPage() {
   );
 
   return (
-    <div className="p-8">
+    <motion.div className="p-8" {...pageTransition}>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Database Connections</h2>
         <Button icon={<Plus size={20} />} onClick={() => { setEditingConnection(null); setShowModal(true); }}>
@@ -140,7 +141,7 @@ function ConnectionsPage() {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
