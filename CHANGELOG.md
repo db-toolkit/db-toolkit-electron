@@ -2,7 +2,7 @@
 
 All notable changes to DB Toolkit will be documented in this file.
 
-## [2.0.0] - 2025-11-19
+## [0.2.0] - 2025-01-19
 
 ### Added
 - **Backup & Restore System** - Automated and manual backups with scheduling
@@ -34,7 +34,7 @@ All notable changes to DB Toolkit will be documented in this file.
 - Created reusable UI components (Tooltip, ProgressBar, Breadcrumbs)
 - Implemented debounce utility and useDebounce hook
 
-## [1.0.0] - 2025-11-19
+## [0.1.0] - 2025-01-19
 
 ### Initial Release
 - Multi-database support (PostgreSQL, MySQL, SQLite, MongoDB)
