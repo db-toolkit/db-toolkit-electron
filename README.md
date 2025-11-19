@@ -2,7 +2,7 @@
 
 A modern, cross-platform desktop database management application built with **Electron + React** frontend and **Python FastAPI** backend.
 
-![DB Toolkit](https://img.shields.io/badge/version-1.0.0-blue) ![Python](https://img.shields.io/badge/python-3.11+-green) ![Node](https://img.shields.io/badge/node-18+-green)
+![DB Toolkit](https://img.shields.io/badge/version-2.0.0-blue) ![Python](https://img.shields.io/badge/python-3.11+-green) ![Node](https://img.shields.io/badge/node-18+-green)
 
 ## Features
 

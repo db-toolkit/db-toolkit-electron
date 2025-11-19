@@ -32,7 +32,7 @@ from ws.websocket import websocket_backups
 app = FastAPI(
     title="DB Toolkit API",
     description="Database management toolkit API",
-    version="1.0.0",
+    version="2.0.0",
     swagger_ui_parameters={"defaultModelsExpandDepth": -1},
     lifespan=lifespan,
 )

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "db-toolkit"
-version = "1.0.0"
+version = "2.0.0"
 description = "Database Management Application with FastAPI Backend"
 requires-python = ">=3.11"
 dependencies = [
