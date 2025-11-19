@@ -1,4 +1,5 @@
 import Hero from '@/components/Hero';
+import FAQ from '@/components/FAQ';
 import { Database, Zap, Shield } from 'lucide-react';
 
 export default function Home() {
@@ -35,6 +36,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <FAQ />
 
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-gray-800 py-8 bg-white dark:bg-gray-900">
