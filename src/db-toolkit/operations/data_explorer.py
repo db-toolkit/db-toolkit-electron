@@ -56,7 +56,11 @@ class DataExplorer:
         """Browse table data with pagination, sorting, and filtering."""
         connector = await connection_manager.get_connector(connection.id)
         if not connector:
-            return {"success": False, "error": "Not connected to database"}
+            # Try to connect if not already connected
+            await connection_manager.connect(connection)
+            connector = await connection_manager.get_connector(connection.id)
+            if not connector:
+                return {"success": False, "error": "Not connected to database"}
 
         try:
             # Build query
