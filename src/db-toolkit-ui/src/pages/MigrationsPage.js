@@ -326,7 +326,6 @@ function MigrationsPage() {
         </div>
       )}
     </div>
-    </div>
   );
 }
 
