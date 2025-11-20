@@ -73,19 +73,66 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
 
   const parseConnectionUrl = (url) => {
     try {
+      if (!url.trim()) {
+        toast.error('Database URL is required');
+        return null;
+      }
+
+      // Handle SQLite special case
+      if (url.startsWith('sqlite:///')) {
+        const filePath = url.replace('sqlite:///', '');
+        return {
+          db_type: 'sqlite',
+          database: filePath,
+          host: '',
+          port: 0,
+          username: '',
+          password: '',
+        };
+      }
+
       const urlObj = new URL(url);
-      const dbType = urlObj.protocol.replace(':', '');
+      let protocol = urlObj.protocol.replace(':', '');
+      
+      // Handle async protocols
+      const asyncProtocols = {
+        'postgresql+asyncpg': 'postgresql',
+        'postgres+asyncpg': 'postgresql',
+        'mysql+aiomysql': 'mysql',
+        'mongodb+srv': 'mongodb',
+      };
+      
+      let dbType = asyncProtocols[protocol] || protocol;
+      if (dbType === 'postgres') dbType = 'postgresql';
+      
+      // Validate supported database type
+      if (!['postgresql', 'mysql', 'mongodb', 'sqlite'].includes(dbType)) {
+        toast.error(`Unsupported database type: ${protocol}`);
+        return null;
+      }
+
+      const defaultPorts = {
+        postgresql: 5432,
+        mysql: 3306,
+        mongodb: 27017,
+      };
+
+      const database = urlObj.pathname.replace('/', '');
+      if (!database) {
+        toast.error('Database name is required in URL');
+        return null;
+      }
       
       return {
-        db_type: dbType === 'postgres' ? 'postgresql' : dbType,
-        host: urlObj.hostname,
-        port: parseInt(urlObj.port) || (dbType === 'postgresql' ? 5432 : dbType === 'mysql' ? 3306 : dbType === 'mongodb' ? 27017 : 0),
-        database: urlObj.pathname.replace('/', ''),
+        db_type: dbType,
+        host: urlObj.hostname || 'localhost',
+        port: parseInt(urlObj.port) || defaultPorts[dbType] || 0,
+        database,
         username: urlObj.username || '',
         password: urlObj.password || '',
       };
     } catch (err) {
-      toast.error('Invalid database URL format');
+      toast.error('Invalid database URL format. Expected: protocol://user:pass@host:port/database');
       return null;
     }
   };
@@ -142,7 +189,7 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
               required
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Examples: postgresql://user:pass@host:5432/db, mysql://user:pass@host:3306/db, mongodb://user:pass@host:27017/db
+              Examples: postgresql://user:pass@host:5432/db, postgresql+asyncpg://..., mysql+aiomysql://..., mongodb+srv://..., sqlite:///path/to/db.sqlite
             </p>
           </div>
         ) : (
