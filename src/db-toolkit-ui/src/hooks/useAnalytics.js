@@ -2,6 +2,7 @@
  * Hook for real-time analytics via WebSocket
  */
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '../contexts/ToastContext';
 import { WS_ENDPOINTS } from '../services/websocket';
 import api from '../services/api';
@@ -10,11 +11,13 @@ export function useAnalytics(connectionId) {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
+  const [connectionLost, setConnectionLost] = useState(false);
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const retryCountRef = useRef(0);
-  const maxRetries = 10;
+  const maxRetries = 5;
   const toast = useToast();
+  const navigate = useNavigate();
 
   const connect = () => {
     if (!connectionId) return;
@@ -32,6 +35,12 @@ export function useAnalytics(connectionId) {
       const data = JSON.parse(event.data);
       
       if (data.error) {
+        if (data.error.includes('Connection not found') || data.error.includes('Connection not active')) {
+          setConnectionLost(true);
+          toast.error('Database connection lost. Redirecting to connections...');
+          setTimeout(() => navigate('/connections'), 2000);
+          return;
+        }
         toast.error(data.error);
         setLoading(false);
         return;
@@ -46,6 +55,7 @@ export function useAnalytics(connectionId) {
           connections: data.active_connections
         }]);
         setLoading(false);
+        setConnectionLost(false);
       }
     };
 
@@ -53,16 +63,24 @@ export function useAnalytics(connectionId) {
       setLoading(false);
     };
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       setLoading(false);
       
+      // Don't reconnect if connection was lost or component unmounted
+      if (connectionLost || event.code === 1000) {
+        return;
+      }
+      
       if (retryCountRef.current < maxRetries) {
-        const delay = Math.min(1000 * Math.pow(2, retryCountRef.current), 30000);
+        const delay = Math.min(1000 * Math.pow(2, retryCountRef.current), 10000);
         retryCountRef.current++;
         
         reconnectTimeoutRef.current = setTimeout(() => {
           connect();
         }, delay);
+      } else {
+        toast.error('Connection lost. Redirecting to connections...');
+        setTimeout(() => navigate('/connections'), 2000);
       }
     };
   };
@@ -103,7 +121,12 @@ export function useAnalytics(connectionId) {
         toast.error(response.data.error || 'Failed to kill query');
       }
     } catch (err) {
-      toast.error('Failed to kill query');
+      if (err.response?.status === 404) {
+        toast.error('Connection lost. Redirecting...');
+        setTimeout(() => navigate('/connections'), 1000);
+      } else {
+        toast.error('Failed to kill query');
+      }
     }
   };
 
@@ -169,14 +192,20 @@ export function useAnalytics(connectionId) {
       link.remove();
       toast.success('PDF exported successfully');
     } catch (err) {
-      toast.error('Failed to export PDF');
+      if (err.response?.status === 404) {
+        toast.error('Connection lost. Redirecting...');
+        setTimeout(() => navigate('/connections'), 1000);
+      } else {
+        toast.error('Failed to export PDF');
+      }
     }
   };
 
   return { 
     analytics, 
     loading, 
-    history, 
+    history,
+    connectionLost,
     killQuery, 
     getQueryPlan, 
     fetchHistoricalData,

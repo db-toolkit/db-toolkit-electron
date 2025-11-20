@@ -33,7 +33,7 @@ function AnalyticsPage() {
   const [slowQueries, setSlowQueries] = useState([]);
   const [tableStats, setTableStats] = useState([]);
   const [poolStats, setPoolStats] = useState(null);
-  const { analytics, loading, history, killQuery, getQueryPlan, fetchHistoricalData, getSlowQueries, getTableStats, getPoolStats, exportPDF } = useAnalytics(connectionId);
+  const { analytics, loading, history, connectionLost, killQuery, getQueryPlan, fetchHistoricalData, getSlowQueries, getTableStats, getPoolStats, exportPDF } = useAnalytics(connectionId);
 
   useEffect(() => {
     if (connectionId) {
@@ -174,7 +174,14 @@ function AnalyticsPage() {
       </div>
 
       <div className="flex-1 overflow-auto p-6">
-        {loading && !analytics ? (
+        {connectionLost ? (
+          <div className="text-center py-12">
+            <Database className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Connection Lost</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">Database connection was lost. Redirecting to connections...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          </div>
+        ) : loading && !analytics ? (
           <LoadingState message="Loading analytics..." />
         ) : analytics ? (
           <>
