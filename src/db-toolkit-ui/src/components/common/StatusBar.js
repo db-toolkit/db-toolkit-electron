@@ -2,6 +2,7 @@
  * Status bar showing system metrics and app info.
  */
 import { useState, useEffect } from 'react';
+import { Terminal } from 'lucide-react';
 
 import { useConnections } from '../../hooks';
 
@@ -210,6 +211,12 @@ function StatusBar() {
         )}
       </div>
       </div>
+      
+      <Terminal 
+        size={18} 
+        className="cursor-pointer hover:text-gray-900 dark:hover:text-gray-200" 
+        title="Terminal" 
+      />
     </div>
   );
 }
