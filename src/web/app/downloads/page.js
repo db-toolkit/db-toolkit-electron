@@ -8,23 +8,23 @@ export default function DownloadsPage() {
     {
       name: 'Windows',
       icon: <Monitor size={48} />,
-      version: 'v0.3.0',
-      size: '85 MB',
-      url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/download/v0.3.0/db-toolkit-windows.exe'
+      version: 'Latest',
+      size: '~85 MB',
+      url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-win-x64.exe'
     },
     {
       name: 'macOS',
       icon: <Apple size={48} />,
-      version: 'v0.3.0',
-      size: '92 MB',
-      url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/download/v0.3.0/db-toolkit-macos.dmg'
+      version: 'Latest',
+      size: '~92 MB',
+      url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-mac-x64.dmg'
     },
     {
       name: 'Linux',
       icon: <Monitor size={48} />,
-      version: 'v0.3.0',
-      size: '88 MB',
-      url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/download/v0.3.0/db-toolkit-linux.AppImage'
+      version: 'Latest',
+      size: '~88 MB',
+      url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-linux.AppImage'
     }
   ];
 
