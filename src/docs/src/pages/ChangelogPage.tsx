@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { fadeInUp, staggerContainer } from '../utils/motion';
 import { changelogVersions } from '../data/changelog';
+import ScrollToTop from '../components/ScrollToTop';
 
 export default function ChangelogPage() {
   const [activeVersion, setActiveVersion] = useState(changelogVersions[0].version);
@@ -13,7 +14,8 @@ export default function ChangelogPage() {
   };
 
   return (
-    <div className="flex w-full">
+    <>
+      <div className="flex w-full">
       <aside className="w-72 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-[calc(100vh-124px)] flex flex-col fixed left-0 top-[124px]">
         <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">DB Toolkit</h2>
@@ -76,6 +78,8 @@ export default function ChangelogPage() {
           </motion.section>
         ))}
       </motion.main>
-    </div>
+      </div>
+      <ScrollToTop />
+    </>
   );
 }

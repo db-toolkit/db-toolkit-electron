@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import Sidebar from '../components/Sidebar';
 import DocContent from '../components/DocContent';
+import ScrollToTop from '../components/ScrollToTop';
 import {
   gettingStartedData,
   connectionsData,
@@ -51,15 +52,18 @@ export default function GuidePage() {
   }, []);
 
   return (
-    <div className="flex w-full h-auto">
-      <div className="w-72 flex-shrink-0" />
-      <Sidebar activeSection={activeSection} onSectionChange={handleSectionChange} />
-      <DocContent 
-        data={currentData} 
-        prevSection={prevSection}
-        nextSection={nextSection}
-        onNavigate={setActiveSection}
-      />
-    </div>
+    <>
+      <div className="flex w-full h-auto">
+        <div className="w-72 flex-shrink-0" />
+        <Sidebar activeSection={activeSection} onSectionChange={handleSectionChange} />
+        <DocContent 
+          data={currentData} 
+          prevSection={prevSection}
+          nextSection={nextSection}
+          onNavigate={setActiveSection}
+        />
+      </div>
+      <ScrollToTop />
+    </>
   );
 }
