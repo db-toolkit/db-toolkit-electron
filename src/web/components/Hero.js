@@ -2,10 +2,11 @@
 
 import { motion } from 'framer-motion';
 import { Database, Download, Github, ArrowRight } from 'lucide-react';
+import { primaryGradient, buttonGradient } from '@/utils/gradients';
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900">
+    <section className={`relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br ${primaryGradient.light} ${primaryGradient.dark}`}>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -68,7 +69,7 @@ export default function Hero() {
           <span className="px-4 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-semibold rounded-full mb-4">
             Latest version: v0.3.0
           </span>
-          <div className="p-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl shadow-2xl">
+          <div className={`p-6 bg-gradient-to-br ${buttonGradient} rounded-3xl shadow-2xl`}>
             <Database className="w-16 h-16 text-white" />
           </div>
         </motion.div>
@@ -112,7 +113,7 @@ export default function Hero() {
         >
           <a
             href="https://github.com/Adelodunpeter25/db-toolkit/releases/latest"
-            className="group flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 font-semibold"
+            className={`group flex items-center gap-2 px-8 py-4 bg-gradient-to-r ${buttonGradient} text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 font-semibold`}
           >
             <Download size={20} />
             Download Now

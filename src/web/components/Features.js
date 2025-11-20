@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Database, Zap, Shield, Code, Lock, Layers } from 'lucide-react';
 import { fadeInUp, staggerContainer } from '@/utils/motion';
+import { iconGradients } from '@/utils/gradients';
 
 export default function Features() {
   const features = [
@@ -44,14 +45,7 @@ export default function Features() {
     }
   ];
 
-  const colorClasses = {
-    blue: 'from-blue-500 to-cyan-500',
-    green: 'from-green-500 to-emerald-500',
-    purple: 'from-purple-500 to-pink-500',
-    orange: 'from-orange-500 to-yellow-500',
-    red: 'from-red-500 to-rose-500',
-    indigo: 'from-indigo-500 to-blue-500'
-  };
+  const colorClasses = iconGradients;
 
   return (
     <section className="py-20 bg-white dark:bg-gray-900">

@@ -71,7 +71,7 @@ export default function About() {
           </motion.div>
         </motion.div>
 
-        <motion.div {...fadeInUp(0.9)} className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-800 rounded-2xl p-12 text-center">
+        <motion.div {...fadeInUp(0.9)} className="bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-gray-800 dark:to-gray-800 rounded-2xl p-12 text-center">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Join Our Community
           </h2>
@@ -80,7 +80,7 @@ export default function About() {
           </p>
           <a
             href="https://github.com/Adelodunpeter25/db-toolkit"
-            className="inline-block px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold"
+            className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold"
           >
             Contribute on GitHub
           </a>
