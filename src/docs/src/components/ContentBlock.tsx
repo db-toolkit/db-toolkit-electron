@@ -37,8 +37,8 @@ function ContentBlock({ type, children }: ContentBlockProps) {
       <div className="flex gap-3">
         {style.icon}
         <div className="flex-1">
-          <div className="font-semibold mb-1">{style.title}</div>
-          <div className="text-sm leading-relaxed">{children}</div>
+          <div className="font-semibold mb-1 text-gray-900 dark:text-gray-100">{style.title}</div>
+          <div className="text-sm leading-relaxed text-gray-800 dark:text-gray-200">{children}</div>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
-import VirtualDocContent from '../components/VirtualDocContent';
+import DocContent from '../components/DocContent';
 import ScrollToTop from '../components/ScrollToTop';
 
 const loadData = async (section: string) => {
@@ -62,7 +62,7 @@ export default function GuidePage() {
       <div className="flex w-full h-auto">
         <div className="w-72 flex-shrink-0" />
         <Sidebar activeSection={activeSection} onSectionChange={handleSectionChange} />
-        {currentData && <VirtualDocContent 
+        {currentData && <DocContent 
           data={currentData} 
           prevSection={prevSection}
           nextSection={nextSection}
