@@ -70,8 +70,8 @@ export default function Features() {
               <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-300"
                    style={{ backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}
               />
-              <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${colorClasses[feature.color]} mb-6`}>
-                <feature.icon className="w-8 h-8 text-white" />
+              <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${colorClasses[feature.color]} mb-6 shadow-lg`}>
+                <feature.icon className="w-8 h-8 text-white" strokeWidth={2} />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                 {feature.title}

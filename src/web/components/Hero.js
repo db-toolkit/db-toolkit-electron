@@ -6,7 +6,7 @@ import { primaryGradient, buttonGradient } from '@/utils/gradients';
 
 export default function Hero() {
   return (
-    <section className={`relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br ${primaryGradient.light} ${primaryGradient.dark}`}>
+    <section className={`relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br ${primaryGradient.light} dark:from-gray-950 dark:via-gray-900 dark:to-gray-950`}>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
