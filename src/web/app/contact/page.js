@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import ContactForm from '@/components/ContactForm';
 import { Mail, Github, MessageSquare } from 'lucide-react';
 import { fadeInUp, staggerContainer } from '@/utils/motion';
+import Footer from '@/components/Footer';
 
 export default function Contact() {
   return (
@@ -69,6 +70,7 @@ export default function Contact() {
           </motion.div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

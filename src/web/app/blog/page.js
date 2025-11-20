@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import BlogCard from '@/components/BlogCard';
 import { fadeInUp, staggerContainer } from '@/utils/motion';
+import Footer from '@/components/Footer';
 
 export default function Blog() {
   const posts = [
@@ -47,6 +48,7 @@ export default function Blog() {
           ))}
         </motion.div>
       </div>
+      <Footer />
     </main>
   );
 }

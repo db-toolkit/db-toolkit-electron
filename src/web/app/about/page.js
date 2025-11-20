@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Database, Users, Target, Heart } from 'lucide-react';
 import { fadeInUp, staggerContainer } from '@/utils/motion';
+import Footer from '@/components/Footer';
 
 export default function About() {
   return (
@@ -86,6 +87,7 @@ export default function About() {
           </a>
         </motion.div>
       </div>
+      <Footer />
     </main>
   );
 }
