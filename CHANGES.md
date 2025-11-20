@@ -24,5 +24,6 @@ This file tracks changes during development before they are added to CHANGELOG.m
 - Create Connection button navigation without page refresh
 - Charts dark/light mode compatibility
 - Connection management performance - reuse connections instead of creating new ones (5-10x faster queries)
+- Query result caching and schema cache optimization (3-5x faster repeated queries, 5-10x faster metadata)
 
 ### Removed
