@@ -9,21 +9,18 @@ export default function DownloadsPage() {
       name: 'Windows',
       icon: <Monitor size={48} />,
       version: 'Latest',
-      size: '~85 MB',
       url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-win-x64.exe'
     },
     {
       name: 'macOS',
       icon: <Apple size={48} />,
       version: 'Latest',
-      size: '~92 MB',
       url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-mac-x64.dmg'
     },
     {
       name: 'Linux',
       icon: <Monitor size={48} />,
       version: 'Latest',
-      size: '~88 MB',
       url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-linux.AppImage'
     }
   ];
@@ -52,11 +49,8 @@ export default function DownloadsPage() {
               <h3 className="text-2xl font-bold text-center mb-2 text-gray-900 dark:text-white">
                 {platform.name}
               </h3>
-              <p className="text-center text-gray-600 dark:text-gray-400 mb-1">
+              <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
                 {platform.version}
-              </p>
-              <p className="text-center text-sm text-gray-500 dark:text-gray-500 mb-6">
-                {platform.size}
               </p>
               <a
                 href={platform.url}
