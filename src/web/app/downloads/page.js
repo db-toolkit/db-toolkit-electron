@@ -12,10 +12,16 @@ export default function DownloadsPage() {
       url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-win-x64.exe'
     },
     {
-      name: 'macOS',
+      name: 'macOS Intel',
       icon: <Apple size={48} />,
-      version: 'Latest',
+      version: 'Latest (x64)',
       url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-mac-x64.dmg'
+    },
+    {
+      name: 'macOS Apple Silicon',
+      icon: <Apple size={48} />,
+      version: 'Latest (ARM64)',
+      url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-mac-arm64.dmg'
     },
     {
       name: 'Linux',
@@ -37,7 +43,7 @@ export default function DownloadsPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto mb-12">
           {platforms.map((platform) => (
             <div
               key={platform.name}
