@@ -66,7 +66,7 @@ export default function Hero() {
           className="mb-8"
         >
           <span className="px-4 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-semibold rounded-full">
-            Latest version: v0.3.0
+            🎉 v0.3.0 - Now with Migrations
           </span>
         </motion.div>
 
@@ -75,7 +75,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4 max-w-4xl mx-auto"
+          className="text-6xl md:text-7xl font-bold text-gray-900 dark:text-white mb-4 max-w-4xl mx-auto"
         >
           Your <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">all-in-one</span> database companion
         </motion.h1>
