@@ -64,7 +64,7 @@ export default function Hero() {
           className="flex flex-col items-center mb-8"
         >
           <span className="px-4 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-semibold rounded-full mb-4">
-            v0.3.0
+            Latest version: v0.3.0
           </span>
           <div className="p-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl shadow-2xl">
             <Database className="w-16 h-16 text-white" />
