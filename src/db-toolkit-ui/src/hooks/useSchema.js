@@ -1,18 +1,24 @@
 import { useState, useCallback } from 'react';
 import { schemaAPI } from '../services/api';
+import { useRequestDeduplication } from './usePerformance';
 
 export function useSchema(connectionId) {
   const [schema, setSchema] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { dedupedRequest } = useRequestDeduplication();
 
   const fetchSchemaTree = useCallback(async (useCache = true) => {
     if (!connectionId) return;
     
+    const requestKey = `schema_${connectionId}_${useCache}`;
+    
     setLoading(true);
     setError(null);
     try {
-      const response = await schemaAPI.getTree(connectionId, useCache);
+      const response = await dedupedRequest(requestKey, () => 
+        schemaAPI.getTree(connectionId, useCache)
+      );
       setSchema(response.data);
       return response.data;
     } catch (err) {
@@ -21,15 +27,19 @@ export function useSchema(connectionId) {
     } finally {
       setLoading(false);
     }
-  }, [connectionId]);
+  }, [connectionId, dedupedRequest]);
 
   const fetchTableInfo = useCallback(async (schemaName, tableName) => {
     if (!connectionId) return;
     
+    const requestKey = `table_${connectionId}_${schemaName}_${tableName}`;
+    
     setLoading(true);
     setError(null);
     try {
-      const response = await schemaAPI.getTableInfo(connectionId, schemaName, tableName);
+      const response = await dedupedRequest(requestKey, () => 
+        schemaAPI.getTableInfo(connectionId, schemaName, tableName)
+      );
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -37,7 +47,7 @@ export function useSchema(connectionId) {
     } finally {
       setLoading(false);
     }
-  }, [connectionId]);
+  }, [connectionId, dedupedRequest]);
 
   const refreshSchema = useCallback(async () => {
     if (!connectionId) return;

@@ -6,3 +6,4 @@ export { useExplain } from './useExplain';
 export { useSession } from './useSession';
 export { useBackups } from './useBackups';
 export { useAnalytics } from './useAnalytics';
+export { useRequestDeduplication, useOptimizedCallback, useOptimizedMemo, usePerformanceMonitor } from './usePerformance';

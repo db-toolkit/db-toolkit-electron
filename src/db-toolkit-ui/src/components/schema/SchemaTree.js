@@ -1,36 +1,45 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { ChevronRight, ChevronDown, Database, Table, Search } from 'lucide-react';
 import { useDebounce } from '../../utils/debounce';
 
-export function SchemaTree({ schema, onTableClick }) {
+const SchemaTree = memo(function SchemaTree({ schema, onTableClick }) {
   const [expandedSchemas, setExpandedSchemas] = useState({});
   const [selectedTable, setSelectedTable] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  const toggleSchema = (schemaName) => {
+  const toggleSchema = useCallback((schemaName) => {
     setExpandedSchemas((prev) => ({ ...prev, [schemaName]: !prev[schemaName] }));
-  };
+  }, []);
 
-  const handleTableClick = (schemaName, tableName) => {
+  const handleTableClick = useCallback((schemaName, tableName) => {
     setSelectedTable(`${schemaName}.${tableName}`);
     onTableClick(schemaName, tableName);
-  };
+  }, [onTableClick]);
+
+  const handleSearchChange = useCallback((e) => {
+    setSearchQuery(e.target.value);
+  }, []);
 
   if (!schema || !schema.schemas) return null;
 
-  const filteredSchemas = Object.entries(schema.schemas).reduce((acc, [schemaName, schemaData]) => {
-    const tables = schemaData?.tables || {};
-    const filteredTables = Object.keys(tables).filter(tableName => 
-      tableName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      schemaName.toLowerCase().includes(debouncedSearch.toLowerCase())
-    );
+  const filteredSchemas = useMemo(() => {
+    if (!schema?.schemas) return {};
     
-    if (filteredTables.length > 0) {
-      acc[schemaName] = { ...schemaData, tables: filteredTables.reduce((t, name) => ({ ...t, [name]: tables[name] }), {}) };
-    }
-    return acc;
-  }, {});
+    return Object.entries(schema.schemas).reduce((acc, [schemaName, schemaData]) => {
+      const tables = schemaData?.tables || {};
+      const searchLower = debouncedSearch.toLowerCase();
+      const filteredTables = Object.keys(tables).filter(tableName => 
+        tableName.toLowerCase().includes(searchLower) ||
+        schemaName.toLowerCase().includes(searchLower)
+      );
+      
+      if (filteredTables.length > 0) {
+        acc[schemaName] = { ...schemaData, tables: filteredTables.reduce((t, name) => ({ ...t, [name]: tables[name] }), {}) };
+      }
+      return acc;
+    }, {});
+  }, [schema?.schemas, debouncedSearch]);
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -42,7 +51,7 @@ export function SchemaTree({ schema, onTableClick }) {
             type="text"
             placeholder="Search tables..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
             className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -94,4 +103,6 @@ export function SchemaTree({ schema, onTableClick }) {
       </div>
     </div>
   );
-}
+});
+
+export { SchemaTree };
