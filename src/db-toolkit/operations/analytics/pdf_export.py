@@ -3,7 +3,7 @@
 from typing import Dict, List, Any
 from datetime import datetime
 
-from db_toolkit.utils import PDFReport, format_bytes, format_duration, truncate_text
+from db_toolkit.utils.pdf import PDFReport, format_bytes, format_duration, truncate_text
 
 
 def generate_analytics_pdf(
