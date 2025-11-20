@@ -18,23 +18,65 @@ def generate_analytics_pdf(
     pdf = PDFReport("Database Analytics Report")
     pdf.add_title(subtitle=f"Connection: {connection_name}")
     
+    # Debug info section
+    pdf.add_section("Report Generation Info")
+    pdf.add_text(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    pdf.add_text(f"Metrics Success: {metrics.get('success', False)}")
+    pdf.add_text(f"Historical Data Points: {len(historical_data)}")
+    pdf.add_text(f"Slow Queries: {len(slow_queries)}")
+    pdf.add_text(f"Table Stats: {len(table_stats)}")
+    
     # Current Metrics
     pdf.add_section("Current Metrics")
     system_stats = metrics.get('system_stats', {})
+    
+    # Ensure we have valid values
+    active_conn = metrics.get('active_connections', 0)
+    idle_conn = metrics.get('idle_connections', 0)
+    db_size = metrics.get('database_size', 0)
+    cpu_usage = system_stats.get('cpu_usage', 0)
+    memory_usage = system_stats.get('memory_usage', 0)
+    disk_usage = system_stats.get('disk_usage', 0)
+    
     pdf.add_metric_grid([
-        {"label": "Active Connections", "value": str(metrics.get('active_connections', 0)), "color": "#10b981"},
-        {"label": "Idle Connections", "value": str(metrics.get('idle_connections', 0)), "color": "#6b7280"},
-        {"label": "Database Size", "value": format_bytes(metrics.get('database_size', 0)), "color": "#3b82f6"},
-        {"label": "CPU Usage", "value": f"{system_stats.get('cpu_usage', 0):.1f}%", "color": "#f59e0b"},
-        {"label": "Memory Usage", "value": f"{system_stats.get('memory_usage', 0):.1f}%", "color": "#8b5cf6"},
-        {"label": "Disk Usage", "value": f"{system_stats.get('disk_usage', 0):.1f}%", "color": "#ec4899"},
+        {"label": "Active Connections", "value": str(active_conn), "color": "#10b981"},
+        {"label": "Idle Connections", "value": str(idle_conn), "color": "#6b7280"},
+        {"label": "Database Size", "value": format_bytes(db_size), "color": "#3b82f6"},
+        {"label": "CPU Usage", "value": f"{cpu_usage:.1f}%", "color": "#f59e0b"},
+        {"label": "Memory Usage", "value": f"{memory_usage:.1f}%", "color": "#8b5cf6"},
+        {"label": "Disk Usage", "value": f"{disk_usage:.1f}%", "color": "#ec4899"},
     ])
     
     # Query Statistics
-    if metrics.get('query_stats'):
+    query_stats = metrics.get('query_stats', {})
+    if query_stats and any(count > 0 for count in query_stats.values()):
         pdf.add_section("Query Distribution")
-        query_data = [[qtype, str(count)] for qtype, count in metrics['query_stats'].items()]
-        pdf.add_table(query_data, headers=['Query Type', 'Count'])
+        query_data = [[qtype, str(count)] for qtype, count in query_stats.items() if count > 0]
+        if query_data:
+            pdf.add_table(query_data, headers=['Query Type', 'Count'])
+        else:
+            pdf.add_text("No active queries found.")
+    else:
+        pdf.add_section("Query Distribution")
+        pdf.add_text("No query statistics available.")
+    
+    # Current Queries
+    current_queries = metrics.get('current_queries', [])
+    if current_queries:
+        pdf.add_section("Current Active Queries")
+        current_data = []
+        for q in current_queries[:10]:
+            current_data.append([
+                str(q.get('pid', 'N/A')),
+                truncate_text(q.get('usename', 'N/A'), 15),
+                q.get('state', 'N/A'),
+                f"{q.get('duration', 0):.1f}s",
+                truncate_text(q.get('query', 'N/A'), 60)
+            ])
+        if current_data:
+            pdf.add_table(current_data, headers=['PID', 'User', 'State', 'Duration', 'Query'])
+        else:
+            pdf.add_text("No current queries found.")
     
     # Slow Queries
     if slow_queries:
@@ -42,14 +84,20 @@ def generate_analytics_pdf(
         pdf.add_section("Slow Query Log (Last 24 Hours)")
         slow_data = [
             [
-                q['timestamp'][:19],
-                format_duration(q['duration']),
-                truncate_text(q['user'], 20),
-                truncate_text(q['query'], 80)
+                q.get('timestamp', 'N/A')[:19] if q.get('timestamp') else 'N/A',
+                format_duration(q.get('duration', 0)),
+                truncate_text(q.get('user', 'N/A'), 20),
+                truncate_text(q.get('query', 'N/A'), 80)
             ]
             for q in slow_queries[:20]
         ]
-        pdf.add_table(slow_data, headers=['Timestamp', 'Duration', 'User', 'Query'])
+        if slow_data:
+            pdf.add_table(slow_data, headers=['Timestamp', 'Duration', 'User', 'Query'])
+        else:
+            pdf.add_text("No slow queries found.")
+    else:
+        pdf.add_section("Slow Query Log (Last 24 Hours)")
+        pdf.add_text("No slow queries recorded.")
     
     # Table Statistics
     if table_stats:
@@ -62,7 +110,13 @@ def generate_analytics_pdf(
             if isinstance(size, (int, float)):
                 size = format_bytes(int(size))
             rows = t.get('row_count', t.get('n_live_tup', 0))
-            table_data.append([truncate_text(table_name, 40), str(size), str(rows)])
-        pdf.add_table(table_data, headers=['Table', 'Size', 'Rows'])
+            table_data.append([truncate_text(str(table_name), 40), str(size), str(rows)])
+        if table_data:
+            pdf.add_table(table_data, headers=['Table', 'Size', 'Rows'])
+        else:
+            pdf.add_text("No table statistics available.")
+    else:
+        pdf.add_section("Table Statistics")
+        pdf.add_text("No table statistics available.")
     
     return pdf.build()
