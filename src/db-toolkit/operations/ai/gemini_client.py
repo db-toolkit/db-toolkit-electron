@@ -26,6 +26,12 @@ class GeminiClient:
     def _load_api_keys(self) -> List[str]:
         """Load all available Gemini API keys from environment."""
         keys = []
+        # Check for single key first
+        single_key = os.getenv('GEMINI_API_KEY')
+        if single_key:
+            keys.append(single_key)
+        
+        # Then check for numbered keys
         for i in range(1, 6):  # Support up to 5 keys
             key = os.getenv(f'GEMINI_API_KEY_{i}')
             if key:
@@ -48,8 +54,10 @@ class GeminiClient:
         temperature = float(os.getenv('GEMINI_TEMPERATURE', '0.3'))
         max_tokens = int(os.getenv('GEMINI_MAX_TOKENS', '2048'))
         
+        last_error = None
+        
         for attempt in range(max_retries):
-            for _ in range(len(self.api_keys)):
+            for key_attempt in range(len(self.api_keys)):
                 try:
                     api_key = self._get_next_key()
                     genai.configure(api_key=api_key)
@@ -66,16 +74,24 @@ class GeminiClient:
                     return response.text
                     
                 except Exception as e:
+                    last_error = e
                     error_msg = str(e).lower()
                     if "quota" in error_msg or "rate limit" in error_msg:
                         continue  # Try next key
-                    elif attempt < max_retries - 1:
-                        await asyncio.sleep(1)  # Brief delay before retry
-                        break
                     else:
-                        raise e
+                        # For non-rate-limit errors, retry with same key
+                        if attempt < max_retries - 1:
+                            await asyncio.sleep(1)
+                        break
+            
+            # If we tried all keys and got rate limits, wait before next attempt
+            if attempt < max_retries - 1:
+                await asyncio.sleep(2 ** attempt)  # Exponential backoff
         
-        raise Exception("All API keys have reached rate limits or maximum retries exceeded")
+        # Raise the actual last error instead of generic message
+        if last_error:
+            raise last_error
+        raise Exception("Request failed after all retries")
     
     def _build_context(self, db_type: str, connection_name: str = "", schema_context: Dict = None) -> str:
         """Build context prompt with database information."""
