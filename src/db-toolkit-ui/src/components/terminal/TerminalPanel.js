@@ -9,13 +9,34 @@ import { WS_ENDPOINTS } from '../../services/websocket';
 import 'xterm/css/xterm.css';
 
 function TerminalPanel({ isOpen, onClose }) {
-  const [tabs, setTabs] = useState([{ id: 1, title: 'Terminal 1' }]);
-  const [activeTab, setActiveTab] = useState(1);
+  const [tabs, setTabs] = useState(() => {
+    const saved = localStorage.getItem('terminal-tabs');
+    return saved ? JSON.parse(saved) : [{ id: 1, title: 'Terminal 1' }];
+  });
+  const [activeTab, setActiveTab] = useState(() => {
+    const saved = localStorage.getItem('terminal-active-tab');
+    return saved ? parseInt(saved) : 1;
+  });
   const [isMaximized, setIsMaximized] = useState(false);
-  const [height, setHeight] = useState(384);
+  const [height, setHeight] = useState(() => {
+    const saved = localStorage.getItem('terminal-height');
+    return saved ? parseInt(saved) : 384;
+  });
   const [isResizing, setIsResizing] = useState(false);
   const terminalsRef = useRef({});
   const containerRefs = useRef({});
+
+  useEffect(() => {
+    localStorage.setItem('terminal-tabs', JSON.stringify(tabs));
+  }, [tabs]);
+
+  useEffect(() => {
+    localStorage.setItem('terminal-active-tab', activeTab.toString());
+  }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.setItem('terminal-height', height.toString());
+  }, [height]);
 
   const addTab = () => {
     const newId = Math.max(...tabs.map(t => t.id)) + 1;
@@ -35,6 +56,9 @@ function TerminalPanel({ isOpen, onClose }) {
     
     const newTabs = tabs.filter(t => t.id !== id);
     setTabs(newTabs);
+    
+    // Clean up session storage
+    localStorage.removeItem(`terminal-session-${id}`);
     
     if (activeTab === id) {
       setActiveTab(newTabs[newTabs.length - 1].id);
@@ -92,6 +116,11 @@ function TerminalPanel({ isOpen, onClose }) {
 
       const ws = new WebSocket(WS_ENDPOINTS.TERMINAL);
 
+      ws.onopen = () => {
+        // Send session ID to restore previous state
+        ws.send(JSON.stringify({ session_id: `tab-${tab.id}` }));
+      };
+
       ws.onmessage = (event) => {
         if (event.data instanceof Blob) {
           event.data.arrayBuffer().then((buffer) => {
@@ -102,9 +131,21 @@ function TerminalPanel({ isOpen, onClose }) {
         }
       };
 
+      let currentDir = '';
+      
       term.onData((data) => {
         if (ws.readyState === WebSocket.OPEN) {
           ws.send(data);
+          
+          // Track directory changes (simple detection)
+          if (data === '\r') {
+            // Send current directory for session save
+            setTimeout(() => {
+              if (currentDir) {
+                ws.send(`SESSION:${currentDir}`);
+              }
+            }, 100);
+          }
         }
       });
 
@@ -142,6 +183,14 @@ function TerminalPanel({ isOpen, onClose }) {
 
   useEffect(() => {
     return () => {
+      // Save all sessions before unmount
+      Object.keys(terminalsRef.current).forEach(tabId => {
+        const { ws } = terminalsRef.current[tabId];
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
+      });
+      
       Object.values(terminalsRef.current).forEach(({ term, ws }) => {
         term?.dispose();
         ws?.close();

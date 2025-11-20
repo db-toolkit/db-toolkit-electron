@@ -6,12 +6,22 @@ import select
 import struct
 import fcntl
 import termios
+import json
 from fastapi import WebSocket, WebSocketDisconnect
+from ws.terminal_sessions import save_session, get_session
 
 
 async def websocket_terminal(websocket: WebSocket):
     """Handle terminal WebSocket connection."""
     await websocket.accept()
+    
+    # Receive session ID from client
+    init_msg = await websocket.receive_text()
+    session_data = json.loads(init_msg)
+    session_id = session_data.get('session_id')
+    
+    # Load previous session if exists
+    previous_session = get_session(session_id) if session_id else None
     
     # Create pseudo-terminal
     master_fd, slave_fd = pty.openpty()
@@ -42,9 +52,12 @@ async def websocket_terminal(websocket: WebSocket):
         os.environ['TERM'] = 'xterm-256color'
         os.environ['COLORTERM'] = 'truecolor'
         
-        # Change to user home directory
-        home = os.path.expanduser('~')
-        os.chdir(home)
+        # Restore previous directory or use home
+        if previous_session and os.path.exists(previous_session.get('cwd', '')):
+            os.chdir(previous_session['cwd'])
+        else:
+            home = os.path.expanduser('~')
+            os.chdir(home)
         
         # Execute shell with login flag for prompt
         os.execv(shell, [shell, '-l'])
@@ -67,8 +80,12 @@ async def websocket_terminal(websocket: WebSocket):
                 except Exception:
                     break
         
+        command_history = []
+        current_cwd = os.getcwd()
+        
         async def write_input():
             """Receive from WebSocket and write to terminal."""
+            nonlocal current_cwd
             try:
                 while True:
                     data = await websocket.receive()
@@ -81,14 +98,25 @@ async def websocket_terminal(websocket: WebSocket):
                             _, rows, cols = text.split(':')
                             winsize = struct.pack('HHHH', int(rows), int(cols), 0, 0)
                             fcntl.ioctl(master_fd, termios.TIOCSWINSZ, winsize)
+                        elif text.startswith('SESSION:'):
+                            # Handle session save: SESSION:cwd
+                            _, cwd = text.split(':', 1)
+                            current_cwd = cwd
                         else:
                             os.write(master_fd, text.encode())
+                            # Track commands (on Enter key)
+                            if text == '\r':
+                                command_history.append(text)
             except WebSocketDisconnect:
                 pass
         
         try:
             await asyncio.gather(read_output(), write_input())
         finally:
+            # Save session before closing
+            if session_id:
+                save_session(session_id, current_cwd, command_history)
+            
             os.close(master_fd)
             os.kill(pid, 9)
             os.waitpid(pid, 0)
