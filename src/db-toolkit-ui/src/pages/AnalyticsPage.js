@@ -151,20 +151,22 @@ function AnalyticsPage() {
         {loading && !analytics ? (
           <LoadingState message="Loading analytics..." />
         ) : analytics ? (
-          <div className="space-y-6">
-            <AnalyticsStats analytics={analytics} />
-            <AnalyticsCharts history={history} timeRange={timeRange} />
-            {analytics.query_stats && <QueryStats stats={analytics.query_stats} />}
-            <CurrentQueries queries={analytics.current_queries} onKill={killQuery} onViewPlan={handleViewPlan} />
-            <LongRunningQueries queries={analytics.long_running_queries} onKill={killQuery} />
-            <BlockedQueries queries={analytics.blocked_queries} />
-          </div>
-          <QueryPlanModal 
-            isOpen={planModal.isOpen}
-            onClose={() => setPlanModal({ isOpen: false, query: '', plan: null })}
-            query={planModal.query}
-            plan={planModal.plan}
-          />
+          <>
+            <div className="space-y-6">
+              <AnalyticsStats analytics={analytics} />
+              <AnalyticsCharts history={history} timeRange={timeRange} />
+              {analytics.query_stats && <QueryStats stats={analytics.query_stats} />}
+              <CurrentQueries queries={analytics.current_queries} onKill={killQuery} onViewPlan={handleViewPlan} />
+              <LongRunningQueries queries={analytics.long_running_queries} onKill={killQuery} />
+              <BlockedQueries queries={analytics.blocked_queries} />
+            </div>
+            <QueryPlanModal 
+              isOpen={planModal.isOpen}
+              onClose={() => setPlanModal({ isOpen: false, query: '', plan: null })}
+              query={planModal.query}
+              plan={planModal.plan}
+            />
+          </>
         ) : (
           <div className="text-center text-gray-500 dark:text-gray-400">
             No analytics data available
