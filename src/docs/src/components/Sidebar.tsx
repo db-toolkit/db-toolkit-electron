@@ -19,7 +19,7 @@ const sections = [
 
 export default function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
   return (
-    <aside className="w-72 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-[calc(100vh-72px)] flex flex-col fixed left-0 top-[72px]">
+    <aside className="w-72 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-[calc(100vh-124px)] flex flex-col fixed left-0 top-[124px]">
       <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">DB Toolkit</h2>
         <span className="text-sm text-gray-500 dark:text-gray-400">v0.3.0</span>
