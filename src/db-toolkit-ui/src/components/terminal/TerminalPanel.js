@@ -49,8 +49,8 @@ function TerminalPanel({ isOpen, onClose }) {
     
     const terminal = terminalsRef.current[id];
     if (terminal) {
+      terminal.cleanup?.();
       terminal.term?.dispose();
-      terminal.ws?.close();
       delete terminalsRef.current[id];
     }
     
@@ -114,34 +114,60 @@ function TerminalPanel({ isOpen, onClose }) {
         }
       }, 50);
 
-      const ws = new WebSocket(WS_ENDPOINTS.TERMINAL);
-
-      ws.onopen = () => {
-        // Send session ID to restore previous state
-        ws.send(JSON.stringify({ session_id: `tab-${tab.id}` }));
-      };
-
-      ws.onmessage = (event) => {
-        if (event.data instanceof Blob) {
-          event.data.arrayBuffer().then((buffer) => {
-            term.write(new Uint8Array(buffer));
-          });
-        } else {
-          term.write(event.data);
-        }
-      };
-
+      let ws = null;
+      let reconnectAttempts = 0;
+      let reconnectTimeout = null;
       let currentDir = '';
-      
+      let isManualClose = false;
+
+      const connect = () => {
+        ws = new WebSocket(WS_ENDPOINTS.TERMINAL);
+
+        ws.onopen = () => {
+          reconnectAttempts = 0;
+          ws.send(JSON.stringify({ session_id: `tab-${tab.id}` }));
+          term.write('\r\n\x1b[32m[Connected]\x1b[0m\r\n');
+        };
+
+        ws.onmessage = (event) => {
+          if (event.data instanceof Blob) {
+            event.data.arrayBuffer().then((buffer) => {
+              term.write(new Uint8Array(buffer));
+            });
+          } else {
+            term.write(event.data);
+          }
+        };
+
+        ws.onerror = () => {
+          term.write('\r\n\x1b[31m[Connection error]\x1b[0m\r\n');
+        };
+
+        ws.onclose = () => {
+          if (isManualClose) return;
+          
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+          reconnectAttempts++;
+          
+          term.write(`\r\n\x1b[33m[Disconnected. Reconnecting in ${delay/1000}s...]\x1b[0m\r\n`);
+          
+          reconnectTimeout = setTimeout(() => {
+            if (!isManualClose) {
+              connect();
+            }
+          }, delay);
+        };
+      };
+
+      connect();
+
       term.onData((data) => {
-        if (ws.readyState === WebSocket.OPEN) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
           ws.send(data);
           
-          // Track directory changes (simple detection)
           if (data === '\r') {
-            // Send current directory for session save
             setTimeout(() => {
-              if (currentDir) {
+              if (currentDir && ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(`SESSION:${currentDir}`);
               }
             }, 100);
@@ -150,12 +176,21 @@ function TerminalPanel({ isOpen, onClose }) {
       });
 
       term.onResize(({ rows, cols }) => {
-        if (ws.readyState === WebSocket.OPEN) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
           ws.send(`RESIZE:${rows}:${cols}`);
         }
       });
 
-      terminalsRef.current[tab.id] = { term, fit, ws };
+      terminalsRef.current[tab.id] = { 
+        term, 
+        fit, 
+        ws, 
+        cleanup: () => {
+          isManualClose = true;
+          if (reconnectTimeout) clearTimeout(reconnectTimeout);
+          if (ws) ws.close();
+        }
+      };
     });
 
     const handleWindowResize = () => {
@@ -183,17 +218,9 @@ function TerminalPanel({ isOpen, onClose }) {
 
   useEffect(() => {
     return () => {
-      // Save all sessions before unmount
-      Object.keys(terminalsRef.current).forEach(tabId => {
-        const { ws } = terminalsRef.current[tabId];
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.close();
-        }
-      });
-      
-      Object.values(terminalsRef.current).forEach(({ term, ws }) => {
+      Object.values(terminalsRef.current).forEach(({ term, cleanup }) => {
+        cleanup?.();
         term?.dispose();
-        ws?.close();
       });
       terminalsRef.current = {};
     };
