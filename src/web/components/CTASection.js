@@ -17,7 +17,7 @@ export default function CTASection() {
   }, []);
 
   return (
-    <section className="relative py-16 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden">
+    <section className="relative py-12 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           animate={{
@@ -57,7 +57,7 @@ export default function CTASection() {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6"
+            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
           >
             Ready to Get Started?
           </motion.h2>
@@ -66,7 +66,7 @@ export default function CTASection() {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="text-xl text-gray-600 dark:text-gray-300 mb-12"
+            className="text-lg text-gray-600 dark:text-gray-300 mb-8"
           >
             Download DB Toolkit now and simplify your database workflow
           </motion.p>
