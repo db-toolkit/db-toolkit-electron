@@ -77,7 +77,7 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4 max-w-4xl mx-auto"
         >
-          Your <span className="bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">all-in-one</span> database companion
+          Your <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">all-in-one</span> database companion
         </motion.h1>
 
         <motion.p
