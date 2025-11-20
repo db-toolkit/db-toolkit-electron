@@ -177,6 +177,12 @@
           "title": "CSV Import/Export",
           "content": "Import and export data using CSV files.\n\n**Export to CSV:**\n1. Execute a query\n2. Click \"Export\" button in results\n3. Choose CSV format\n4. Select columns to export\n5. Download file\n\n**Import from CSV:**\n1. Navigate to Data Explorer\n2. Select target table\n3. Click \"Import CSV\"\n4. Upload your CSV file\n5. Map columns to table fields\n6. Validate and import\n\n**CSV Format Requirements:**\n- First row should contain column headers\n- Use comma (,) as delimiter\n- Enclose text with quotes if contains commas\n- Date format: YYYY-MM-DD\n- Boolean: true/false or 1/0\n\n**Tips:**\n- Validate data before importing\n- Use transactions for large imports\n- Check for duplicate keys\n- Backup table before bulk import\n\n**Example CSV:**\n```csv\nname,email,age,active\nJohn Doe,john@example.com,30,true\nJane Smith,jane@example.com,25,true\n```",
           "keywords": ["csv", "import", "export", "data", "file"]
+        },
+        {
+          "id": "terminal",
+          "title": "Terminal",
+          "content": "Access the integrated terminal for advanced operations.\n\n**How to Access:**\n- Click the Terminal icon in the status bar (bottom-right)\n- Use keyboard shortcut (if configured)\n\n**What You Can Do:**\n- Execute system commands\n- Run database CLI tools directly\n- Access migration commands\n- Debug connection issues\n- View system logs\n\n**Common Use Cases:**\n\n**Database CLI Access:**\n```bash\n# PostgreSQL\npsql -h localhost -U username -d database\n\n# MySQL\nmysql -h localhost -u username -p database\n\n# MongoDB\nmongo mongodb://localhost:27017/database\n```\n\n**Migration Commands:**\n```bash\n# Initialize migrations\nmigrator init\n\n# Create migration\nmigrator makemigrations \"add users table\"\n\n# Apply migrations\nmigrator migrate\n\n# View history\nmigrator history\n```\n\n**Backup Operations:**\n```bash\n# PostgreSQL dump\npg_dump -h localhost -U user database > backup.sql\n\n# MySQL dump\nmysqldump -h localhost -u user -p database > backup.sql\n\n# Restore\npsql database < backup.sql\nmysql database < backup.sql\n```\n\n**Tips:**\n- Terminal runs in application context\n- Environment variables are accessible\n- Use absolute paths for file operations\n- Check command output for errors\n- Terminal history is preserved during session",
+          "keywords": ["terminal", "cli", "command", "shell", "console"]
         }
       ]
     },

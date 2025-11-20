@@ -212,11 +212,20 @@ function StatusBar() {
       </div>
       </div>
       
-      <Terminal 
-        size={18} 
-        className="cursor-pointer hover:text-gray-900 dark:hover:text-gray-200" 
-        title="Terminal" 
-      />
+      <div className="relative"
+        onMouseEnter={() => setHoveredMetric('terminal')}
+        onMouseLeave={() => setHoveredMetric(null)}
+      >
+        <Terminal 
+          size={18} 
+          className="cursor-pointer hover:text-gray-900 dark:hover:text-gray-200" 
+        />
+        {hoveredMetric === 'terminal' && (
+          <div className="absolute bottom-full right-0 mb-2 p-3 bg-gray-800 dark:bg-gray-950 text-white rounded-lg shadow-lg text-xs whitespace-nowrap z-50">
+            <div className="font-semibold">Terminal</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
