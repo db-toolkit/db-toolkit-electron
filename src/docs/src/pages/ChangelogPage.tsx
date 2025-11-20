@@ -9,8 +9,12 @@ export default function ChangelogPage() {
 
   return (
     <div className="flex w-full">
-      <aside className="w-64 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-[calc(100vh-124px)] flex flex-col fixed left-0 top-[124px]">
-        <div className="px-4 py-6">
+      <aside className="w-72 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-[calc(100vh-124px)] flex flex-col fixed left-0 top-[124px]">
+        <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">DB Toolkit</h2>
+          <span className="text-sm text-gray-500 dark:text-gray-400">v0.3.0</span>
+        </div>
+        <div className="px-6 py-6">
           <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-4">Versions</h3>
           <div className="flex flex-col gap-2">
             {changelogVersions.map((version) => (
@@ -31,7 +35,7 @@ export default function ChangelogPage() {
         </div>
       </aside>
       
-      <div className="w-64 flex-shrink-0" />
+      <div className="w-72 flex-shrink-0" />
       
       <motion.main 
         className="flex-1 p-12 max-w-4xl"
