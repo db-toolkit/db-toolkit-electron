@@ -31,10 +31,12 @@ jobs:
   build-and-upload:
     needs: create-release
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
     
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     
     steps:
       - name: Checkout code
@@ -85,10 +87,12 @@ jobs:
         run: npm run package:linux
       
       - name: Upload Release Assets
+        if: always()
         uses: softprops/action-gh-release@v1
         with:
           files: |
             src/db-toolkit-ui/release/*.dmg
+            src/db-toolkit-ui/release/*.zip
             src/db-toolkit-ui/release/*.exe
             src/db-toolkit-ui/release/*.AppImage
             src/db-toolkit-ui/release/*.deb
