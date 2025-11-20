@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { BookOpen, Database, Code } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import DocContent from '../components/DocContent';
 import ScrollToTop from '../components/ScrollToTop';
@@ -80,8 +81,26 @@ export default function GuidePage() {
       </div>
       
       <BottomBar
-        onHomeClick={() => setActiveSection('getting-started')}
-        onDocsClick={() => setActiveSection('getting-started')}
+        items={[
+          {
+            label: 'Start',
+            icon: <BookOpen size={20} />,
+            onClick: () => setActiveSection('getting-started'),
+            isActive: activeSection === 'getting-started'
+          },
+          {
+            label: 'Connect',
+            icon: <Database size={20} />,
+            onClick: () => setActiveSection('connections'),
+            isActive: activeSection === 'connections'
+          },
+          {
+            label: 'Query',
+            icon: <Code size={20} />,
+            onClick: () => setActiveSection('query-editor'),
+            isActive: activeSection === 'query-editor'
+          }
+        ]}
         onMenuClick={() => setIsSidebarOpen(true)}
       />
       

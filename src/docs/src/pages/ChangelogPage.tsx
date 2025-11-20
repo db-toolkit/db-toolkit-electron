@@ -4,7 +4,7 @@ import { fadeInUp, staggerContainer } from '../utils/motion';
 import { changelogVersions } from '../data/changelog';
 import ScrollToTop from '../components/ScrollToTop';
 import BottomBar from '../components/BottomBar';
-import { X } from 'lucide-react';
+import { X, Calendar } from 'lucide-react';
 
 export default function ChangelogPage() {
   const [activeVersion, setActiveVersion] = useState(changelogVersions[0].version);
@@ -107,8 +107,12 @@ export default function ChangelogPage() {
       </div>
       
       <BottomBar
-        onHomeClick={() => handleVersionChange(changelogVersions[0].version)}
-        onDocsClick={() => handleVersionChange(changelogVersions[0].version)}
+        items={changelogVersions.slice(0, 3).map((version) => ({
+          label: `v${version.version}`,
+          icon: <Calendar size={20} />,
+          onClick: () => handleVersionChange(version.version),
+          isActive: activeVersion === version.version
+        }))}
         onMenuClick={() => setIsSidebarOpen(true)}
       />
       
