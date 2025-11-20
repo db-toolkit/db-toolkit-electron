@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import CodeBlock from '../components/CodeBlock';
 import ContentBlock from '../components/ContentBlock';
 import KeyboardShortcut from '../components/KeyboardShortcut';
@@ -5,7 +6,7 @@ import StepIndicator from '../components/StepIndicator';
 
 export function parseContent(content: string) {
   const lines = content.split('\n');
-  const elements: JSX.Element[] = [];
+  const elements: ReactElement[] = [];
   let currentIndex = 0;
   let stepCounter = 0;
 
@@ -84,7 +85,7 @@ export function parseContent(content: string) {
 }
 
 function parseInlineElements(text: string) {
-  const parts: (string | JSX.Element)[] = [];
+  const parts: (string | ReactElement)[] = [];
   let lastIndex = 0;
   let keyIndex = 0;
 
