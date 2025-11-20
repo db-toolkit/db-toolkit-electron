@@ -15,7 +15,7 @@ export default function DocContent({ data }: DocContentProps) {
       animate="animate"
     >
       <motion.h1 
-        className="text-5xl font-bold mb-8 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent"
+        className="text-5xl font-bold mb-8 bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent"
         variants={fadeInUp}
       >
         {data.title}
@@ -26,10 +26,10 @@ export default function DocContent({ data }: DocContentProps) {
           className="mb-12"
           variants={fadeInUp}
         >
-          <h2 className="text-3xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-gray-200">{section.heading}</h2>
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4 pb-2 border-b-2 border-gray-200 dark:border-gray-700">{section.heading}</h2>
           <div className="space-y-4">
             {section.content.split('\n').map((line, i) => (
-              line.trim() && <p key={i} className="text-gray-600 whitespace-pre-wrap leading-relaxed">{line}</p>
+              line.trim() && <p key={i} className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{line}</p>
             ))}
           </div>
         </motion.section>

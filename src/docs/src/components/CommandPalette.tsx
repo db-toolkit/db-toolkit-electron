@@ -72,21 +72,21 @@ export default function CommandPalette({ isOpen, onClose, onNavigate }: CommandP
     <AnimatePresence>
       <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-32" onClick={onClose}>
         <motion.div 
-          className="bg-white rounded-lg shadow-2xl w-full max-w-2xl mx-4"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-2xl mx-4"
           onClick={(e) => e.stopPropagation()}
           {...scaleIn}
         >
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200">
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
             <Search size={20} className="text-gray-400" />
             <input
               type="text"
               placeholder="Search documentation..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 outline-none text-lg"
+              className="flex-1 outline-none text-lg bg-transparent text-gray-900 dark:text-gray-100"
               autoFocus
             />
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
               <X size={20} />
             </button>
           </div>
@@ -97,23 +97,23 @@ export default function CommandPalette({ isOpen, onClose, onNavigate }: CommandP
                 <button
                   key={index}
                   onClick={() => handleSelect(result.id)}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
                 >
-                  <div className="font-medium text-gray-800">{result.title}</div>
-                  <div className="text-sm text-gray-500 capitalize">{result.type}</div>
+                  <div className="font-medium text-gray-800 dark:text-gray-100">{result.title}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 capitalize">{result.type}</div>
                 </button>
               ))}
             </div>
           )}
           
           {search && results.length === 0 && (
-            <div className="px-4 py-8 text-center text-gray-500">
+            <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
               No results found for "{search}"
             </div>
           )}
           
           {!search && (
-            <div className="px-4 py-8 text-center text-gray-400 text-sm">
+            <div className="px-4 py-8 text-center text-gray-400 dark:text-gray-500 text-sm">
               Type to search documentation...
             </div>
           )}

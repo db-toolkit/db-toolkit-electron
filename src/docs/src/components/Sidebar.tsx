@@ -19,10 +19,10 @@ const sections = [
 
 export default function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
   return (
-    <aside className="w-72 bg-gray-50 border-r border-gray-200 h-[calc(100vh-72px)] flex flex-col fixed left-0 top-[72px]">
-      <div className="px-6 py-6 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-emerald-600 mb-1">DB Toolkit</h2>
-        <span className="text-sm text-gray-500">v0.3.0</span>
+    <aside className="w-72 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-[calc(100vh-72px)] flex flex-col fixed left-0 top-[72px]">
+      <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700">
+        <h2 className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">DB Toolkit</h2>
+        <span className="text-sm text-gray-500 dark:text-gray-400">v0.3.0</span>
       </div>
       <motion.nav 
         className="flex flex-col flex-1"
@@ -38,8 +38,8 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
               key={section.id}
               className={`px-6 py-3 text-left flex items-center gap-3 transition-all border-l-3 ${
                 isActive 
-                  ? 'bg-emerald-50 text-emerald-600 font-semibold border-l-emerald-600' 
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-emerald-600 border-l-transparent'
+                  ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 font-semibold border-l-emerald-600 dark:border-l-emerald-400' 
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-emerald-600 dark:hover:text-emerald-400 border-l-transparent'
               }`}
               onClick={() => onSectionChange(section.id)}
               variants={fadeInUp}
