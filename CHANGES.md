@@ -23,5 +23,6 @@ This file tracks changes during development before they are added to CHANGELOG.m
 - URL field auto-clears on checkbox toggle, auto-populates fields for editing
 - Create Connection button navigation without page refresh
 - Charts dark/light mode compatibility
+- Connection management performance - reuse connections instead of creating new ones (5-10x faster queries)
 
 ### Removed
