@@ -1,6 +1,5 @@
 import dynamic from 'next/dynamic';
 import Features from '@/components/Features';
-import UseCases from '@/components/UseCases';
 import FAQ from '@/components/FAQ';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
@@ -12,7 +11,6 @@ export default function Home() {
     <main className="min-h-screen">
       <Hero />
       <Features />
-      <UseCases />
       <FAQ />
       <CTASection />
       <Footer />

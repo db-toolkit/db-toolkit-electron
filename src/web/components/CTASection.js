@@ -17,7 +17,7 @@ export default function CTASection() {
   }, []);
 
   return (
-    <section className="relative py-12 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden">
+    <section className="relative py-8 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           animate={{
@@ -43,6 +43,29 @@ export default function CTASection() {
           }}
           className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-purple-100/30 to-transparent rounded-full blur-3xl motion-reduce:animate-none"
         />
+        
+        {/* Floating particles */}
+        {[...Array(10)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full motion-reduce:hidden"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, Math.random() * 15 - 7.5, 0],
+              opacity: [0.3, 0.7, 0.3],
+              scale: [1, 1.3, 1],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
       </div>
       <div className="relative container mx-auto px-6">
         <motion.div
@@ -57,7 +80,7 @@ export default function CTASection() {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3"
           >
             Ready to Get Started?
           </motion.h2>
@@ -66,7 +89,7 @@ export default function CTASection() {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="text-lg text-gray-600 dark:text-gray-300 mb-8"
+            className="text-lg text-gray-600 dark:text-gray-300 mb-6"
           >
             Download DB Toolkit now and simplify your database workflow
           </motion.p>
