@@ -47,6 +47,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: src/db-toolkit-ui/package-lock.json
       
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -55,7 +57,13 @@ jobs:
       
       - name: Install frontend dependencies
         working-directory: src/db-toolkit-ui
-        run: npm ci
+        run: |
+          npm config set fetch-retry-mintimeout 20000
+          npm config set fetch-retry-maxtimeout 120000
+          npm ci --prefer-offline --no-audit
+        env:
+          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
+          ELECTRON_CUSTOM_DIR: '{{ version }}'
       
       - name: Build for macOS
         if: matrix.os == 'macos-latest'
