@@ -11,9 +11,12 @@ export function useAnalytics(connectionId) {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
   const wsRef = useRef(null);
+  const reconnectTimeoutRef = useRef(null);
+  const retryCountRef = useRef(0);
+  const maxRetries = 10;
   const toast = useToast();
 
-  useEffect(() => {
+  const connect = () => {
     if (!connectionId) return;
 
     setLoading(true);
@@ -22,6 +25,7 @@ export function useAnalytics(connectionId) {
 
     ws.onopen = () => {
       ws.send(JSON.stringify({ connection_id: connectionId }));
+      retryCountRef.current = 0;
     };
 
     ws.onmessage = (event) => {
@@ -46,17 +50,32 @@ export function useAnalytics(connectionId) {
     };
 
     ws.onerror = () => {
-      toast.error('WebSocket connection failed');
       setLoading(false);
     };
 
     ws.onclose = () => {
       setLoading(false);
+      
+      if (retryCountRef.current < maxRetries) {
+        const delay = Math.min(1000 * Math.pow(2, retryCountRef.current), 30000);
+        retryCountRef.current++;
+        
+        reconnectTimeoutRef.current = setTimeout(() => {
+          connect();
+        }, delay);
+      }
     };
+  };
+
+  useEffect(() => {
+    connect();
 
     return () => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.close();
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.close();
       }
     };
   }, [connectionId]);
