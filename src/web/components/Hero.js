@@ -38,7 +38,7 @@ export default function Hero() {
         {[...Array(30)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-3 h-3 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full"
+            className="absolute w-3 h-3 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -89,7 +89,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto"
+          className="text-xl md:text-2xl text-gray-700 dark:text-gray-200 mb-4 max-w-3xl mx-auto"
         >
           Modern, cross-platform database management made simple. 
           Built with Electron, React, and Python FastAPI.
@@ -99,7 +99,7 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="text-lg text-gray-500 dark:text-gray-400 mb-12 italic"
+          className="text-lg text-gray-600 dark:text-gray-300 mb-12 italic"
         >
           "Simplify your database workflow, amplify your productivity"
         </motion.p>
