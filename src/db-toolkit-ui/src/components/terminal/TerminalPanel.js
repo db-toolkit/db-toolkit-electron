@@ -126,7 +126,6 @@ function TerminalPanel({ isOpen, onClose }) {
         ws.onopen = () => {
           reconnectAttempts = 0;
           ws.send(JSON.stringify({ session_id: `tab-${tab.id}` }));
-          term.write('\r\n\x1b[32m[Connected]\x1b[0m\r\n');
         };
 
         ws.onmessage = (event) => {
@@ -140,7 +139,7 @@ function TerminalPanel({ isOpen, onClose }) {
         };
 
         ws.onerror = () => {
-          term.write('\r\n\x1b[31m[Connection error]\x1b[0m\r\n');
+          // Silent error handling
         };
 
         ws.onclose = () => {
@@ -148,8 +147,6 @@ function TerminalPanel({ isOpen, onClose }) {
           
           const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
           reconnectAttempts++;
-          
-          term.write(`\r\n\x1b[33m[Disconnected. Reconnecting in ${delay/1000}s...]\x1b[0m\r\n`);
           
           reconnectTimeout = setTimeout(() => {
             if (!isManualClose) {
