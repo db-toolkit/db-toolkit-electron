@@ -20,11 +20,11 @@ def generate_analytics_pdf(
     
     # Debug info section
     pdf.add_section("Report Generation Info")
-    pdf.add_text(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    pdf.add_text(f"Metrics Success: {metrics.get('success', False)}")
-    pdf.add_text(f"Historical Data Points: {len(historical_data)}")
-    pdf.add_text(f"Slow Queries: {len(slow_queries)}")
-    pdf.add_text(f"Table Stats: {len(table_stats)}")
+    pdf.add_paragraph(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    pdf.add_paragraph(f"Metrics Success: {metrics.get('success', False)}")
+    pdf.add_paragraph(f"Historical Data Points: {len(historical_data)}")
+    pdf.add_paragraph(f"Slow Queries: {len(slow_queries)}")
+    pdf.add_paragraph(f"Table Stats: {len(table_stats)}")
     
     # Current Metrics
     pdf.add_section("Current Metrics")
@@ -55,10 +55,10 @@ def generate_analytics_pdf(
         if query_data:
             pdf.add_table(query_data, headers=['Query Type', 'Count'])
         else:
-            pdf.add_text("No active queries found.")
+            pdf.add_paragraph("No active queries found.")
     else:
         pdf.add_section("Query Distribution")
-        pdf.add_text("No query statistics available.")
+        pdf.add_paragraph("No query statistics available.")
     
     # Current Queries
     current_queries = metrics.get('current_queries', [])
@@ -76,7 +76,7 @@ def generate_analytics_pdf(
         if current_data:
             pdf.add_table(current_data, headers=['PID', 'User', 'State', 'Duration', 'Query'])
         else:
-            pdf.add_text("No current queries found.")
+            pdf.add_paragraph("No current queries found.")
     
     # Slow Queries
     if slow_queries:
@@ -94,10 +94,10 @@ def generate_analytics_pdf(
         if slow_data:
             pdf.add_table(slow_data, headers=['Timestamp', 'Duration', 'User', 'Query'])
         else:
-            pdf.add_text("No slow queries found.")
+            pdf.add_paragraph("No slow queries found.")
     else:
         pdf.add_section("Slow Query Log (Last 24 Hours)")
-        pdf.add_text("No slow queries recorded.")
+        pdf.add_paragraph("No slow queries recorded.")
     
     # Table Statistics
     if table_stats:
@@ -114,9 +114,9 @@ def generate_analytics_pdf(
         if table_data:
             pdf.add_table(table_data, headers=['Table', 'Size', 'Rows'])
         else:
-            pdf.add_text("No table statistics available.")
+            pdf.add_paragraph("No table statistics available.")
     else:
         pdf.add_section("Table Statistics")
-        pdf.add_text("No table statistics available.")
+        pdf.add_paragraph("No table statistics available.")
     
     return pdf.build()
