@@ -2,11 +2,12 @@
  * Migrations page for database schema migrations.
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Play, RotateCcw, History, Plus, FileText, Folder, Trash2 } from 'lucide-react';
+import { Play, RotateCcw, History, Plus, FileText, Folder, Trash2, X } from 'lucide-react';
 import { useConnections } from '../hooks';
 import { useMigratorStream } from '../hooks/useMigratorStream';
 import { useToast } from '../contexts/ToastContext';
 import { Button } from '../components/common/Button';
+import MigrationFileBrowser from '../components/migrations/MigrationFileBrowser';
 
 function MigrationsPage() {
   const { connections } = useConnections();
@@ -124,7 +125,9 @@ function MigrationsPage() {
   const handleHistory = () => runCommand('history');
 
   return (
-    <div className="h-full flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="h-full flex bg-gray-50 dark:bg-gray-900">
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Database Migrations</h1>
         
@@ -168,7 +171,8 @@ function MigrationsPage() {
         )}
       </div>
 
-      <div className="flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between px-6 py-3 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-2">
         <Button size="sm" onClick={handleInit} disabled={isRunning || !selectedProject}>
           <FileText size={14} className="mr-1" /> Init
         </Button>
@@ -183,6 +187,16 @@ function MigrationsPage() {
         </Button>
         <Button size="sm" variant="secondary" onClick={handleHistory} disabled={isRunning || !selectedProject}>
           <History size={14} className="mr-1" /> History
+        </Button>
+        </div>
+        <Button 
+          size="sm" 
+          variant="secondary" 
+          onClick={() => setOutput([])} 
+          disabled={output.length === 0}
+          title="Clear output"
+        >
+          <X size={14} className="mr-1" /> Clear
         </Button>
       </div>
 
@@ -211,6 +225,15 @@ function MigrationsPage() {
             </div>
           ))
         )}
+      </div>
+      </div>
+
+      {/* File Browser Sidebar */}
+      <div className="w-80 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <MigrationFileBrowser 
+          projectPath={selectedProject?.path} 
+          onRefresh={() => addOutput('Files refreshed', 'info')}
+        />
       </div>
 
       {showCreateModal && (
@@ -302,6 +325,7 @@ function MigrationsPage() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

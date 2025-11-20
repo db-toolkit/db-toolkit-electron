@@ -1,6 +1,7 @@
-const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron');
 const path = require('path');
 const os = require('os');
+const fs = require('fs').promises;
 const { exec } = require('child_process');
 
 // Set app name before anything else
@@ -119,6 +120,63 @@ ipcMain.handle('select-folder', async () => {
     properties: ['openDirectory']
   });
   return result.canceled ? null : result.filePaths[0];
+});
+
+ipcMain.handle('list-migration-files', async (event, projectPath) => {
+  try {
+    const migrationsPath = path.join(projectPath, 'migrations');
+    const files = await fs.readdir(migrationsPath);
+    return files
+      .filter(f => f.endsWith('.py') && f !== '__init__.py')
+      .map(name => ({
+        name,
+        path: path.join(migrationsPath, name)
+      }));
+  } catch (error) {
+    return [];
+  }
+});
+
+ipcMain.handle('read-file', async (event, filePath) => {
+  try {
+    return await fs.readFile(filePath, 'utf-8');
+  } catch (error) {
+    throw new Error('Failed to read file');
+  }
+});
+
+ipcMain.handle('open-in-editor', async (event, filePath) => {
+  try {
+    await shell.openPath(filePath);
+  } catch (error) {
+    throw new Error('Failed to open file');
+  }
+});
+
+ipcMain.handle('delete-file', async (event, filePath) => {
+  try {
+    await fs.unlink(filePath);
+  } catch (error) {
+    throw new Error('Failed to delete file');
+  }
+});
+
+ipcMain.handle('rename-file', async (event, oldPath, newName) => {
+  try {
+    const dir = path.dirname(oldPath);
+    const newPath = path.join(dir, newName);
+    await fs.rename(oldPath, newPath);
+  } catch (error) {
+    throw new Error('Failed to rename file');
+  }
+});
+
+ipcMain.handle('open-folder', async (event, folderPath) => {
+  try {
+    await shell.openPath(folderPath);
+  } catch (error) {
+    throw new Error('Failed to open folder');
+  }
 });
 
 ipcMain.handle('get-system-metrics', async () => {
