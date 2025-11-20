@@ -165,7 +165,11 @@ function BackupsPage() {
     schedule.name.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
-  if (loading) return <LoadingState fullScreen message="Loading backups..." />;
+  if (loading) return (
+    <div className="p-8">
+      <LoadingState message="Loading backups..." />
+    </div>
+  );
 
   return (
     <motion.div className="p-8" {...pageTransition}>
