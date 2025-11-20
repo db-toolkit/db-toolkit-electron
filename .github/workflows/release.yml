@@ -30,6 +30,7 @@ jobs:
 
   build-and-upload:
     needs: create-release
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
