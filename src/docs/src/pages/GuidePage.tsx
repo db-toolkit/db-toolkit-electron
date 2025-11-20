@@ -39,10 +39,20 @@ const sections = [
   { id: 'settings', label: 'Settings' },
 ];
 
-export default function GuidePage() {
+interface GuidePageProps {
+  navigateToSection?: string | null;
+}
+
+export default function GuidePage({ navigateToSection }: GuidePageProps) {
   const [activeSection, setActiveSection] = useState('getting-started');
   const [currentData, setCurrentData] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (navigateToSection) {
+      setActiveSection(navigateToSection);
+    }
+  }, [navigateToSection]);
 
   useEffect(() => {
     loadData(activeSection).then(setCurrentData);

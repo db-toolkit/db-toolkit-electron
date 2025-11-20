@@ -17,7 +17,7 @@ export const gettingStartedData = {
     {
       heading: "First Launch",
       content: `1. Open DB Toolkit
-2. You'll see the connection manager
+2. Click on the connections button in the sidebar
 3. Click "Add Connection" to create your first database connection`
     },
     {

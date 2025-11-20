@@ -12,6 +12,7 @@ interface DocsPageProps {
 
 export default function DocsPage({ isCommandOpen, onCommandClose }: DocsPageProps) {
   const [activeTab, setActiveTab] = useState<'guide' | 'changelog'>('guide');
+  const [navigateToSection, setNavigateToSection] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -52,14 +53,17 @@ export default function DocsPage({ isCommandOpen, onCommandClose }: DocsPageProp
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
           </div>
         }>
-          {activeTab === 'guide' ? <GuidePage /> : <ChangelogPage />}
+          {activeTab === 'guide' ? <GuidePage navigateToSection={navigateToSection} /> : <ChangelogPage />}
         </Suspense>
       </div>
       
       <CommandPalette 
         isOpen={isCommandOpen} 
         onClose={onCommandClose}
-        onNavigate={() => setActiveTab('guide')}
+        onNavigate={(section) => {
+          setActiveTab('guide');
+          setNavigateToSection(section);
+        }}
       />
     </>
   );
