@@ -28,6 +28,7 @@ from core.routes.settings import router as settings_router
 from core.routes.data_explorer import router as data_explorer_router
 from core.routes.backup import router as backup_router
 from core.routes.migrator import router as migrator_router
+from core.routes.analytics import router as analytics_router
 from ws.websocket import websocket_backups
 from ws.terminal import websocket_terminal
 from ws.migrator import websocket_migrator
@@ -61,6 +62,7 @@ app.include_router(settings_router, prefix="/api/v1", tags=["Settings"])
 app.include_router(data_explorer_router, prefix="/api/v1", tags=["Data Explorer"])
 app.include_router(backup_router, prefix="/api/v1", tags=["Backups"])
 app.include_router(migrator_router, prefix="/api/v1", tags=["Migrator"])
+app.include_router(analytics_router, prefix="/api/v1", tags=["Analytics"])
 
 # WebSocket routes
 app.websocket("/ws/backups")(websocket_backups)
