@@ -1,5 +1,6 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, memo, useMemo } from 'react';
 import { Search, X } from 'lucide-react';
+import { useDebounce } from '../hooks/useDebounce';
 import { motion, AnimatePresence } from 'framer-motion';
 import { scaleIn } from '../utils/motion';
 import {
@@ -32,15 +33,14 @@ const allSections = [
 
 function CommandPalette({ isOpen, onClose, onNavigate }: CommandPaletteProps) {
   const [search, setSearch] = useState('');
-  const [results, setResults] = useState<any[]>([]);
+  const debouncedSearch = useDebounce(search, 300);
 
-  useEffect(() => {
-    if (!search.trim()) {
-      setResults([]);
-      return;
+  const results = useMemo(() => {
+    if (!debouncedSearch.trim()) {
+      return [];
     }
 
-    const searchLower = search.toLowerCase();
+    const searchLower = debouncedSearch.toLowerCase();
     const matches: any[] = [];
 
     allSections.forEach((section) => {
@@ -59,8 +59,8 @@ function CommandPalette({ isOpen, onClose, onNavigate }: CommandPaletteProps) {
       });
     });
 
-    setResults(matches.slice(0, 8));
-  }, [search]);
+    return matches.slice(0, 8);
+  }, [debouncedSearch]);
 
   const handleSelect = (id: string) => {
     onNavigate(id);
@@ -108,9 +108,9 @@ function CommandPalette({ isOpen, onClose, onNavigate }: CommandPaletteProps) {
             </div>
           )}
           
-          {search && results.length === 0 && (
+          {debouncedSearch && results.length === 0 && (
             <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-              No results found for "{search}"
+              No results found for "{debouncedSearch}"
             </div>
           )}
           

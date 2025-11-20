@@ -38,12 +38,13 @@ const docMap: Record<string, any> = {
 export default function GuidePage() {
   const [activeSection, setActiveSection] = useState('getting-started');
   
-  const { prevSection, nextSection, currentData } = useMemo(() => {
+  const currentData = useMemo(() => docMap[activeSection], [activeSection]);
+  
+  const { prevSection, nextSection } = useMemo(() => {
     const currentIndex = sections.findIndex(s => s.id === activeSection);
     return {
       prevSection: currentIndex > 0 ? sections[currentIndex - 1] : undefined,
-      nextSection: currentIndex < sections.length - 1 ? sections[currentIndex + 1] : undefined,
-      currentData: docMap[activeSection]
+      nextSection: currentIndex < sections.length - 1 ? sections[currentIndex + 1] : undefined
     };
   }, [activeSection]);
   

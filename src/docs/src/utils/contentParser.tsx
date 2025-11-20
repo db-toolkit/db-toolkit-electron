@@ -4,7 +4,13 @@ import ContentBlock from '../components/ContentBlock';
 import KeyboardShortcut from '../components/KeyboardShortcut';
 import StepIndicator from '../components/StepIndicator';
 
+const contentCache = new Map<string, ReactElement[]>();
+
 export function parseContent(content: string) {
+  if (contentCache.has(content)) {
+    return contentCache.get(content)!;
+  }
+
   const lines = content.split('\n');
   const elements: ReactElement[] = [];
   let currentIndex = 0;
@@ -81,6 +87,7 @@ export function parseContent(content: string) {
     );
   }
 
+  contentCache.set(content, elements);
   return elements;
 }
 
