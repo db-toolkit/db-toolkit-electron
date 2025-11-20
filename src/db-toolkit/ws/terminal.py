@@ -25,9 +25,6 @@ async def websocket_terminal(websocket: WebSocket):
     attrs[3] = attrs[3] | termios.ECHO
     termios.tcsetattr(slave_fd, termios.TCSANOW, attrs)
     
-    # Get project root directory (cross-platform)
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
-    
     # Start shell process
     shell = os.environ.get('SHELL', '/bin/bash')
     pid = os.fork()
@@ -45,8 +42,9 @@ async def websocket_terminal(websocket: WebSocket):
         os.environ['TERM'] = 'xterm-256color'
         os.environ['COLORTERM'] = 'truecolor'
         
-        # Change to project root directory
-        os.chdir(project_root)
+        # Change to user home directory
+        home = os.path.expanduser('~')
+        os.chdir(home)
         
         # Execute shell with login flag for prompt
         os.execv(shell, [shell, '-l'])

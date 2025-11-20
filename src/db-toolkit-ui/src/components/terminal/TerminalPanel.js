@@ -25,6 +25,7 @@ function TerminalPanel({ isOpen, onClose }) {
       cursorBlink: true,
       fontSize: 14,
       fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+      scrollback: 10000,
       theme: {
         background: '#1e1e1e',
         foreground: '#d4d4d4',
@@ -156,7 +157,7 @@ function TerminalPanel({ isOpen, onClose }) {
       </div>
       <div
         ref={terminalRef}
-        className="w-full h-full p-2"
+        className="w-full p-2 overflow-hidden"
         style={{ height: isMaximized ? 'calc(100vh - 40px)' : `${height - 40}px` }}
         onClick={() => termRef.current?.focus()}
       />
