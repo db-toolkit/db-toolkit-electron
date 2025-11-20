@@ -3,9 +3,7 @@
 import asyncio
 from fastapi import WebSocket, WebSocketDisconnect
 from operations.analytics_manager import AnalyticsManager
-from operations.connection_manager import ConnectionManager
-
-connection_manager = ConnectionManager()
+from operations.connection_manager import connection_manager
 
 
 async def websocket_analytics(websocket: WebSocket):
@@ -23,18 +21,23 @@ async def websocket_analytics(websocket: WebSocket):
             await websocket.close()
             return
         
-        connection_info = connection_manager.get_connection(connection_id)
+        connection_info = await connection_manager.get_connection(connection_id)
         if not connection_info:
             await websocket.send_json({"error": "Connection not found"})
             await websocket.close()
             return
         
-        config, connector = connection_info
+        connector = await connection_manager.get_connector(connection_id)
+        if not connector:
+            await websocket.send_json({"error": "Connection not active"})
+            await websocket.close()
+            return
+            
         analytics_manager = AnalyticsManager(connector.connection)
         
         # Send analytics every 2 seconds
         while True:
-            result = await analytics_manager.get_analytics(config, connection_id)
+            result = await analytics_manager.get_analytics(connection_info, connection_id)
             await websocket.send_json(result)
             await asyncio.sleep(2)
             
