@@ -1,36 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import CommandPalette from '../components/CommandPalette';
 import GuidePage from './GuidePage';
 import ChangelogPage from './ChangelogPage';
 
 interface DocsPageProps {
-  onCommandOpen?: (isOpen: boolean) => void;
+  isCommandOpen: boolean;
+  onCommandClose: () => void;
 }
 
-export default function DocsPage({ onCommandOpen }: DocsPageProps) {
+export default function DocsPage({ isCommandOpen, onCommandClose }: DocsPageProps) {
   const [activeTab, setActiveTab] = useState<'guide' | 'changelog'>('guide');
-  const [isCommandOpen, setIsCommandOpen] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsCommandOpen(true);
-        onCommandOpen?.(true);
-      }
-      if (e.key === 'Escape') {
-        setIsCommandOpen(false);
-        onCommandOpen?.(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onCommandOpen]);
 
   return (
     <>
-      <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+      <div className="fixed top-[72px] left-0 right-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-40">
         <div className="flex gap-8 px-8">
           <button
             onClick={() => setActiveTab('guide')}
@@ -55,11 +38,13 @@ export default function DocsPage({ onCommandOpen }: DocsPageProps) {
         </div>
       </div>
       
-      {activeTab === 'guide' ? <GuidePage /> : <ChangelogPage />}
+      <div className="pt-[124px]">
+        {activeTab === 'guide' ? <GuidePage /> : <ChangelogPage />}
+      </div>
       
       <CommandPalette 
         isOpen={isCommandOpen} 
-        onClose={() => setIsCommandOpen(false)}
+        onClose={onCommandClose}
         onNavigate={() => setActiveTab('guide')}
       />
     </>
