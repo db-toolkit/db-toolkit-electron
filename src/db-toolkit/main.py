@@ -70,8 +70,8 @@ app.include_router(backup_router, prefix="/api/v1", tags=["Backups"])
 app.include_router(migrator_router, prefix="/api/v1", tags=["Migrator"])
 app.include_router(analytics_router, prefix="/api/v1/analytics", tags=["Analytics"])
 app.include_router(cache_router, prefix="/api/v1", tags=["Cache"])
-app.include_router(query_ai_router, prefix="/api/v1", tags=["AI Query"])
-app.include_router(schema_ai_router, prefix="/api/v1", tags=["AI Schema"])
+app.include_router(query_ai_router, prefix="/api/v1/ai/query", tags=["AI Query"])
+app.include_router(schema_ai_router, prefix="/api/v1/ai/schema", tags=["AI Schema"])
 
 # WebSocket routes
 app.websocket("/ws/backups")(websocket_backups)

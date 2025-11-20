@@ -11,7 +11,7 @@ from core.schemas.ai.query_schemas import (
     QueryCompletionRequest, QueryCompletionResponse
 )
 
-router = APIRouter(prefix="/ai/query")
+router = APIRouter()
 
 
 @router.post("/generate", response_model=GenerateQueryResponse)

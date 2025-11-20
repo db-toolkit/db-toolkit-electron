@@ -10,7 +10,7 @@ from core.schemas.ai.schema_schemas import (
     CommonQueriesRequest, CommonQueriesResponse
 )
 
-router = APIRouter(prefix="/ai/schema")
+router = APIRouter()
 
 
 @router.post("/analyze", response_model=SchemaAnalysisResponse)
