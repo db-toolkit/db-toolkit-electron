@@ -4,7 +4,7 @@
 
 // Cache TTL (Time To Live) in milliseconds
 export const CACHE_TTL = {
-  SCHEMA: 5 * 60 * 1000,        // 5 minutes
+  SCHEMA: 15 * 60 * 1000,       // 15 minutes
   TABLE_INFO: 10 * 60 * 1000,   // 10 minutes
   CONNECTIONS: 30 * 60 * 1000,  // 30 minutes
   SETTINGS: 60 * 60 * 1000,     // 1 hour
