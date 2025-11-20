@@ -86,7 +86,7 @@ export default function Hero() {
           className="mb-8"
         >
           <span className="px-4 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-semibold rounded-full">
-            🎉 v0.4.1 - Enhanced Terminal & Migrations
+            🎉 v0.5.0 - Enhanced Terminal & Migrations
           </span>
         </motion.div>
 

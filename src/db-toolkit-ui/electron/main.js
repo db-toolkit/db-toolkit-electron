@@ -39,7 +39,7 @@ function createMenu() {
               type: 'info',
               title: 'About DB Toolkit',
               message: 'DB Toolkit',
-              detail: `Version: 0.4.1\nA modern database management tool\n\nBuilt with Electron, React, and Python FastAPI\n\n© 2025 DB Toolkit`,
+              detail: `Version: 0.5.0\nA modern database management tool\n\nBuilt with Electron, React, and Python FastAPI\n\n© 2025 DB Toolkit`,
               buttons: ['OK']
             });
           }
