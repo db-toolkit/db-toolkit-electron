@@ -10,9 +10,11 @@ export default function Hero() {
   const [downloadUrl, setDownloadUrl] = useState('/downloads');
 
   useEffect(() => {
-    const platform = detectPlatform();
-    if (platform) {
-      setDownloadUrl(getDownloadUrl(platform));
+    if (typeof window !== 'undefined') {
+      const platform = detectPlatform();
+      if (platform) {
+        setDownloadUrl(getDownloadUrl(platform));
+      }
     }
   }, []);
 
