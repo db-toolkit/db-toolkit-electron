@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import CodeBlock from '../components/CodeBlock';
 import ContentBlock from '../components/ContentBlock';
 import KeyboardShortcut from '../components/KeyboardShortcut';

@@ -7,6 +7,11 @@ export default function ChangelogPage() {
   const [activeVersion, setActiveVersion] = useState(changelogVersions[0].version);
   const selectedVersion = changelogVersions.find(v => v.version === activeVersion)!;
 
+  const handleVersionChange = (version: string) => {
+    setActiveVersion(version);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
   return (
     <div className="flex w-full">
       <aside className="w-72 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-[calc(100vh-124px)] flex flex-col fixed left-0 top-[124px]">
@@ -20,7 +25,7 @@ export default function ChangelogPage() {
             {changelogVersions.map((version) => (
               <button
                 key={version.version}
-                onClick={() => setActiveVersion(version.version)}
+                onClick={() => handleVersionChange(version.version)}
                 className={`px-3 py-2 text-left rounded-lg transition-colors ${
                   activeVersion === version.version
                     ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 font-semibold'
@@ -38,11 +43,10 @@ export default function ChangelogPage() {
       <div className="w-72 flex-shrink-0" />
       
       <motion.main 
-        className="flex-1 p-12 max-w-4xl"
+        className="p-12 max-w-4xl w-full"
         variants={staggerContainer}
         initial="initial"
         animate="animate"
-        key={activeVersion}
       >
         <motion.h1 
           className="text-5xl font-bold mb-2 bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent"
