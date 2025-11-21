@@ -29,18 +29,25 @@ class CSVHandler:
             else:
                 result = await connector.execute_query(f"SELECT * FROM {full_table}")
 
-        if not result.get("rows"):
+        # Handle both dict and direct result formats
+        if isinstance(result, dict):
+            rows = result.get("rows", [])
+            columns = result.get("columns", [])
+        else:
+            rows = []
+            columns = []
+
+        if not rows or not columns:
             return ""
 
         output = io.StringIO()
-        writer = csv.DictWriter(output, fieldnames=result["columns"], delimiter=delimiter)
+        writer = csv.writer(output, delimiter=delimiter)
         
         if include_headers:
-            writer.writeheader()
+            writer.writerow(columns)
 
-        for row in result["rows"]:
-            row_dict = dict(zip(result["columns"], row))
-            writer.writerow(row_dict)
+        for row in rows:
+            writer.writerow(row)
 
         return output.getvalue()
 
