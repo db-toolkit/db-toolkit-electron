@@ -169,9 +169,9 @@
 
         {
           "id": "csv-import-export",
-          "title": "CSV Import/Export",
-          "content": "Import and export data using CSV files.\n\n**Export to CSV:**\n1. Execute a query\n2. Click \"Export\" button in results\n3. Choose CSV format\n4. Select columns to export\n5. Download file\n\n**Import from CSV:**\n1. Navigate to Data Explorer\n2. Select target table\n3. Click \"Import CSV\"\n4. Upload your CSV file\n5. Map columns to table fields\n6. Validate and import\n\n**CSV Format Requirements:**\n- First row should contain column headers\n- Use comma (,) as delimiter\n- Enclose text with quotes if contains commas\n- Date format: YYYY-MM-DD\n- Boolean: true/false or 1/0\n\n**Tips:**\n- Validate data before importing\n- Use transactions for large imports\n- Check for duplicate keys\n- Backup table before bulk import\n\n**Example CSV:**\n```csv\nname,email,age,active\nJohn Doe,john@example.com,30,true\nJane Smith,jane@example.com,25,true\n```",
-          "keywords": ["csv", "import", "export", "data", "file"]
+          "title": "CSV Export",
+          "content": "Export query results to CSV files with custom formatting.\n\n**How to Export:**\n1. Execute a query in Query Editor\n2. Click \"Export CSV\" button\n3. Configure export options:\n   - Filename\n   - Delimiter (comma, tab, semicolon, etc.)\n   - Include/exclude headers\n4. Click Export to download\n\n**Features:**\n- Exports current query results\n- Custom delimiter support\n- Optional column headers\n- Shows row × column count before export\n\n**Supported Delimiters:**\n- Comma (,) - default\n- Tab (\\t)\n- Semicolon (;)\n- Pipe (|)\n\n**Tips:**\n- Execute query first to see what will be exported\n- Use headers for easier data import elsewhere\n- Choose delimiter based on your data content\n- Large exports may take a few seconds",
+          "keywords": ["csv", "export", "data", "file", "download"]
         },
         {
           "id": "terminal",
