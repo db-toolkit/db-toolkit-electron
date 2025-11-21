@@ -74,8 +74,6 @@ class BackupManager:
         )
         
         await self.apply_retention_policy(connection.id, schedule.id, schedule.retention_count)
-        
-        asyncio.create_task(self._execute_backup(backup, connection, tables, compress))
         return backup
 
     async def _execute_backup(
