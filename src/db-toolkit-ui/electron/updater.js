@@ -104,61 +104,14 @@ function createProgressWindow() {
     }
   });
   
-  win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>
-          body {
-            margin: 0;
-            padding: 20px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            border-radius: 10px;
-          }
-          .container {
-            text-align: center;
-          }
-          .title {
-            font-size: 16px;
-            margin-bottom: 15px;
-          }
-          .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            overflow: hidden;
-          }
-          .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #2563eb);
-            width: 0%;
-            transition: width 0.3s;
-          }
-          .percentage {
-            margin-top: 10px;
-            font-size: 14px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="title">Downloading Update...</div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="progress"></div>
-          </div>
-          <div class="percentage" id="percentage">0%</div>
-        </div>
-      </body>
-    </html>
-  `)}`);
+  win.loadFile(path.join(__dirname, 'progress.html'));
   
   return win;
 }
 
 async function downloadUpdate(release) {
+  // Get the installer file for current platform from GitHub release assets
+  // asset.browser_download_url contains the direct download URL from GitHub
   const asset = getAssetForPlatform(release.assets);
   
   if (!asset) {
