@@ -2,6 +2,7 @@
 import asyncio
 import shutil
 from typing import Dict, Any, Optional
+from utils.logger import logger
 
 
 class MigratorExecutor:
@@ -53,6 +54,7 @@ class MigratorExecutor:
                     "exit_code": -1
                 }
         except Exception as e:
+            logger.error(f"Migrator command failed: {str(e)}")
             return {
                 "success": False,
                 "output": "",
@@ -104,6 +106,7 @@ class MigratorExecutor:
                 "success": process.returncode == 0
             })
         except Exception as e:
+            logger.error(f"Migrator stream command failed: {str(e)}")
             await websocket.send_json({
                 "type": "error",
                 "data": str(e)
@@ -126,5 +129,6 @@ class MigratorExecutor:
                 "version": stdout.decode().strip(),
                 "installed": process.returncode == 0
             }
-        except Exception:
+        except Exception as e:
+            logger.error(f"Failed to get migrator version: {str(e)}")
             return {"version": None, "installed": False}

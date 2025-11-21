@@ -7,6 +7,7 @@ from typing import Dict, Any
 from operations.query_history import QueryHistory
 from core.settings_storage import SettingsStorage
 from utils.cache import schema_cache, query_cache
+from utils.logger import logger
 
 
 class AdaptiveScheduler:
@@ -81,10 +82,10 @@ async def cleanup_old_history_task():
             scheduler.record_task_execution('history_cleanup', duration, removed_history + removed_schema)
             
             if removed_history > 0 or removed_schema > 0:
-                print(f"Cleaned up {removed_history} history entries, {removed_schema} expired cache entries")
+                logger.info(f"Cleaned up {removed_history} history entries, {removed_schema} expired cache entries")
                 
         except Exception as e:
-            print(f"Error in history cleanup task: {e}")
+            logger.error(f"Error in history cleanup task: {e}")
             # Back off on error
             await asyncio.sleep(60)
 
@@ -144,6 +145,7 @@ async def backup_scheduler_task():
                     if now >= next_run:
                         connection = await connection_storage.get_connection(schedule.connection_id)
                         if connection:
+                            logger.info(f"Running scheduled backup for '{connection.name}'")
                             await backup_manager.create_scheduled_backup(connection, schedule)
                             backups_processed += 1
             
@@ -154,7 +156,7 @@ async def backup_scheduler_task():
             await asyncio.sleep(interval)
             
         except Exception as e:
-            print(f"Error in backup scheduler: {e}")
+            logger.error(f"Error in backup scheduler: {e}")
             await asyncio.sleep(300)  # Back off on error
 
 

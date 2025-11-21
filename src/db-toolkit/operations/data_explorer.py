@@ -3,6 +3,7 @@
 from typing import Optional, Dict, Any, List
 from core.models import DatabaseConnection
 from operations.connection_manager import connection_manager
+from utils.logger import logger
 
 
 class DataExplorer:
@@ -40,6 +41,7 @@ class DataExplorer:
             result = await connector.execute_query(query)
             return {"success": True, "relationships": result.get("rows", [])}
         except Exception as e:
+            logger.error(f"Failed to get table relationships for '{connection.name}.{schema_name}.{table_name}': {str(e)}")
             return {"success": False, "error": str(e)}
 
     async def browse_data(
@@ -108,6 +110,7 @@ class DataExplorer:
             }
 
         except Exception as e:
+            logger.error(f"Failed to browse data for '{connection.name}.{schema_name}.{table_name}': {str(e)}")
             return {"success": False, "error": str(e)}
 
     async def get_cell_data(
@@ -133,6 +136,7 @@ class DataExplorer:
                 return {"success": True, "data": result["data"][0][0]}
             return {"success": False, "error": "No data found"}
         except Exception as e:
+            logger.error(f"Failed to get cell data for '{connection.name}.{schema_name}.{table_name}.{column_name}': {str(e)}")
             return {"success": False, "error": str(e)}
 
     async def get_row_count(
@@ -154,5 +158,6 @@ class DataExplorer:
                 return result["data"][0][0]
             return 0
 
-        except Exception:
+        except Exception as e:
+            logger.error(f"Failed to get row count for '{connection.name}.{schema_name}.{table_name}': {str(e)}")
             return 0
