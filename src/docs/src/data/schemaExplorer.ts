@@ -46,6 +46,25 @@ export const schemaExplorerData = {
     {
       heading: "Search & Filter",
       content: `Use search box to find tables, schemas, and columns quickly. Search is debounced (300ms) for performance.`
+    },
+    {
+      heading: "AI-Powered Analysis",
+      content: `**Schema-Level Analysis**
+- Click **"Analyze with AI"** button in header
+- View full schema insights in sidebar panel
+- See design patterns, relationships, and optimization suggestions
+- Results cached for 24 hours in IndexedDB
+
+**Table-Level Analysis**
+- Click **"Analyze with AI"** button on any table
+- Get table-specific insights inline
+- View index suggestions, common queries, and potential issues
+- Each table analysis cached separately
+
+**Features:**
+- Automatic caching (24-hour expiration)
+- Refresh button to force re-analysis
+- Powered by Google Gemini AI`
     }
   ]
 };

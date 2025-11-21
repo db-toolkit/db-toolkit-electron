@@ -1,5 +1,35 @@
 export const changelogVersions = [
   {
+    version: "0.5.1",
+    date: "2025-01-23",
+    sections: [
+      {
+        heading: "Added",
+        content: `- Schema Explorer AI with schema-level and table-level analysis
+- Per-tab AI chat history in Query Editor (10 message limit)
+- IndexedDB caching system for AI analysis results (24-hour expiration)
+- Password visibility toggle in connection modal
+- Connection active status indicator (green dot for last 10 minutes)
+- Terminal maximize/minimize functionality
+- Terminal light/dark mode support`
+      },
+      {
+        heading: "Fixed",
+        content: `- Terminal height resizing and content display issues
+- Terminal WebSocket disconnect errors
+- Infinite re-render in useConnections hook
+- Query page auto-reconnect on load
+- CSV export with custom delimiters and headers`
+      },
+      {
+        heading: "Changed",
+        content: `- Migrated query tabs, schema cache, and table info from localStorage to IndexedDB
+- Removed query explain analyzer (replaced by AI Assistant)
+- Updated documentation with DBAssist features`
+      }
+    ]
+  },
+  {
     version: "0.5.0",
     date: "2025-01-22",
     sections: [
