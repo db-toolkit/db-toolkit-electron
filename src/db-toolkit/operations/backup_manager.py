@@ -86,7 +86,11 @@ class BackupManager:
         """Execute backup in background."""
         try:
             await self.storage.update_backup(backup.id, status=BackupStatus.IN_PROGRESS)
-            await backup_notifier.notify_backup_update(backup.id, BackupStatus.IN_PROGRESS.value)
+            await backup_notifier.notify_backup_update(
+                backup.id, 
+                BackupStatus.IN_PROGRESS.value,
+                {"connection_name": connection.name}
+            )
             
             if connection.db_type.value == "postgresql":
                 await self._backup_postgresql(backup, connection, tables)
@@ -122,14 +126,22 @@ class BackupManager:
                 file_size=file_size,
                 file_path=final_path,
             )
-            await backup_notifier.notify_backup_update(backup.id, BackupStatus.COMPLETED.value, {"file_size": file_size})
+            await backup_notifier.notify_backup_update(
+                backup.id, 
+                BackupStatus.COMPLETED.value, 
+                {"file_size": file_size, "connection_name": connection.name}
+            )
         except Exception as e:
             await self.storage.update_backup(
                 backup.id,
                 status=BackupStatus.FAILED,
                 error_message=str(e),
             )
-            await backup_notifier.notify_backup_update(backup.id, BackupStatus.FAILED.value, {"error": str(e)})
+            await backup_notifier.notify_backup_update(
+                backup.id, 
+                BackupStatus.FAILED.value, 
+                {"error": str(e), "connection_name": connection.name}
+            )
 
     async def _backup_postgresql(
         self,
