@@ -85,7 +85,7 @@ class DataExplorer:
             query += f" LIMIT {limit} OFFSET {offset}"
 
             result = await connector.execute_query(query)
-            rows = result.get("rows", [])
+            rows = result.get("data", [])
             columns = result.get("columns", [])
             
             # Truncate large text/blob fields
@@ -129,8 +129,8 @@ class DataExplorer:
             query = f'SELECT "{column_name}" FROM "{schema_name}"."{table_name}" WHERE {where_clause} LIMIT 1'
             
             result = await connector.execute_query(query)
-            if result.get("success") and result.get("rows"):
-                return {"success": True, "data": result["rows"][0][0]}
+            if result.get("success") and result.get("data"):
+                return {"success": True, "data": result["data"][0][0]}
             return {"success": False, "error": "No data found"}
         except Exception as e:
             return {"success": False, "error": str(e)}
@@ -150,8 +150,8 @@ class DataExplorer:
             query = f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}"'
             result = await connector.execute_query(query)
             
-            if result.get("success") and result.get("rows"):
-                return result["rows"][0][0]
+            if result.get("success") and result.get("data"):
+                return result["data"][0][0]
             return 0
 
         except Exception:

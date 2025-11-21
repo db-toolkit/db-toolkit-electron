@@ -194,11 +194,11 @@ export const migratorAPI = {
 export const schemaAiAPI = {
   analyzeSchema: (connectionId, schemaName) => 
     api.post(`/ai/schema/analyze`, { connection_id: connectionId, schema_name: schemaName }),
-  analyzeTable: (connectionId, schemaName, tableName) => 
-    api.post(`/ai/schema/analyze-table`, { 
+  analyzeTable: (connectionId, schemaName, tableName, columns) => 
+    api.post(`/ai/schema/analyze`, { 
       connection_id: connectionId, 
-      schema_name: schemaName, 
-      table_name: tableName 
+      table_name: tableName,
+      columns: columns || []
     }),
 };
 
