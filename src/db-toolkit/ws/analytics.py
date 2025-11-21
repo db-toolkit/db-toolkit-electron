@@ -4,7 +4,6 @@ import asyncio
 from fastapi import WebSocket, WebSocketDisconnect
 from operations.analytics_manager import AnalyticsManager
 from operations.connection_manager import connection_manager
-from operations.operation_lock import operation_lock
 
 
 async def websocket_analytics(websocket: WebSocket):

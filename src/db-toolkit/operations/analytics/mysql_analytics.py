@@ -70,7 +70,7 @@ async def get_mysql_analytics(connection) -> Dict[str, Any]:
                 LIMIT 20
             """
             blocked_queries = await connection.fetch(blocked_sql)
-        except:
+        except Exception:
             # Fallback for older MySQL versions
             pass
 

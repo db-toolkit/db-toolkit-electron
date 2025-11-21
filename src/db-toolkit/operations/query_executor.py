@@ -193,8 +193,8 @@ class QueryExecutor:
             "DROP DATABASE",
             "DROP SCHEMA",
             "TRUNCATE",
-            "DELETE FROM" if not "WHERE" in query_upper else None,
-            "UPDATE" if not "WHERE" in query_upper else None,
+            "DELETE FROM" if "WHERE" not in query_upper else None,
+            "UPDATE" if "WHERE" not in query_upper else None,
         ]
         
         for keyword in dangerous_keywords:

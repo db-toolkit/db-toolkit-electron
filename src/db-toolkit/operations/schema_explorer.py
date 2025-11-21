@@ -1,6 +1,6 @@
 """Schema exploration operations."""
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from core.models import DatabaseConnection
 from utils.cache import schema_cache
 from operations.connection_manager import connection_manager

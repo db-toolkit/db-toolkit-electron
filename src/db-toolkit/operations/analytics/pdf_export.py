@@ -1,6 +1,5 @@
 """PDF export for analytics metrics."""
 
-from utils.logger import logger
 from typing import Dict, List, Any
 from datetime import datetime
 

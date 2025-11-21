@@ -251,7 +251,7 @@ class BackupManager:
         
         try:
             with open(output_file, 'w') as f:
-                f.write(f"-- PostgreSQL Backup\n")
+                f.write("-- PostgreSQL Backup\n")
                 f.write(f"-- Database: {connection.database}\n\n")
                 
                 # Get tables to backup
@@ -395,7 +395,7 @@ class BackupManager:
         try:
             async with conn.cursor() as cursor:
                 with open(output_file, 'w') as f:
-                    f.write(f"-- MySQL Backup\n")
+                    f.write("-- MySQL Backup\n")
                     f.write(f"-- Database: {connection.database}\n\n")
                     
                     # Get tables

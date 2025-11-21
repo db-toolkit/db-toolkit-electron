@@ -1,6 +1,5 @@
 """Migrator API routes."""
 from fastapi import APIRouter
-from utils.logger import logger
 from pydantic import BaseModel
 from operations.migrator_executor import MigratorExecutor
 

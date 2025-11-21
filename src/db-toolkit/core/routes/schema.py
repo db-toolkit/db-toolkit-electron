@@ -1,6 +1,5 @@
 """Schema exploration routes."""
 
-from utils.logger import logger
 from fastapi import APIRouter, HTTPException
 from core.storage import ConnectionStorage
 from operations.schema_explorer import SchemaExplorer

@@ -57,7 +57,7 @@ async def get_sqlite_analytics(connection, db_path: str = None) -> Dict[str, Any
                 "calculated_size": calculated_size,
                 "largest_tables": [dict(row) for row in largest_tables]
             }
-        except:
+        except Exception:
             sqlite_stats = {}
 
         return {

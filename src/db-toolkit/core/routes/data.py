@@ -1,6 +1,5 @@
 """Data editing routes."""
 
-from utils.logger import logger
 from fastapi import APIRouter, HTTPException
 from core.storage import ConnectionStorage
 from core.schemas import UpdateRowRequest, InsertRowRequest, DeleteRowRequest

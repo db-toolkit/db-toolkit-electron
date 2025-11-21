@@ -1,6 +1,5 @@
 """Data explorer routes for browsing table data."""
 
-from utils.logger import logger
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import Optional

@@ -1,6 +1,5 @@
 """Connection validation utilities."""
 
-import asyncio
 from typing import Dict, Any
 from core.models import DatabaseConnection, DatabaseType
 

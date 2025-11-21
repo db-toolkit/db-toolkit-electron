@@ -1,6 +1,5 @@
 """Terminal session persistence."""
 import json
-import os
 from pathlib import Path
 
 SESSION_FILE = Path.home() / '.db-toolkit' / 'terminal_sessions.json'
@@ -26,7 +25,7 @@ def load_sessions():
     try:
         with open(SESSION_FILE, 'r') as f:
             return json.load(f)
-    except:
+    except Exception:
         return {}
 
 def get_session(session_id: str):

@@ -1,6 +1,6 @@
 """Data explorer operations."""
 
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 from core.models import DatabaseConnection
 from operations.connection_manager import connection_manager
 from utils.logger import logger

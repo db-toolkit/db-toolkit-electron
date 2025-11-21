@@ -2,11 +2,11 @@
 
 import asyncio
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, Any
 from operations.query_history import QueryHistory
 from core.settings_storage import SettingsStorage
-from utils.cache import schema_cache, query_cache
+from utils.cache import schema_cache
 from utils.logger import logger
 
 

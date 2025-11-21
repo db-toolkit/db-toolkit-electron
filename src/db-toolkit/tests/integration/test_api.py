@@ -1,6 +1,5 @@
 """Integration tests for API endpoints."""
 
-import asyncio
 import unittest
 
 from fastapi.testclient import TestClient

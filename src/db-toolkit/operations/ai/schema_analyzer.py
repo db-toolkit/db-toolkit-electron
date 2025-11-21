@@ -36,7 +36,7 @@ class SchemaAnalyzer:
                 "relationship_suggestions": []
             }
         except Exception as e:
-        logger.error(f"AI operation error: {str(e)}")
+            logger.error(f"AI operation error: {str(e)}")
             return {
                 "success": False,
                 "error": str(e),
@@ -88,7 +88,7 @@ class SchemaAnalyzer:
                 "performance_impact": "medium"
             }
         except Exception as e:
-        logger.error(f"AI operation error: {str(e)}")
+            logger.error(f"AI operation error: {str(e)}")
             return {
                 "success": False,
                 "error": str(e),
@@ -132,7 +132,7 @@ class SchemaAnalyzer:
                 "total_suggestions": len(relationships)
             }
         except Exception as e:
-        logger.error(f"AI operation error: {str(e)}")
+            logger.error(f"AI operation error: {str(e)}")
             return {
                 "success": False,
                 "error": str(e),
@@ -189,7 +189,7 @@ class SchemaAnalyzer:
                 "total_generated": len(queries)
             }
         except Exception as e:
-        logger.error(f"AI operation error: {str(e)}")
+            logger.error(f"AI operation error: {str(e)}")
             return {
                 "success": False,
                 "error": str(e),

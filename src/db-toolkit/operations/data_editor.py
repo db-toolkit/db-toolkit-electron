@@ -1,6 +1,6 @@
 """Production-ready data editing operations."""
 
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any
 from connectors.factory import ConnectorFactory
 from core.models import DatabaseConnection
 from utils.logger import logger

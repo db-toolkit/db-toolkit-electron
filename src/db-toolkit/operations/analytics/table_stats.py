@@ -99,7 +99,7 @@ async def get_table_stats_sqlite(connection) -> List[Dict[str, Any]]:
                     'row_count': count_result['count'] if count_result else 0,
                     'index_count': row['index_count']
                 })
-            except:
+            except Exception:
                 pass
         
         return stats
