@@ -137,9 +137,13 @@ export function AiAssistant({
           <Bot className="w-5 h-5 text-blue-500" />
           <h3 className="font-semibold text-gray-900 dark:text-gray-100">DBAssist</h3>
         </div>
-        <Button variant="ghost" size="sm" onClick={onClose}>
-          <X className="w-4 h-4" />
-        </Button>
+        <button
+          onClick={onClose}
+          className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+          title="Close AI Assistant"
+        >
+          <X className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+        </button>
       </div>
 
       {/* Tabs */}

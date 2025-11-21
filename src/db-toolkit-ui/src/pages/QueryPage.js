@@ -108,7 +108,7 @@ function QueryPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex justify-between items-center px-6 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2 flex-1 overflow-x-auto">
           {tabs.map(tab => (
@@ -172,7 +172,7 @@ function QueryPage() {
             gutterSize={8}
             className="flex h-full w-full"
           >
-            <div className="overflow-hidden">
+            <div className="h-full overflow-hidden">
               <Split
                 direction="vertical"
                 sizes={[50, 50]}
