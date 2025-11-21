@@ -26,9 +26,19 @@ function BackupsPage() {
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { connections } = useConnections();
   const { backups, loading, createBackup, restoreBackup, downloadBackup, deleteBackup, fetchBackups } = useBackups();
+  const [localBackups, setLocalBackups] = useState([]);
+
+  useEffect(() => {
+    setLocalBackups(backups);
+  }, [backups]);
 
   const handleBackupUpdate = useCallback((data) => {
-    fetchBackups(true);
+    setLocalBackups(prev => prev.map(b => 
+      b.id === data.backup_id ? { ...b, status: data.status, progress: data.progress } : b
+    ));
+    if (data.status === 'completed' || data.status === 'failed') {
+      fetchBackups(true);
+    }
   }, [fetchBackups]);
 
   useBackupWebSocket(handleBackupUpdate);
@@ -134,7 +144,7 @@ function BackupsPage() {
     }
   };
 
-  const filteredBackups = backups.filter(backup => 
+  const filteredBackups = localBackups.filter(backup => 
     backup.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
     backup.backup_type.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
@@ -205,7 +215,7 @@ function BackupsPage() {
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
           <p>No backups found matching "{searchQuery}"</p>
         </div>
-      ) : activeTab === 'backups' && backups.length === 0 ? (
+      ) : activeTab === 'backups' && localBackups.length === 0 ? (
         <EmptyState
           icon={Database}
           title="No backups yet"

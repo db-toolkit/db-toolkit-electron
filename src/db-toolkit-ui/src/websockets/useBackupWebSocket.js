@@ -17,13 +17,13 @@ export function useBackupWebSocket(onUpdate) {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'backup_update') {
-        onUpdate(data);
+        onUpdate({ ...data, progress: data.data?.progress });
         
         if (data.status === 'completed') {
           addNotification({
             type: 'success',
             title: 'Backup Complete',
-            message: `Backup for ${data.connection_name || 'database'} completed successfully`,
+            message: `Backup for ${data.data?.connection_name || 'database'} completed successfully`,
             action: { label: 'View', path: '/backups' }
           });
           

@@ -89,7 +89,14 @@ class BackupManager:
             await backup_notifier.notify_backup_update(
                 backup.id, 
                 BackupStatus.IN_PROGRESS.value,
-                {"connection_name": connection.name}
+                {"connection_name": connection.name, "progress": 0}
+            )
+            
+            # Send progress updates
+            await backup_notifier.notify_backup_update(
+                backup.id, 
+                BackupStatus.IN_PROGRESS.value,
+                {"connection_name": connection.name, "progress": 25}
             )
             
             if connection.db_type.value == "postgresql":
@@ -103,7 +110,18 @@ class BackupManager:
             else:
                 raise ValueError(f"Backup not supported for {connection.db_type}")
             
+            await backup_notifier.notify_backup_update(
+                backup.id, 
+                BackupStatus.IN_PROGRESS.value,
+                {"connection_name": connection.name, "progress": 75}
+            )
+            
             if compress:
+                await backup_notifier.notify_backup_update(
+                    backup.id, 
+                    BackupStatus.IN_PROGRESS.value,
+                    {"connection_name": connection.name, "progress": 85}
+                )
                 uncompressed_file = backup.file_path.replace(".gz", "")
                 if Path(uncompressed_file).exists() and not backup.file_path.endswith(".gz"):
                     await self._compress_file(uncompressed_file)
@@ -129,7 +147,7 @@ class BackupManager:
             await backup_notifier.notify_backup_update(
                 backup.id, 
                 BackupStatus.COMPLETED.value, 
-                {"file_size": file_size, "connection_name": connection.name}
+                {"file_size": file_size, "connection_name": connection.name, "progress": 100}
             )
         except Exception as e:
             await self.storage.update_backup(
