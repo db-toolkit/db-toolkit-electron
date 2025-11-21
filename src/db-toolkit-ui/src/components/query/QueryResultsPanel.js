@@ -36,7 +36,7 @@ export function QueryResultsPanel({ connectionId, result, executionTime, onSelec
 
       <div className="flex-1 overflow-hidden">
         {activeTab === 'results' && (
-          <div className="h-full overflow-auto">
+          <div className="h-full overflow-y-auto overscroll-contain">
             {result ? (
               result.success === false || result.error ? (
                 <div className="flex items-center justify-center h-full p-4">
@@ -64,7 +64,7 @@ export function QueryResultsPanel({ connectionId, result, executionTime, onSelec
         )}
 
         {activeTab === 'messages' && (
-          <div className="p-4 h-full overflow-auto">
+          <div className="p-4 h-full overflow-y-auto overscroll-contain">
             {result ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
@@ -93,7 +93,7 @@ export function QueryResultsPanel({ connectionId, result, executionTime, onSelec
         )}
 
         {activeTab === 'history' && (
-          <div className="h-full overflow-auto">
+          <div className="h-full overflow-y-auto overscroll-contain">
             <QueryHistory
               connectionId={connectionId}
               onSelectQuery={onSelectQuery}
