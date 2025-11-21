@@ -3,6 +3,7 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs').promises;
 const { exec } = require('child_process');
+const { checkForUpdates } = require('./updater');
 
 // Set app name before anything else
 app.name = 'DB Toolkit';
@@ -43,6 +44,10 @@ function createMenu() {
               buttons: ['OK']
             });
           }
+        },
+        {
+          label: 'Check for Updates...',
+          click: checkForUpdates
         },
         { type: 'separator' },
         { role: 'services' },
