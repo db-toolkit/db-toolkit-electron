@@ -14,6 +14,7 @@ This file tracks changes during development before they are added to CHANGELOG.m
 - Backup schedules count showing 0 on dashboard (now fetches from API)
 - Backup completion notifications not appearing (added connection_name to WebSocket data)
 - Connection modal data loss when accidentally closed
+- Backup progress bar stuck at 50% - now updates in real-time via WebSocket (0%, 25%, 75%, 85%, 100%)
 
 ### Changed
 - Test Connection button no longer saves connection to database before testing
