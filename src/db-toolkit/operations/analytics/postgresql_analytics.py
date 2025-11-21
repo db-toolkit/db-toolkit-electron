@@ -11,7 +11,9 @@ async def get_postgresql_analytics(connection) -> Dict[str, Any]:
         current_queries_sql = """
             SELECT pid, usename, application_name, 
                    CAST(client_addr AS TEXT) as client_addr, 
-                   state, query, query_start, state_change,
+                   state, query, 
+                   query_start::TEXT as query_start, 
+                   state_change::TEXT as state_change,
                    EXTRACT(EPOCH FROM (NOW() - query_start)) as duration,
                    CASE 
                      WHEN query ILIKE 'SELECT%' THEN 'SELECT'
@@ -41,7 +43,7 @@ async def get_postgresql_analytics(connection) -> Dict[str, Any]:
         long_running_sql = """
             SELECT pid, usename, application_name, 
                    EXTRACT(EPOCH FROM (NOW() - query_start)) as duration,
-                   query, query_start
+                   query, query_start::TEXT as query_start
             FROM pg_stat_activity
             WHERE state = 'active' 
               AND query_start < NOW() - INTERVAL '30 seconds'

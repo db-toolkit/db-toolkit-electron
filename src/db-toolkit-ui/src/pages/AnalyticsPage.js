@@ -152,9 +152,6 @@ function AnalyticsPage() {
               <option value={2}>Last 2 hours</option>
               <option value={3}>Last 3 hours</option>
             </select>
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Live updates every 5s
-            </span>
             <Button
               variant="secondary"
               size="sm"
