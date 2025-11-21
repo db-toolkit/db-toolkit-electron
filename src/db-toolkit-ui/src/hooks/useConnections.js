@@ -68,6 +68,8 @@ export function useConnections() {
     try {
       const response = await connectionsAPI.connect(id);
       setConnectedIds(prev => new Set(prev).add(id));
+      // Store connection timestamp
+      localStorage.setItem(`connection_time_${id}`, Date.now().toString());
       const conn = connections.find(c => c.id === id);
       addNotification({
         type: 'success',
@@ -98,6 +100,8 @@ export function useConnections() {
         newSet.delete(id);
         return newSet;
       });
+      // Remove connection timestamp
+      localStorage.removeItem(`connection_time_${id}`);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -107,7 +111,28 @@ export function useConnections() {
 
   useEffect(() => {
     fetchConnections();
-  }, [fetchConnections]);
+    
+    // Check connection timestamps and update active status
+    const checkActiveConnections = () => {
+      const now = Date.now();
+      const tenMinutes = 10 * 60 * 1000;
+      const activeIds = new Set();
+      
+      connections.forEach(conn => {
+        const timestamp = localStorage.getItem(`connection_time_${conn.id}`);
+        if (timestamp && (now - parseInt(timestamp)) < tenMinutes) {
+          activeIds.add(conn.id);
+        }
+      });
+      
+      setConnectedIds(activeIds);
+    };
+    
+    checkActiveConnections();
+    const interval = setInterval(checkActiveConnections, 30000); // Check every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [fetchConnections, connections]);
 
   return {
     connections,
