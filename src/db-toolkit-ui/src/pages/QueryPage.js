@@ -164,21 +164,69 @@ function QueryPage() {
 
 
 
-      <div className="flex-1 overflow-hidden">
-        <Split
-          sizes={showAiAssistant ? [75, 25] : [100, 0]}
-          minSize={showAiAssistant ? [400, 300] : [100, 0]}
-          gutterSize={showAiAssistant ? 8 : 0}
-          className="flex h-full"
-        >
-          <div className="overflow-hidden">
+      <div className="flex-1 overflow-hidden flex">
+        {showAiAssistant ? (
+          <Split
+            sizes={[75, 25]}
+            minSize={[400, 300]}
+            gutterSize={8}
+            className="flex h-full w-full"
+          >
+            <div className="overflow-hidden">
+              <Split
+                direction="vertical"
+                sizes={[50, 50]}
+                minSize={200}
+                gutterSize={8}
+                className="flex flex-col h-full"
+              >
+                <div className="overflow-hidden">
+                  <QueryEditor
+                    query={query}
+                    onChange={setQuery}
+                    onExecute={handleExecute}
+                    onExplain={handleExplain}
+                    loading={loading}
+                    schema={schema}
+                    error={error}
+                  />
+                </div>
+
+                <div className="overflow-hidden">
+                  <QueryResultsPanel
+                    connectionId={connectionId}
+                    result={result}
+                    executionTime={executionTime}
+                    onSelectQuery={setQuery}
+                    onRefresh={handleExecute}
+                  />
+                </div>
+              </Split>
+            </div>
+            
+            <div className="overflow-hidden">
+              <AiAssistant
+                connectionId={connectionId}
+                currentQuery={query}
+                onQueryGenerated={setQuery}
+                onQueryOptimized={(result) => {
+                  console.log('Query optimized:', result);
+                }}
+                lastError={error}
+                schemaContext={{ tables: schema }}
+                isVisible={showAiAssistant}
+                onClose={() => setShowAiAssistant(false)}
+              />
+            </div>
+          </Split>
+        ) : (
+          <div className="flex-1 overflow-hidden">
             <Split
               direction="vertical"
               sizes={[50, 50]}
               minSize={200}
               gutterSize={8}
               className="flex flex-col h-full"
-              style={{ height: '100%' }}
             >
               <div className="overflow-hidden">
                 <QueryEditor
@@ -203,24 +251,7 @@ function QueryPage() {
               </div>
             </Split>
           </div>
-          
-          {showAiAssistant && (
-            <div className="overflow-hidden">
-              <AiAssistant
-                connectionId={connectionId}
-                currentQuery={query}
-                onQueryGenerated={setQuery}
-                onQueryOptimized={(result) => {
-                  console.log('Query optimized:', result);
-                }}
-                lastError={error}
-                schemaContext={{ tables: schema }}
-                isVisible={showAiAssistant}
-                onClose={() => setShowAiAssistant(false)}
-              />
-            </div>
-          )}
-        </Split>
+        )}
       </div>
 
       <CsvExportModal
