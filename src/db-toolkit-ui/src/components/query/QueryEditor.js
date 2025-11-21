@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Play, Lightbulb } from 'lucide-react';
+import { Play } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { format } from 'sql-formatter';
 import { Button } from '../common/Button';
@@ -8,7 +8,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { registerSqlSnippets } from './sqlSnippets';
 import './QueryEditor.css';
 
-export function QueryEditor({ query, onChange, onExecute, onExplain, loading, schema, error }) {
+export function QueryEditor({ query, onChange, onExecute, loading, schema, error }) {
   const editorRef = useRef(null);
   const monacoRef = useRef(null);
   const decorationsRef = useRef([]);
@@ -197,15 +197,6 @@ export function QueryEditor({ query, onChange, onExecute, onExplain, loading, sc
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">SQL Editor</h3>
         <div className="flex gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            icon={<Lightbulb size={16} />}
-            onClick={onExplain}
-            disabled={loading || !query.trim()}
-          >
-            Explain
-          </Button>
           <Button
             size="sm"
             icon={<Play size={16} />}

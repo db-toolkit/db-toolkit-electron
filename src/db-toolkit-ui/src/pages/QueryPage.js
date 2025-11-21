@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import { Download, Plus, X, Bot, Loader2 } from 'lucide-react';
 import Split from 'react-split';
 import { useQuery, useSchema } from '../hooks';
-import { useExplain } from '../hooks/useExplain';
 import { useSettingsContext } from '../contexts/SettingsContext';
 import { Button } from '../components/common/Button';
 import { connectionsAPI } from '../services/api';
@@ -11,7 +10,6 @@ import { useToast } from '../contexts/ToastContext';
 import { ErrorMessage } from '../components/common/ErrorMessage';
 import { QueryEditor } from '../components/query/QueryEditor';
 import { QueryResultsPanel } from '../components/query/QueryResultsPanel';
-import { ExplainPlanModal } from '../components/query/ExplainPlanModal';
 import { CsvExportModal } from '../components/csv';
 import { AiAssistant } from '../components/query/AiAssistant';
 
@@ -94,19 +92,7 @@ function QueryPage() {
       setActiveTabId(newTabs[Math.max(0, index - 1)].id);
     }
   };
-  const [showExplainModal, setShowExplainModal] = useState(false);
-  const { explainResult, loading: explainLoading, explainQuery } = useExplain(connectionId);
   const { settings } = useSettingsContext();
-
-  const handleExplain = async () => {
-    if (!query.trim()) return;
-    setShowExplainModal(true);
-    try {
-      await explainQuery(query);
-    } catch (err) {
-      console.error('Explain failed:', err);
-    }
-  };
 
   const handleExecute = async () => {
     if (!query.trim()) return;
@@ -210,7 +196,6 @@ function QueryPage() {
                     query={query}
                     onChange={setQuery}
                     onExecute={handleExecute}
-                    onExplain={handleExplain}
                     loading={loading}
                     schema={schema}
                     error={error}
@@ -264,7 +249,6 @@ function QueryPage() {
                   query={query}
                   onChange={setQuery}
                   onExecute={handleExecute}
-                  onExplain={handleExplain}
                   loading={loading}
                   schema={schema}
                   error={error}
@@ -291,13 +275,6 @@ function QueryPage() {
         connectionId={connectionId}
         query={query}
         result={result}
-      />
-
-      <ExplainPlanModal
-        isOpen={showExplainModal}
-        onClose={() => setShowExplainModal(false)}
-        explainResult={explainResult}
-        loading={explainLoading}
       />
     </div>
   );
