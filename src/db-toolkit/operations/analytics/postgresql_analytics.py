@@ -7,7 +7,9 @@ from datetime import datetime
 async def get_postgresql_analytics(connector) -> Dict[str, Any]:
     """Get PostgreSQL analytics with full support."""
     try:
-        async with connector._query_lock:
+        query_lock = getattr(connector, '_query_lock', None)
+        
+        async def execute_queries():
             # Current queries with timing and cost
             current_queries_sql = """
                 SELECT pid, usename, application_name, 
@@ -91,17 +93,25 @@ async def get_postgresql_analytics(connector) -> Dict[str, Any]:
             active_sql = "SELECT COUNT(*) as count FROM pg_stat_activity WHERE state = 'active'"
             active_result = await connector.connection.fetchrow(active_sql)
             active_connections = active_result['count'] if active_result else 0
-
-        return {
-            "success": True,
-            "current_queries": [dict(row) for row in current_queries],
-            "idle_connections": idle_connections,
-            "long_running_queries": [dict(row) for row in long_running],
-            "blocked_queries": [dict(row) for row in blocked_queries],
-            "database_size": db_size,
-            "active_connections": active_connections,
-            "query_stats": query_stats,
-            "timestamp": datetime.utcnow().isoformat()
-        }
+            
+            return {
+                "success": True,
+                "current_queries": [dict(row) for row in current_queries],
+                "idle_connections": idle_connections,
+                "long_running_queries": [dict(row) for row in long_running],
+                "blocked_queries": [dict(row) for row in blocked_queries],
+                "database_size": db_size,
+                "active_connections": active_connections,
+                "query_stats": query_stats,
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        
+        if query_lock:
+            async with query_lock:
+                return await execute_queries()
+        else:
+            return await execute_queries()
+            
     except Exception as e:
         return {"success": False, "error": str(e)}
+
