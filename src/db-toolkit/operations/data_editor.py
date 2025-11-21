@@ -3,6 +3,7 @@
 from typing import Dict, Any, Optional, List
 from connectors.factory import ConnectorFactory
 from core.models import DatabaseConnection
+from utils.logger import logger
 
 
 class DataEditor:
@@ -37,6 +38,7 @@ class DataEditor:
             return result
             
         except Exception as e:
+            logger.error(f"Update row failed on '{connection.name}.{table}': {str(e)}")
             return {"success": False, "error": str(e)}
     
     async def insert_row(
@@ -63,6 +65,7 @@ class DataEditor:
             return result
             
         except Exception as e:
+            logger.error(f"Insert row failed on '{connection.name}.{table}': {str(e)}")
             return {"success": False, "error": str(e)}
     
     async def delete_row(
@@ -89,6 +92,7 @@ class DataEditor:
             return result
             
         except Exception as e:
+            logger.error(f"Delete row failed on '{connection.name}.{table}': {str(e)}")
             return {"success": False, "error": str(e)}
     
     async def _update_sql(

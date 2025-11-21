@@ -8,6 +8,7 @@ from connectors.factory import ConnectorFactory
 from core.models import DatabaseConnection
 from core.settings_storage import SettingsStorage
 from operations.operation_lock import operation_lock
+from utils.logger import logger
 
 
 class ConnectionManager:
@@ -21,6 +22,7 @@ class ConnectionManager:
 
     async def connect(self, connection: DatabaseConnection, timeout: Optional[int] = None) -> bool:
         """Establish database connection with timeout."""
+        logger.info(f"Connecting to '{connection.name}' ({connection.db_type.value})")
         try:
             # Get timeout from settings if not provided
             if timeout is None:
@@ -38,17 +40,21 @@ class ConnectionManager:
             if success:
                 self._active_connections[connection.id] = connector
                 self._connection_metadata[connection.id] = connection
+                logger.info(f"Successfully connected to '{connection.name}'")
                 return True
+            logger.error(f"Failed to connect to '{connection.name}'")
             return False
 
         except asyncio.TimeoutError:
+            logger.error(f"Connection timeout for '{connection.name}' ({timeout}s)")
             return False
-        except Exception:
+        except Exception as e:
+            logger.error(f"Connection error for '{connection.name}': {str(e)}")
             return False
 
     async def disconnect(self, connection_id: str) -> bool:
         """Disconnect from database."""
-
+        logger.info(f"Disconnecting from connection '{connection_id}'")
         connector = self._active_connections.get(connection_id)
         if connector:
             success = await connector.disconnect()

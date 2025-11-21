@@ -7,6 +7,7 @@ from typing import Dict, Any, Optional
 from core.models import DatabaseConnection
 from operations.connection_manager import connection_manager
 from utils.cache import query_cache, prepared_cache
+from utils.logger import logger
 
 
 class QueryValidationCache:
@@ -173,6 +174,7 @@ class QueryExecutor:
                 
         except Exception as e:
             execution_time = time.time() - start_time
+            logger.error(f"Query execution failed on '{connection.name}': {str(e)}")
             return {
                 "success": False,
                 "error": str(e),

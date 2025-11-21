@@ -26,3 +26,5 @@ This file tracks changes during development before they are added to CHANGELOG.m
 - Removed operation lock from connectors to fix analytics 'Connection object has no attribute connection' error
 - Added comprehensive health check endpoint with system metrics
 - Added application logging to ~/.db-toolkit/logs with rotation (10MB, 5 files)
+- Fixed health check endpoint to use connection_manager
+- Added comprehensive logging to all operations and error handlers
