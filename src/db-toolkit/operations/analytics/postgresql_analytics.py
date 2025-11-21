@@ -6,7 +6,14 @@ from datetime import datetime
 
 async def get_postgresql_analytics(connection) -> Dict[str, Any]:
     """Get PostgreSQL analytics with full support."""
-    try:
+    import asyncio
+    
+    # Get lock from connection if it exists (for connector), otherwise create one
+    if not hasattr(connection, '_analytics_lock'):
+        connection._analytics_lock = asyncio.Lock()
+    
+    async with connection._analytics_lock:
+        try:
         # Current queries with timing and cost
         current_queries_sql = """
             SELECT pid, usename, application_name, 
@@ -100,7 +107,7 @@ async def get_postgresql_analytics(connection) -> Dict[str, Any]:
             "database_size": db_size,
             "active_connections": active_connections,
             "query_stats": query_stats,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-    except Exception as e:
-        return {"success": False, "error": str(e)}
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}

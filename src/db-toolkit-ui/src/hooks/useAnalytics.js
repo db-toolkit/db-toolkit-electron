@@ -9,7 +9,7 @@ import api from '../services/api';
 
 export function useAnalytics(connectionId) {
   const [analytics, setAnalytics] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState([]);
   const [connectionLost, setConnectionLost] = useState(false);
   const wsRef = useRef(null);
@@ -20,7 +20,10 @@ export function useAnalytics(connectionId) {
   const navigate = useNavigate();
 
   const connect = () => {
-    if (!connectionId) return;
+    if (!connectionId) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     const ws = new WebSocket(WS_ENDPOINTS.ANALYTICS);
