@@ -31,6 +31,8 @@ export function AiAssistant({
   const [activeTab, setActiveTab] = useState('generate');
   const [naturalLanguage, setNaturalLanguage] = useState('');
   const [copiedStates, setCopiedStates] = useState({});
+  const [explanation, setExplanation] = useState(null);
+  const [optimization, setOptimization] = useState(null);
   
   const { generateQuery, optimizeQuery, explainQuery, fixQueryError, isLoading, error, clearError } = useAiAssistant(connectionId);
   const toast = useToast();
@@ -77,7 +79,8 @@ export function AiAssistant({
     try {
       const result = await optimizeQuery(currentQuery, null, schemaContext);
       if (result.success) {
-        onQueryOptimized(result);
+        setOptimization(result);
+        setActiveTab('optimize');
         toast.success('Query optimization complete');
       } else {
         toast.error(result.error || 'Failed to optimize query');
@@ -96,8 +99,9 @@ export function AiAssistant({
     try {
       const result = await explainQuery(currentQuery, schemaContext);
       if (result.success) {
+        setExplanation(result);
         setActiveTab('explain');
-        // Store explanation in state or pass to parent
+        toast.success('Query explained successfully');
       } else {
         toast.error(result.error || 'Failed to explain query');
       }
@@ -125,15 +129,8 @@ export function AiAssistant({
     }
   };
 
-  if (!isVisible) return null;
-
   return (
-    <motion.div
-      initial={{ x: 300, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: 300, opacity: 0 }}
-      className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full"
-    >
+    <div className="bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -227,10 +224,6 @@ export function AiAssistant({
               exit={{ opacity: 0, y: -10 }}
               className="space-y-4"
             >
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Analyze and optimize your current query for better performance.
-              </div>
-
               <Button
                 onClick={handleOptimizeQuery}
                 disabled={isLoading || !currentQuery.trim()}
@@ -249,31 +242,21 @@ export function AiAssistant({
                 )}
               </Button>
 
-              <Button
-                onClick={handleExplainQuery}
-                disabled={isLoading || !currentQuery.trim()}
-                variant="secondary"
-                className="w-full"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Explaining...
-                  </>
-                ) : (
-                  <>
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Explain Query
-                  </>
-                )}
-              </Button>
+              {optimization && (
+                <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Optimization Suggestions:</h4>
+                  <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {optimization.suggestions?.[0] || optimization.explanation}
+                  </div>
+                </div>
+              )}
 
               {lastError && (
                 <Button
                   onClick={handleFixError}
                   disabled={isLoading}
                   variant="danger"
-                  className="w-full"
+                  className="w-full mt-4"
                 >
                   {isLoading ? (
                     <>
@@ -299,10 +282,6 @@ export function AiAssistant({
               exit={{ opacity: 0, y: -10 }}
               className="space-y-4"
             >
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Get a plain English explanation of your SQL query.
-              </div>
-
               <Button
                 onClick={handleExplainQuery}
                 disabled={isLoading || !currentQuery.trim()}
@@ -320,6 +299,27 @@ export function AiAssistant({
                   </>
                 )}
               </Button>
+
+              {explanation && (
+                <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Explanation:</h4>
+                  <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {explanation.explanation}
+                  </div>
+                  {explanation.complexity && (
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Complexity: </span>
+                      <span className={`text-xs font-semibold ${
+                        explanation.complexity === 'low' ? 'text-green-600 dark:text-green-400' :
+                        explanation.complexity === 'medium' ? 'text-yellow-600 dark:text-yellow-400' :
+                        'text-red-600 dark:text-red-400'
+                      }`}>
+                        {explanation.complexity.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -348,6 +348,6 @@ export function AiAssistant({
           </motion.div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
