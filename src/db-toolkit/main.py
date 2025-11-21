@@ -5,18 +5,23 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from operations.background_tasks import cleanup_old_history_task, backup_scheduler_task
+from utils.logger import logger
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifespan."""
+    logger.info("Starting DB Toolkit API")
     # Start background tasks
     cleanup_task = asyncio.create_task(cleanup_old_history_task())
     scheduler_task = asyncio.create_task(backup_scheduler_task())
+    logger.info("Background tasks started")
     yield
     # Cleanup
+    logger.info("Shutting down DB Toolkit API")
     cleanup_task.cancel()
     scheduler_task.cancel()
+    logger.info("Background tasks stopped")
     
 # Import routes
 from core.routes.connections import router as connections_router

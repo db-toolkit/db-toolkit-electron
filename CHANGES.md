@@ -24,3 +24,5 @@ This file tracks changes during development before they are added to CHANGELOG.m
 - Useless system stats (CPU, Memory, Disk) from analytics page - now shows only database metrics
 - Analytics page 'Connection object has no attribute _query_lock' error
 - Removed operation lock from connectors to fix analytics 'Connection object has no attribute connection' error
+- Added comprehensive health check endpoint with system metrics
+- Added application logging to ~/.db-toolkit/logs with rotation (10MB, 5 files)
