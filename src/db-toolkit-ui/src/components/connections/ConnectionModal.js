@@ -14,6 +14,7 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
   const [useUrl, setUseUrl] = useState(false);
   const [databaseUrl, setDatabaseUrl] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     db_type: settings?.default_db_type || 'postgresql',
@@ -25,31 +26,62 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
   });
 
   useEffect(() => {
-    if (connection) {
-      setFormData({
-        name: connection.name || '',
-        db_type: connection.db_type || 'postgresql',
-        host: connection.host || 'localhost',
-        port: connection.port || 5432,
-        database: connection.database || '',
-        username: connection.username || '',
-        password: connection.password || '',
-      });
-    } else {
-      setFormData({
-        name: '',
-        db_type: settings?.default_db_type || 'postgresql',
-        host: 'localhost',
-        port: 5432,
-        database: '',
-        username: '',
-        password: '',
-      });
+    if (isOpen) {
+      if (connection) {
+        setFormData({
+          name: connection.name || '',
+          db_type: connection.db_type || 'postgresql',
+          host: connection.host || 'localhost',
+          port: connection.port || 5432,
+          database: connection.database || '',
+          username: connection.username || '',
+          password: connection.password || '',
+        });
+        setHasChanges(false);
+      } else {
+        // Try to restore draft for new connections
+        const draft = localStorage.getItem('connection-draft');
+        if (draft) {
+          try {
+            setFormData(JSON.parse(draft));
+            setHasChanges(true);
+          } catch {
+            setFormData({
+              name: '',
+              db_type: settings?.default_db_type || 'postgresql',
+              host: 'localhost',
+              port: 5432,
+              database: '',
+              username: '',
+              password: '',
+            });
+            setHasChanges(false);
+          }
+        } else {
+          setFormData({
+            name: '',
+            db_type: settings?.default_db_type || 'postgresql',
+            host: 'localhost',
+            port: 5432,
+            database: '',
+            username: '',
+            password: '',
+          });
+          setHasChanges(false);
+        }
+      }
     }
-  }, [connection, isOpen]);
+  }, [connection, isOpen, settings]);
 
   const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    const updated = { ...formData, [field]: value };
+    setFormData(updated);
+    setHasChanges(true);
+    
+    // Auto-save draft for new connections only
+    if (!connection) {
+      localStorage.setItem('connection-draft', JSON.stringify(updated));
+    }
   };
 
   const handleTest = async () => {
@@ -148,11 +180,29 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await onSave(connection ? { ...formData, id: connection.id } : formData);
+    
+    // Clear draft after successful save
+    localStorage.removeItem('connection-draft');
+    setHasChanges(false);
     onClose();
+  };
+  
+  const handleClose = () => {
+    if (hasChanges) {
+      if (window.confirm('You have unsaved changes. Discard them?')) {
+        if (!connection) {
+          localStorage.removeItem('connection-draft');
+        }
+        setHasChanges(false);
+        onClose();
+      }
+    } else {
+      onClose();
+    }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={connection ? 'Edit Connection' : 'New Connection'}>
+    <Modal isOpen={isOpen} onClose={handleClose} title={connection ? 'Edit Connection' : 'New Connection'}>
       <form onSubmit={handleSubmit}>
         <Input
           label="Connection Name"
@@ -296,7 +346,7 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
             {testing ? 'Testing...' : 'Test Connection'}
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose} type="button">
+            <Button variant="outline" onClick={handleClose} type="button">
               Cancel
             </Button>
             <Button type="submit">{connection ? 'Save Changes' : 'Create Connection'}</Button>
