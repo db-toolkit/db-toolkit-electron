@@ -150,12 +150,19 @@ export default function DashboardPage() {
           )}
 
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Connections</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Connections</h2>
+              {connections.length > 2 && (
+                <Button size="sm" variant="secondary" onClick={() => navigate('/connections')}>
+                  View All
+                </Button>
+              )}
+            </div>
             {connections.length === 0 ? (
               <p className="text-gray-500 dark:text-gray-400">No connections yet</p>
             ) : (
               <div className="space-y-3">
-                {connections.map((conn) => (
+                {connections.slice(0, 2).map((conn) => (
                   <div
                     key={conn.id}
                     className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"

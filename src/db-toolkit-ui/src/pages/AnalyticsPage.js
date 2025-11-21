@@ -33,6 +33,7 @@ function AnalyticsPage() {
   const [slowQueries, setSlowQueries] = useState([]);
   const [tableStats, setTableStats] = useState([]);
   const [poolStats, setPoolStats] = useState(null);
+  const [exportingPDF, setExportingPDF] = useState(false);
   const { analytics, loading, history, connectionLost, killQuery, getQueryPlan, fetchHistoricalData, getSlowQueries, getTableStats, getPoolStats, exportPDF } = useAnalytics(connectionId);
 
   useEffect(() => {
@@ -158,9 +159,17 @@ function AnalyticsPage() {
               variant="secondary"
               size="sm"
               icon={<Download size={16} />}
-              onClick={exportPDF}
+              onClick={async () => {
+                setExportingPDF(true);
+                try {
+                  await exportPDF();
+                } finally {
+                  setExportingPDF(false);
+                }
+              }}
+              disabled={exportingPDF}
             >
-              Export PDF
+              {exportingPDF ? 'Exporting...' : 'Export PDF'}
             </Button>
             <Button
               variant="secondary"
