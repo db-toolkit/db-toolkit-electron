@@ -45,7 +45,7 @@ function Sidebar({ activeSection, onSectionChange, isOpen, onClose }: SidebarPro
         <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">DB Toolkit</h2>
-            <span className="text-sm text-gray-500 dark:text-gray-400">v0.5.1</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">v0.5.2</span>
           </div>
           <button onClick={onClose} className="lg:hidden hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded">
             <X size={20} />
