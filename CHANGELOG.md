@@ -2,6 +2,28 @@
 
 All notable changes to DB Toolkit will be documented in this file. Only the last two version changes are documented here. For complete changelog, visit [Documentation](https://docs-dbtoolkit.vercel.app).
 
+## [0.5.2] - 2025-01-24
+
+### Added
+- **Backend Bundling with PyInstaller** - FastAPI backend now bundled with Electron app (no Python installation required)
+- **Application Logging System** - File-based logging with rotation (10MB max, 5 files) to `~/.db-toolkit/logs/`
+- **Health Check Endpoint** - Comprehensive health check with system metrics (CPU, memory, disk, active connections)
+- **Platform Notifications** - Sound notifications for backup completion/failure events
+- **Unsaved Changes Warning** - Dialog in connection modal to prevent accidental data loss
+- **Auto-save Draft** - New connections auto-saved as draft with recovery on reopen
+- **Direct Download** - Download buttons now trigger direct file download instead of redirect
+
+### Fixed
+- **Backup Progress Bar** - Now updates in real-time via WebSocket (0%, 25%, 75%, 85%, 100%) instead of stuck at 50%
+- **Analytics Connection Errors** - Removed operation locks from PostgreSQL and MySQL connectors
+- **Duplicate Connection Creation** - Test Connection button no longer saves to database before testing
+- **Backup Schedules Count** - Dashboard now correctly fetches count from API instead of showing 0
+- **Backup Notifications** - Added connection_name to WebSocket data for proper notification display
+- **Connection Modal Data Loss** - Prevents data loss when modal accidentally closed
+
+### Changed
+- **Release Workflow** - Updated CI/CD to build backend with PyInstaller for all platforms
+
 ## [0.5.1] - 2025-01-23
 
 ### Added
@@ -23,40 +45,3 @@ All notable changes to DB Toolkit will be documented in this file. Only the last
 ### Changed
 - Migrated query tabs, schema cache, and table info from localStorage to IndexedDB
 - Removed query explain analyzer (replaced by AI Assistant)
-
-## [0.5.0] - 2025-01-22
-
-### Added
-- **DBAssist AI Integration**
-  - Natural language to SQL conversion with Google Gemini API
-  - Query optimization suggestions and error fixing
-  - Schema analysis and table insights
-  - AI Assistant panel in Query Editor (right sidebar)
-  - Schema Explorer AI insights for table analysis
-- **Database Analytics Dashboard**
-  - Real-time monitoring with WebSocket updates (5s interval)
-  - Historical data storage (3 hours) with time range selector
-  - Slow query log with 24h retention
-  - PDF export for analytics reports
-  - Kill query functionality for problematic queries
-- **Enhanced Connection Management**
-  - Database URL connection option with async protocol support
-  - Support for postgresql+asyncpg, mysql+aiomysql, mongodb+srv, sqlite:///
-  - Connection reuse optimization (5-10x faster queries)
-- **Performance Optimizations**
-  - Query result caching and schema cache optimization (3-5x faster repeated queries)
-  - Adaptive background task scheduling (50-70% CPU reduction)
-  - Frontend React.memo, virtualized lists, request deduplication (50% render reduction)
-  - Route-based code splitting with lazy loading (40-60% faster initial load)
-- **Documentation Updates**
-  - Comprehensive feature documentation for all major components
-  - DBAssist AI usage guide
-  - Analytics dashboard documentation
-  - Connection management guide
-
-### Fixed
-- Operation lock conflicts with timeouts and expiration (prevents "operation in progress" errors)
-- Database URL parsing for async protocols and SQLite format
-- Charts dark/light mode compatibility
-- Connection management performance issues
-- Frontend performance bottlenecks
