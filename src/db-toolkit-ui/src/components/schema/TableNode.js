@@ -6,7 +6,13 @@ import { Handle, Position } from 'reactflow';
 import { Key, Link } from 'lucide-react';
 
 function TableNode({ data }) {
-  const { label, columns, schema } = data;
+  console.log('TableNode rendering with data:', data);
+  
+  if (!data) {
+    return <div className="bg-red-500 text-white p-4">No data</div>;
+  }
+  
+  const { label, columns = [], schema } = data;
 
   const primaryKeys = columns.filter(col => 
     col.primary_key || col.name === 'id'
