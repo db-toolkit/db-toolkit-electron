@@ -110,6 +110,16 @@ export function AiAssistant({
 
     // Generate SQL for query requests
     try {
+      // Check if schema is valid
+      if (!schemaContext || !schemaContext.tables || schemaContext.tables.error || schemaContext.tables.success === false) {
+        const errorMsg = 'Cannot generate query: Database schema not loaded. Please reconnect to the database.';
+        const assistantMessage = { role: 'assistant', content: errorMsg, type: 'error' };
+        onChatUpdate([...chatHistory, userMessage, assistantMessage]);
+        toast.error(errorMsg);
+        setNaturalLanguage('');
+        return;
+      }
+
       console.log('Generating query with schema:', schemaContext);
       const result = await generateQuery(input, schemaContext);
       if (result.success && result.sql) {
@@ -122,9 +132,13 @@ export function AiAssistant({
         const errorMessage = { role: 'assistant', content: result.error || 'Failed to generate query', type: 'error' };
         onChatUpdate([...chatHistory, userMessage, errorMessage]);
         toast.error(result.error || 'Failed to generate query');
+        setNaturalLanguage('');
       }
     } catch (err) {
+      const errorMessage = { role: 'assistant', content: err.message, type: 'error' };
+      onChatUpdate([...chatHistory, userMessage, errorMessage]);
       toast.error(err.message);
+      setNaturalLanguage('');
     }
   };
 
