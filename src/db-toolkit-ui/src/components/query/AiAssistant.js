@@ -5,14 +5,10 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bot, 
-  Wand2, 
-  MessageSquare, 
-  Zap, 
   AlertCircle,
-  Copy,
-  Check,
   Loader2,
-  X
+  X,
+  ArrowRight
 } from 'lucide-react';
 import { Button } from '../common/Button';
 import { useAiAssistant } from '../../hooks/useAiAssistant';
@@ -144,36 +140,38 @@ export function AiAssistant({
       </div>
 
       {/* Input at bottom */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Describe what you want to query:
-          </label>
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="relative">
           <textarea
             value={naturalLanguage}
             onChange={(e) => setNaturalLanguage(e.target.value)}
-            placeholder="e.g., Show all users created in the last 30 days"
-            className="w-full h-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (naturalLanguage.trim() && !isLoading) {
+                  handleGenerateQuery();
+                }
+              }
+            }}
+            placeholder="Describe what you want to query..."
+            className="w-full h-24 px-3 py-2 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
+          <button
+            onClick={handleGenerateQuery}
+            disabled={isLoading || !naturalLanguage.trim()}
+            className={`absolute right-2 bottom-2 p-2 rounded-lg transition-colors ${
+              naturalLanguage.trim() && !isLoading
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <ArrowRight className="w-5 h-5" />
+            )}
+          </button>
         </div>
-        
-        <Button
-          onClick={handleGenerateQuery}
-          disabled={isLoading || !naturalLanguage.trim()}
-          className="w-full"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <Wand2 className="w-4 h-4 mr-2" />
-              Generate SQL
-            </>
-          )}
-        </Button>
       </div>
     </div>
   );
