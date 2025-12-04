@@ -80,16 +80,26 @@ function QueryPage() {
       if (!connectionId) return;
       
       setReconnecting(true);
-      try {
-        await connectionsAPI.connect(connectionId);
-        // Fetch schema after successful reconnection
-        await fetchSchemaTree();
-      } catch (err) {
-        console.error('Reconnection failed:', err);
-        toast.error('Failed to reconnect to database');
-      } finally {
-        setReconnecting(false);
+      let retries = 3;
+      
+      while (retries > 0) {
+        try {
+          await connectionsAPI.connect(connectionId);
+          await fetchSchemaTree();
+          setReconnecting(false);
+          return;
+        } catch (err) {
+          retries--;
+          console.error(`Reconnection attempt failed (${3 - retries}/3):`, err);
+          if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)));
+          } else {
+            toast.error('Failed to reconnect after 3 attempts');
+          }
+        }
       }
+      
+      setReconnecting(false);
     };
     
     reconnect();
@@ -205,7 +215,7 @@ function QueryPage() {
 
 
 
-      <div className="flex-1 min-h-0 overflow-hidden flex">
+      <div className="flex-1 min-h-0 flex">
         {showAiAssistant ? (
           <Split
             sizes={[75, 25]}
@@ -213,7 +223,7 @@ function QueryPage() {
             gutterSize={8}
             className="flex h-full w-full"
           >
-            <div className="h-full overflow-hidden">
+            <div className="h-full flex flex-col">
               <Split
                 direction="vertical"
                 sizes={[50, 50]}
@@ -221,7 +231,7 @@ function QueryPage() {
                 gutterSize={8}
                 className="flex flex-col h-full"
               >
-                <div className="overflow-hidden">
+                <div className="flex flex-col">
                   <QueryEditor
                     query={query}
                     onChange={setQuery}
@@ -232,7 +242,7 @@ function QueryPage() {
                   />
                 </div>
 
-                <div className="overflow-hidden">
+                <div className="flex flex-col">
                   <QueryResultsPanel
                     connectionId={connectionId}
                     result={result}
@@ -244,7 +254,7 @@ function QueryPage() {
               </Split>
             </div>
             
-            <div className="overflow-hidden">
+            <div className="flex flex-col h-full">
               <AiAssistant
                 connectionId={connectionId}
                 currentQuery={query}
@@ -266,7 +276,7 @@ function QueryPage() {
             </div>
           </Split>
         ) : (
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1">
             <Split
               direction="vertical"
               sizes={[50, 50]}
@@ -274,7 +284,7 @@ function QueryPage() {
               gutterSize={8}
               className="flex flex-col h-full"
             >
-              <div className="overflow-hidden">
+              <div className="flex flex-col">
                 <QueryEditor
                   query={query}
                   onChange={setQuery}
@@ -285,7 +295,7 @@ function QueryPage() {
                 />
               </div>
 
-              <div className="overflow-hidden">
+              <div className="flex flex-col">
                 <QueryResultsPanel
                   connectionId={connectionId}
                   result={result}
