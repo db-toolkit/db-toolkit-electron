@@ -1,94 +1,12 @@
-const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const os = require('os');
 const fs = require('fs').promises;
 const { exec } = require('child_process');
-const { checkForUpdates } = require('./updater');
+const { createMenu } = require('./menu');
 
 // Set app name before anything else
 app.name = 'DB Toolkit';
-
-function createMenu() {
-  const isDev = !app.isPackaged;
-  
-  const viewSubmenu = [
-    { role: 'reload' },
-    { role: 'forceReload' },
-  ];
-  
-  if (isDev) {
-    viewSubmenu.push({ role: 'toggleDevTools' });
-  }
-  
-  viewSubmenu.push(
-    { type: 'separator' },
-    { role: 'resetZoom' },
-    { role: 'zoomIn' },
-    { role: 'zoomOut' },
-    { type: 'separator' },
-    { role: 'togglefullscreen' }
-  );
-
-  const template = [
-    {
-      label: 'DB Toolkit',
-      submenu: [
-        {
-          label: 'About DB Toolkit',
-          click: () => {
-            dialog.showMessageBox({
-              type: 'info',
-              title: 'About DB Toolkit',
-              message: 'DB Toolkit',
-              detail: `Version: 0.1.0\nA modern database management tool\n\nBuilt with Electron, React, and Python FastAPI\n\n© 2025 DB Toolkit`,
-              buttons: ['OK']
-            });
-          }
-        },
-        {
-          label: 'Check for Updates...',
-          click: checkForUpdates
-        },
-        { type: 'separator' },
-        { role: 'services' },
-        { type: 'separator' },
-        { label: 'Hide DB Toolkit', role: 'hide' },
-        { role: 'hideOthers' },
-        { label: 'Show All', role: 'unhide' },
-        { type: 'separator' },
-        { role: 'quit' }
-      ]
-    },
-    {
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'selectAll' }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: viewSubmenu
-    },
-    {
-      label: 'Window',
-      submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
-        { type: 'separator' },
-        { role: 'front' }
-      ]
-    }
-  ];
-
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
-}
 
 function createWindow() {
   const iconPath = path.join(__dirname, '../build/icons/icon.png');
@@ -118,6 +36,8 @@ function createWindow() {
   } else {
     win.loadFile(path.join(__dirname, '../dist/index.html'));
   }
+
+  return win;
 }
 
 ipcMain.handle('select-folder', async () => {
@@ -231,8 +151,8 @@ ipcMain.handle('get-system-metrics', async () => {
 });
 
 app.whenReady().then(() => {
-  createMenu();
-  createWindow();
+  const mainWindow = createWindow();
+  createMenu(mainWindow);
 });
 
 app.on('window-all-closed', () => {
