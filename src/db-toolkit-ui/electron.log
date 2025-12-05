@@ -1,0 +1,34 @@
+
+> db-toolkit@0.1.0 electron-dev
+> concurrently "npm run dev" "wait-on http://localhost:5173 && electron ."
+
+[0] 
+[0] > db-toolkit@0.1.0 dev
+[0] > vite
+[0] 
+[0] Port 5173 is in use, trying another one...
+[0] Port 5174 is in use, trying another one...
+[0] 
+[0]   VITE v7.2.2  ready in 2083 ms
+[0] 
+[0]   ➜  Local:   http://localhost:5175/
+[0]   ➜  Network: use --host to expose
+[1] /Users/peteradelodun/Documents/python-projects/db-toolkit/src/db-toolkit-ui/electron/main.js:173
+[1] app.whenReady().then(async () => {
+[1]     ^
+[1] 
+[1] TypeError: Cannot read properties of undefined (reading 'whenReady')
+[1]     at Object.<anonymous> (/Users/peteradelodun/Documents/python-projects/db-toolkit/src/db-toolkit-ui/electron/main.js:173:5)
+[1]     at Module._compile (node:internal/modules/cjs/loader:1714:14)
+[1]     at Module._extensions..js (node:internal/modules/cjs/loader:1848:10)
+[1]     at Module.load (node:internal/modules/cjs/loader:1448:32)
+[1]     at Module._load (node:internal/modules/cjs/loader:1270:12)
+[1]     at c._load (node:electron/js2c/node_init:2:17993)
+[1]     at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+[1]     at wrapModuleLoad (node:internal/modules/cjs/loader:244:24)
+[1]     at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:186:5)
+[1]     at node:internal/main/run_main_module:36:49
+[1] 
+[1] Node.js v22.21.1
+[1] wait-on http://localhost:5173 && electron . exited with code 1
+[0] npm run dev exited with code SIGKILL
