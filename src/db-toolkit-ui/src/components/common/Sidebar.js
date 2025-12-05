@@ -23,6 +23,10 @@ function Sidebar() {
     if (path === '/') {
       return currentPath === '/' || currentPath === '';
     }
+    // Special case: /query-editor should also match /query/:connectionId
+    if (path === '/query-editor' && currentPath.startsWith('/query/')) {
+      return true;
+    }
     return currentPath.startsWith(path);
   };
 
