@@ -1,5 +1,7 @@
-const { Menu, dialog, shell } = require('electron');
+const { Menu, dialog, shell, ipcMain } = require('electron');
 const { checkForUpdates } = require('./updater');
+
+let currentTheme = 'light';
 
 function createMenu(mainWindow) {
   const isDev = !require('electron').app.isPackaged;
@@ -114,7 +116,7 @@ function createMenu(mainWindow) {
         },
         { type: 'separator' },
         {
-          label: 'Toggle Dark Mode',
+          label: currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode',
           accelerator: 'CmdOrCtrl+Shift+D',
           click: () => mainWindow.webContents.send('menu-action', 'toggle-theme')
         },
@@ -242,4 +244,12 @@ function createMenu(mainWindow) {
   Menu.setApplicationMenu(menu);
 }
 
-module.exports = { createMenu };
+function updateThemeMenu(theme) {
+  currentTheme = theme;
+}
+
+ipcMain.on('theme-changed', (event, theme) => {
+  currentTheme = theme;
+});
+
+module.exports = { createMenu, updateThemeMenu };

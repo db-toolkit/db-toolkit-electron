@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld('electron', {
   removeMenuActionListener: () => {
     ipcRenderer.removeAllListeners('menu-action');
   },
+  sendThemeChange: (theme) => {
+    ipcRenderer.send('theme-changed', theme);
+  },
   ipcRenderer: {
     invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args)
   }

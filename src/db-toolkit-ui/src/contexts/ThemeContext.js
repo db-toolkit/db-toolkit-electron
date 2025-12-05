@@ -37,6 +37,11 @@ export function ThemeProvider({ children }) {
     } else {
       document.documentElement.classList.remove('dark');
     }
+    
+    // Notify Electron of theme change
+    if (window.electron?.sendThemeChange) {
+      window.electron.sendThemeChange(theme);
+    }
   }, [theme]);
 
   const updateTheme = (newTheme) => {
@@ -46,6 +51,11 @@ export function ThemeProvider({ children }) {
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setSettingsTheme(newTheme);
+    
+    // Notify Electron immediately
+    if (window.electron?.sendThemeChange) {
+      window.electron.sendThemeChange(newTheme);
+    }
   };
 
   return (
