@@ -191,6 +191,14 @@ export const migratorAPI = {
   getVersion: () => api.get('/version'),
 };
 
+export const issuesAPI = {
+  create: (data) => api.post('/issues', data),
+  getAll: () => api.get('/issues'),
+  getById: (id) => api.get(`/issues/${id}`),
+  updateStatus: (id, status) => api.patch(`/issues/${id}/status`, { status }),
+  delete: (id) => api.delete(`/issues/${id}`)
+};
+
 export const schemaAiAPI = {
   analyzeSchema: async (connectionId, schemaName) => {
     // Get schema info first

@@ -19,6 +19,10 @@ class Settings:
     ai_temperature: float = float(os.getenv("AI_TEMPERATURE", "0.7"))
     ai_max_tokens: int = int(os.getenv("AI_MAX_TOKENS", "2048"))
     
+    # Email Configuration
+    resend_api_key: str = os.getenv("RESEND_API_KEY", "")
+    issue_email: str = os.getenv("ISSUE_EMAIL", "")
+    
     # Storage
     STORAGE_PATH: Path = Path.home() / ".db-toolkit"
     
@@ -26,6 +30,11 @@ class Settings:
     def has_cloudflare_credentials(self) -> bool:
         """Check if Cloudflare credentials are configured."""
         return bool(self.cloudflare_account_id and self.cloudflare_api_token)
+    
+    @property
+    def has_email_credentials(self) -> bool:
+        """Check if email credentials are configured."""
+        return bool(self.resend_api_key and self.issue_email)
 
 
 settings = Settings()

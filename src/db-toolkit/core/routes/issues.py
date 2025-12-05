@@ -84,7 +84,7 @@ async def send_issue_email(issue: dict):
                     'Content-Type': 'application/json'
                 },
                 json={
-                    'from': os.getenv('EMAIL_FROM', 'DB Toolkit <issues@yourdomain.com>'),
+                    'from': 'DB Toolkit <onboarding@resend.dev>',
                     'to': [os.getenv('ISSUE_EMAIL', 'your-email@example.com')],
                     'subject': f'[{issue["issue_type"].upper()}] {issue["title"]}',
                     'html': email_body

@@ -2,44 +2,37 @@ import { useState } from 'react';
 import { X, Bug, Lightbulb, HelpCircle, FileText, Github} from 'lucide-react';
 import { Button } from './Button';
 import { useToast } from '../../contexts/ToastContext';
+import { useIssues } from '../../hooks/useIssues';
 
 export function ReportIssueModal({ isOpen, onClose }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [issueType, setIssueType] = useState('bug');
+  const toast = useToast();
+  const { createIssue, loading } = useIssues();
 
   if (!isOpen) return null;
 
-  const toast = useToast();
-
   const handleSubmit = async () => {
     try {
-      const response = await fetch('http://localhost:8001/api/v1/issues', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          description,
-          issue_type: issueType,
-          environment: {
-            os: navigator.platform,
-            version: '0.1.0',
-            user_agent: navigator.userAgent
-          }
-        })
+      await createIssue({
+        title,
+        description,
+        issue_type: issueType,
+        environment: {
+          os: navigator.platform,
+          version: '0.1.0',
+          user_agent: navigator.userAgent
+        }
       });
       
-      if (response.ok) {
-        toast.success('Issue submitted successfully');
-        setTitle('');
-        setDescription('');
-        setIssueType('bug');
-        onClose();
-      } else {
-        toast.error('Failed to submit issue');
-      }
+      toast.success('Issue submitted successfully');
+      setTitle('');
+      setDescription('');
+      setIssueType('bug');
+      onClose();
     } catch (err) {
-      toast.error('Failed to submit issue');
+      toast.error(err.message || 'Failed to submit issue');
     }
   };
 
@@ -136,13 +129,11 @@ export function ReportIssueModal({ isOpen, onClose }) {
           </Button>
           <Button 
             variant="primary" 
-            onClick={() => {
-              // Just close modal - issue is recorded
-              onClose();
-            }}
-            disabled={!title.trim() || !description.trim()}
+            onClick={handleSubmit}
+            disabled={!title.trim() || !description.trim() || loading}
+            loading={loading}
           >
-            Submit
+            {loading ? 'Submitting...' : 'Submit'}
           </Button>
         </div>
       </div>
