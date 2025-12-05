@@ -231,7 +231,7 @@ function QueryPage() {
                 gutterSize={8}
                 className="flex flex-col h-full"
               >
-                <div className="flex flex-col">
+                <div className="overflow-hidden">
                   <QueryEditor
                     query={query}
                     onChange={setQuery}
@@ -242,7 +242,7 @@ function QueryPage() {
                   />
                 </div>
 
-                <div className="h-full overflow-hidden">
+                <div className="overflow-hidden">
                   <QueryResultsPanel
                     connectionId={connectionId}
                     result={result}
@@ -284,7 +284,7 @@ function QueryPage() {
               gutterSize={8}
               className="flex flex-col h-full"
             >
-              <div className="flex flex-col">
+              <div className="overflow-hidden">
                 <QueryEditor
                   query={query}
                   onChange={setQuery}
@@ -295,7 +295,7 @@ function QueryPage() {
                 />
               </div>
 
-              <div className="h-full overflow-hidden">
+              <div className="overflow-hidden">
                 <QueryResultsPanel
                   connectionId={connectionId}
                   result={result}
