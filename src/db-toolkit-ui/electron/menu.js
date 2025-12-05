@@ -225,7 +225,7 @@ function createMenu(mainWindow) {
         { type: 'separator' },
         {
           label: 'Check for Updates',
-          click: () => mainWindow.webContents.send('menu-action', 'check-updates')
+          click: checkForUpdates
         }
       ]
     }
