@@ -4,6 +4,7 @@ import uuid
 import os
 from datetime import datetime
 from typing import List
+from pathlib import Path
 from fastapi import APIRouter, HTTPException
 import httpx
 
@@ -50,22 +51,30 @@ async def send_issue_email(issue: dict):
         return
     
     try:
+        # Load email template
+        template_path = Path(__file__).parent.parent.parent / 'templates' / 'email' / 'issue_report.html'
+        with open(template_path, 'r') as f:
+            template = f.read()
+        
+        # Badge colors for issue types
+        badge_colors = {
+            'bug': '#ef4444',
+            'feature': '#f59e0b',
+            'question': '#3b82f6',
+            'documentation': '#10b981'
+        }
+        
         env_info = issue.get('environment', {})
-        email_body = f"""
-        <h2>New Issue Reported: {issue['title']}</h2>
-        <p><strong>Type:</strong> {issue['issue_type']}</p>
-        <p><strong>Description:</strong></p>
-        <p>{issue['description']}</p>
-        <hr>
-        <p><strong>Environment:</strong></p>
-        <ul>
-            <li>OS: {env_info.get('os', 'Unknown')}</li>
-            <li>Version: {env_info.get('version', 'Unknown')}</li>
-            <li>User Agent: {env_info.get('user_agent', 'Unknown')}</li>
-        </ul>
-        <p><strong>Issue ID:</strong> {issue['id']}</p>
-        <p><strong>Created:</strong> {issue['created_at']}</p>
-        """
+        
+        # Replace template variables
+        email_body = template.replace('{{ issue_type }}', issue['issue_type'].upper())
+        email_body = email_body.replace('{{ badge_color }}', badge_colors.get(issue['issue_type'], '#6b7280'))
+        email_body = email_body.replace('{{ title }}', issue['title'])
+        email_body = email_body.replace('{{ description }}', issue['description'])
+        email_body = email_body.replace('{{ os }}', env_info.get('os', 'Unknown'))
+        email_body = email_body.replace('{{ version }}', env_info.get('version', 'Unknown'))
+        email_body = email_body.replace('{{ issue_id }}', issue['id'])
+        email_body = email_body.replace('{{ created_at }}', issue['created_at'].strftime('%B %d, %Y at %I:%M %p UTC'))
         
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -75,7 +84,7 @@ async def send_issue_email(issue: dict):
                     'Content-Type': 'application/json'
                 },
                 json={
-                    'from': 'DB Toolkit <issues@yourdomain.com>',
+                    'from': os.getenv('EMAIL_FROM', 'DB Toolkit <issues@yourdomain.com>'),
                     'to': [os.getenv('ISSUE_EMAIL', 'your-email@example.com')],
                     'subject': f'[{issue["issue_type"].upper()}] {issue["title"]}',
                     'html': email_body
