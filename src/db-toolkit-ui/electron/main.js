@@ -165,7 +165,7 @@ function registerIpcHandlers() {
     const { updateRecentConnections } = require('./menu');
     const mainWindow = BrowserWindow.getFocusedWindow();
     if (mainWindow) {
-      updateRecentConnections(connections, mainWindow);
+      updateRecentConnections(connections, mainWindow, !app.isPackaged);
     }
   });
 }
@@ -178,7 +178,7 @@ app.whenReady().then(async () => {
   try {
     await startBackend(app);
     const mainWindow = createWindow();
-    createMenu(mainWindow);
+    createMenu(mainWindow, !app.isPackaged);
   } catch (err) {
     console.error('Failed to start backend:', err);
     app.quit();

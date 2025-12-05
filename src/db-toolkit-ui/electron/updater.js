@@ -154,8 +154,7 @@ async function downloadUpdate(release) {
     
     if (response.response === 0) {
       shell.openPath(downloadPath);
-      const { app } = require('electron');
-      app.quit();
+      process.exit(0);
     } else {
       shell.showItemInFolder(downloadPath);
     }

@@ -4,8 +4,7 @@ const { checkForUpdates } = require('./updater');
 let currentTheme = 'light';
 let recentConnections = [];
 
-function createMenu(mainWindow) {
-  const isDev = !require('electron').app.isPackaged;
+function createMenu(mainWindow, isDev = false) {
   
   const template = [
     {
@@ -245,9 +244,9 @@ function updateThemeMenu(theme) {
   currentTheme = theme;
 }
 
-function updateRecentConnections(connections, mainWindow) {
+function updateRecentConnections(connections, mainWindow, isDev = false) {
   recentConnections = connections.slice(0, 5);
-  createMenu(mainWindow);
+  createMenu(mainWindow, isDev);
 }
 
 module.exports = { createMenu, updateThemeMenu, updateRecentConnections };

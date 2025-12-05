@@ -7,16 +7,16 @@
 [0] > vite
 [0] 
 [0] 
-[0]   VITE v7.2.2  ready in 973 ms
+[0]   VITE v7.2.2  ready in 568 ms
 [0] 
 [0]   ➜  Local:   http://localhost:5173/
 [0]   ➜  Network: use --host to expose
-[1] /Users/peteradelodun/Documents/python-projects/db-toolkit/src/db-toolkit-ui/electron/main.js:174
+[1] /Users/peteradelodun/Documents/python-projects/db-toolkit/src/db-toolkit-ui/electron/main.js:173
 [1] app.whenReady().then(async () => {
 [1]     ^
 [1] 
 [1] TypeError: Cannot read properties of undefined (reading 'whenReady')
-[1]     at Object.<anonymous> (/Users/peteradelodun/Documents/python-projects/db-toolkit/src/db-toolkit-ui/electron/main.js:174:5)
+[1]     at Object.<anonymous> (/Users/peteradelodun/Documents/python-projects/db-toolkit/src/db-toolkit-ui/electron/main.js:173:5)
 [1]     at Module._compile (node:internal/modules/cjs/loader:1714:14)
 [1]     at Module._extensions..js (node:internal/modules/cjs/loader:1848:10)
 [1]     at Module.load (node:internal/modules/cjs/loader:1448:32)
@@ -29,8 +29,3 @@
 [1] 
 [1] Node.js v22.21.1
 [1] wait-on http://localhost:5173 && electron . exited with code 1
-[0] 4:53:16 PM [vite] vite.config.js changed, restarting server...
-[0] 4:53:16 PM [vite] server restarted.
-[0] 4:53:20 PM [vite] vite.config.js changed, restarting server...
-[0] 4:53:20 PM [vite] server restarted.
-[0] npm run dev exited with code SIGKILL
