@@ -90,8 +90,7 @@ function DataExplorerPage() {
   };
 
   const handleSelectTable = (schema, table) => {
-    console.log('Selected table:', { schema, table });
-    console.log('Schema structure:', JSON.stringify(schema, null, 2));
+    alert(`Selected table: ${table}, schema: ${schema}`);
     setSelectedTable({ schema, table });
     setPage(0);
     setSortColumn(null);
@@ -149,13 +148,13 @@ function DataExplorerPage() {
   const handleCellUpdate = async (row, column, newValue) => {
     try {
       const rowId = { [columns[0]]: row[0] };
+      alert(`Updating: table=${selectedTable.table}, schema=${selectedTable.schema}`);
       const payload = {
         table: selectedTable.table,
         schema_name: selectedTable.schema,
         primary_key: rowId,
         changes: { [column]: newValue },
       };
-      console.log('Sending update request:', payload);
       const response = await api.put(`/connections/${connectionId}/data/row`, payload);
       
       toast.success('Cell updated successfully');
