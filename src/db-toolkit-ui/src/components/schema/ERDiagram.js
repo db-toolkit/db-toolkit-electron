@@ -148,8 +148,9 @@ export function ERDiagram({ schema, onClose }) {
 
     // Create image from current view
     import('html-to-image').then(({ toPng }) => {
+      const isDark = document.documentElement.classList.contains('dark');
       toPng(flowElement, {
-        backgroundColor: '#ffffff',
+        backgroundColor: isDark ? '#111827' : '#ffffff',
         width,
         height,
         pixelRatio: 2,
