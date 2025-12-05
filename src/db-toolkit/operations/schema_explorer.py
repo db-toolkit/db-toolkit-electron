@@ -45,6 +45,7 @@ class SchemaExplorer:
             
             for schema_name in schemas:
                 tables = await connector.get_tables(schema_name)
+                logger.info(f"Schema '{schema_name}' has tables: {tables}")
                 schema_tree["schemas"][schema_name] = {
                     "tables": {},
                     "table_count": len(tables)
