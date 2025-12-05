@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Database, Home, Table, HardDrive, BookOpen, FolderGit2, BarChart3, Code } from 'lucide-react';
+import { Database, Home, Table, HardDrive, Menu, X, BookOpen, FolderGit2, BarChart3, Code } from 'lucide-react';
+import { Tooltip } from './Tooltip';
 
 function Sidebar() {
+  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   const navItems = [
@@ -24,11 +27,40 @@ function Sidebar() {
   };
 
   return (
-    <aside className="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white h-screen flex flex-col border-r border-gray-200 dark:border-gray-900">
+    <>
+      {/* Mobile hamburger button */}
+      <Tooltip text={isOpen ? 'Close menu' : 'Open menu'} position="right">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white"
+        >
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </Tooltip>
+
+      {/* Overlay for mobile */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed md:static inset-y-0 left-0 z-40
+          w-64 md:w-56 lg:w-64
+          bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white
+          h-screen flex flex-col border-r border-gray-200 dark:border-gray-900
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}
+      >
         <div className="p-6 border-b border-gray-200 dark:border-gray-900">
           <div className="flex items-center gap-2">
             <Database size={28} className="text-blue-600 dark:text-blue-500" />
-            <h1 className="text-xl font-bold whitespace-nowrap">DB Toolkit</h1>
+            <h1 className="text-xl font-bold">DB Toolkit</h1>
           </div>
         </div>
         <nav className="flex-1 p-4">
@@ -36,6 +68,7 @@ function Sidebar() {
             <Link
               key={path}
               to={path}
+              onClick={() => setIsOpen(false)}
               className={`
                 flex items-center gap-3 px-4 py-3 rounded-lg transition
                 ${isActive(path)
@@ -50,6 +83,7 @@ function Sidebar() {
           ))}
         </nav>
       </aside>
+    </>
   );
 }
 

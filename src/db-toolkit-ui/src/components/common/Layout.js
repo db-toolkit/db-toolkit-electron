@@ -17,9 +17,9 @@ function Layout({ children }) {
   const [showTerminal, setShowTerminal] = useState(false);
   const [connections, setConnections] = useState([]);
   const [queries, setQueries] = useState([]);
-  const [sidebarSize, setSidebarSize] = useState(() => {
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem('sidebar-width');
-    return saved ? parseInt(saved) : 256;
+    return saved ? parseInt(saved) : 20;
   });
 
   useEffect(() => {
@@ -41,21 +41,17 @@ function Layout({ children }) {
     setQueries(savedQueries);
   }, []);
 
-  const handleSidebarResize = (sizes) => {
-    localStorage.setItem('sidebar-width', sizes[0]);
-  };
-
   return (
     <div className="h-screen bg-gray-100 dark:bg-gray-900">
       <Split
-        sizes={[sidebarSize, window.innerWidth - sidebarSize]}
+        sizes={[sidebarWidth, 100 - sidebarWidth]}
         minSize={[200, 600]}
         maxSize={[400, Infinity]}
         gutterSize={4}
-        onDragEnd={handleSidebarResize}
+        onDragEnd={(sizes) => localStorage.setItem('sidebar-width', sizes[0])}
         className="flex h-full"
       >
-        <div className="h-full">
+        <div>
           <Sidebar />
         </div>
         <div className="flex-1 flex flex-col overflow-hidden">
