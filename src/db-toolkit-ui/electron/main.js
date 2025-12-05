@@ -4,6 +4,7 @@ const os = require('os');
 const fs = require('fs').promises;
 const { exec } = require('child_process');
 const { createMenu } = require('./menu');
+const { startBackend, stopBackend } = require('./backend');
 
 // Set app name before anything else
 app.name = 'DB Toolkit';
@@ -151,14 +152,22 @@ ipcMain.handle('get-system-metrics', async () => {
 });
 
 app.whenReady().then(() => {
-  const mainWindow = createWindow();
-  createMenu(mainWindow);
+  startBackend();
+  setTimeout(() => {
+    const mainWindow = createWindow();
+    createMenu(mainWindow);
+  }, 2000);
 });
 
 app.on('window-all-closed', () => {
+  stopBackend();
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+app.on('before-quit', () => {
+  stopBackend();
 });
 
 app.on('activate', () => {
