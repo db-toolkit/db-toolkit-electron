@@ -40,3 +40,9 @@ src/db-toolkit-ui/yarn-error.log*
 src/db-toolkit-ui/dist/
 src/db-toolkit-ui/out/
 src/db-toolkit-ui/release/
+src/db-toolkit-ui/resources/backend/
+
+# Backend build artifacts
+src/db-toolkit/dist/
+src/db-toolkit/build/
+src/db-toolkit/.ruff_cache/
