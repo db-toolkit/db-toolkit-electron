@@ -83,10 +83,10 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-green-300 dark:hover:border-green-700 transition-all cursor-pointer">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all cursor-pointer">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
-              <FileText className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+              <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.queries}</div>
