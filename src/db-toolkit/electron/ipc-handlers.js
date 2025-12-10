@@ -80,6 +80,15 @@ function registerFileHandlers() {
       throw new Error('Failed to show item in folder');
     }
   });
+
+  ipcMain.handle('dialog:showOpenDialog', async (event, options) => {
+    try {
+      const result = await dialog.showOpenDialog(options);
+      return result.canceled ? null : result.filePaths[0];
+    } catch (error) {
+      throw new Error('Failed to show open dialog');
+    }
+  });
 }
 
 function registerSystemHandlers() {

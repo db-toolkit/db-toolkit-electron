@@ -300,13 +300,53 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
               </>
             )}
 
-            <Input
-          key={`database-${formData.db_type}`}
-          label="Database"
-          value={formData.database}
-          onChange={(e) => handleChange('database', e.target.value)}
-          required
-        />
+            {formData.db_type === 'sqlite' ? (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Database File
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={formData.database}
+                    onChange={(e) => handleChange('database', e.target.value)}
+                    placeholder="/path/to/database.sqlite"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={async () => {
+                      try {
+                        const filePath = await window.electron.ipcRenderer.invoke('dialog:showOpenDialog', {
+                          properties: ['openFile'],
+                          filters: [
+                            { name: 'SQLite Database', extensions: ['sqlite', 'sqlite3', 'db'] },
+                            { name: 'All Files', extensions: ['*'] }
+                          ]
+                        });
+                        if (filePath) {
+                          handleChange('database', filePath);
+                        }
+                      } catch (err) {
+                        toast.error('Failed to open file dialog');
+                      }
+                    }}
+                  >
+                    Browse
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Input
+                key={`database-${formData.db_type}`}
+                label="Database"
+                value={formData.database}
+                onChange={(e) => handleChange('database', e.target.value)}
+                required
+              />
+            )}
 
             {formData.db_type !== 'sqlite' && (
               <>
