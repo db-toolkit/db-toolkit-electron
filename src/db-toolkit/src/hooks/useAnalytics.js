@@ -40,7 +40,7 @@ export function useAnalytics(connectionId) {
       }
 
       setAnalytics(result.data);
-      setHistory(prev => [...prev.slice(-19), {
+      setHistory(prev => [...(prev || []).slice(-19), {
         timestamp: new Date(),
         connections: result.data?.active_connections || 0
       }]);
