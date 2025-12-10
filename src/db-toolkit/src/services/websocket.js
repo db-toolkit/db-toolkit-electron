@@ -17,7 +17,7 @@ export class IPCWebSocket {
     this.connectionId = null;
     
     // Set up IPC listener
-    if (window.electron?.ipcRenderer) {
+    if (window.electron?.ipcRenderer?.on) {
       window.electron.ipcRenderer.on(this.endpoint, (event, data) => {
         if (this.onmessage) {
           this.onmessage({ data: JSON.stringify(data) });
@@ -44,7 +44,7 @@ export class IPCWebSocket {
       window.electron?.ipcRenderer?.invoke('analytics:stream:stop', this.connectionId);
     }
     
-    if (window.electron?.ipcRenderer) {
+    if (window.electron?.ipcRenderer?.removeAllListeners) {
       window.electron.ipcRenderer.removeAllListeners(this.endpoint);
     }
     
