@@ -90,7 +90,7 @@ function Layout({ children }) {
   }, []);
 
   return (
-    <div className="h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
       {showSidebar ? (
         <Split
           sizes={[sidebarWidth, 100 - sidebarWidth]}
@@ -116,7 +116,7 @@ function Layout({ children }) {
             </button>
           </Tooltip>
         </header>
-        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-800 pt-16 md:pt-0">
+        <main className="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-800">
           {children}
         </main>
         <StatusBar onTerminalClick={() => setShowTerminal(!showTerminal)} />
@@ -137,7 +137,7 @@ function Layout({ children }) {
               </button>
             </Tooltip>
           </header>
-          <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-800 pt-16 md:pt-0">
+          <main className="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-800">
             {children}
           </main>
           <StatusBar onTerminalClick={() => setShowTerminal(!showTerminal)} />
