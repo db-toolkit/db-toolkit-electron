@@ -139,6 +139,19 @@ function registerBackupHandlers() {
       return { success: false, error: error.message };
     }
   });
+
+  ipcMain.handle('backup:download', async (event, backupId) => {
+    try {
+      const backup = await backupStorage.getBackup(backupId);
+      if (!backup) {
+        return { success: false, error: 'Backup not found' };
+      }
+      // For Electron, we just return the file path - the frontend handles the download
+      return { success: true, filePath: backup.file_path };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
 }
 
 module.exports = { registerBackupHandlers };
