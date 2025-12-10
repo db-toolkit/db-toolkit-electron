@@ -119,7 +119,7 @@ function registerBackupHandlers() {
   ipcMain.handle('backup:get-all', async (event, connectionId) => {
     try {
       const backups = await backupStorage.getAllBackups(connectionId);
-      return { success: true, data: backups };
+      return { success: true, backups };
     } catch (error) {
       return { success: false, error: error.message };
     }
