@@ -14,11 +14,21 @@ export function useSettings() {
     setError(null);
     try {
       const response = await settingsAPI.get();
-      setSettings(response.data);
-      return response.data;
+      setSettings(response.data || response);
+      return response.data || response;
     } catch (err) {
       setError(err.message);
-      throw err;
+      // Provide default settings if API fails
+      const defaultSettings = {
+        theme: 'system',
+        query_limit: 1000,
+        query_timeout: 30,
+        editor_font_size: 14,
+        editor_theme: 'vs-dark',
+        default_db_type: 'postgresql'
+      };
+      setSettings(defaultSettings);
+      return defaultSettings;
     } finally {
       setLoading(false);
     }
