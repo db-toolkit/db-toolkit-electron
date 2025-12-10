@@ -134,7 +134,7 @@ export function useAnalytics(connectionId) {
 
   const getQueryPlan = async (query) => {
     try {
-      const result = await ipc.invoke('analytics:get-query-plan', connectionId, query);
+      const result = await ipc.invoke('analytics:query-plan', connectionId, query);
       return result;
     } catch (err) {
       toast.error('Failed to get query plan');
@@ -144,7 +144,7 @@ export function useAnalytics(connectionId) {
 
   const fetchHistoricalData = async (hours = 3) => {
     try {
-      const result = await ipc.invoke('analytics:get-history', connectionId, hours);
+      const result = await ipc.invoke('analytics:historical', connectionId, hours);
       if (result.success) {
         setHistory(result.history);
       }
@@ -155,7 +155,7 @@ export function useAnalytics(connectionId) {
 
   const getSlowQueries = async (hours = 24) => {
     try {
-      const result = await ipc.invoke('analytics:get-slow-queries', connectionId, hours);
+      const result = await ipc.invoke('analytics:slow-queries', connectionId, hours);
       return result.slow_queries || [];
     } catch (err) {
       return [];
@@ -164,7 +164,7 @@ export function useAnalytics(connectionId) {
 
   const getTableStats = async () => {
     try {
-      const result = await ipc.invoke('analytics:get-table-stats', connectionId);
+      const result = await ipc.invoke('analytics:table-stats', connectionId);
       return result.table_stats || [];
     } catch (err) {
       return [];
@@ -173,7 +173,7 @@ export function useAnalytics(connectionId) {
 
   const getPoolStats = async () => {
     try {
-      const result = await ipc.invoke('analytics:get-pool-stats', connectionId);
+      const result = await ipc.invoke('analytics:get', connectionId);
       return result.pool_stats || null;
     } catch (err) {
       return null;
