@@ -18,12 +18,19 @@ function registerBackupHandlers() {
     try {
       logger.info(`Creating backup: ${JSON.stringify(data)}`);
       
-      const connection = await connectionManager.getConnector(connectionId);
       const config = await connectionStorage.getConnection(connectionId);
+      logger.info(`Config retrieved: ${JSON.stringify(config)}`);
+      
+      const connection = config ? await connectionManager.getConnector(connectionId) : null;
       
       logger.info(`Connection found: ${!!connection}, Config found: ${!!config}`);
       
-      if (!connection || !config) {
+      if (!config) {
+        logger.error(`No config found for connection ID: ${connectionId}`);
+        return { success: false, error: 'Connection not found' };
+      }
+      
+      if (!connection) {
         logger.error('Connection or config not found');
         return { success: false, error: 'Connection not found' };
       }
