@@ -13,17 +13,26 @@ function registerBackupHandlers() {
 
   ipcMain.handle('backup:create', async (event, data) => {
     const { connectionId, name, backupType, tables, compress } = data;
+    const { logger } = require('../utils/logger');
+    
     try {
+      logger.info(`Creating backup: ${JSON.stringify(data)}`);
+      
       const connection = await connectionManager.getConnector(connectionId);
       const config = await connectionStorage.getConnection(connectionId);
       
+      logger.info(`Connection found: ${!!connection}, Config found: ${!!config}`);
+      
       if (!connection || !config) {
+        logger.error('Connection or config not found');
         return { success: false, error: 'Connection not found' };
       }
 
       const backup = await backupManager.createBackup(connection, config, name, backupType, tables, compress);
+      logger.info(`Backup created: ${backup.id}`);
       return { success: true, backup };
     } catch (error) {
+      logger.error(`Backup creation failed: ${error.message}`, error);
       return { success: false, error: error.message };
     }
   });
