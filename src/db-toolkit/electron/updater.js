@@ -4,8 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const GITHUB_REPO = 'Adelodunpeter25/db-toolkit';
-const CURRENT_VERSION = '0.1.0';
+const GITHUB_REPO = 'db-toolkit/db-toolkit';
+const CURRENT_VERSION = '0.1.0-beta';
 
 function compareVersions(current, latest) {
   const c = current.replace('v', '').split('.').map(Number);
