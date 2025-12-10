@@ -20,7 +20,7 @@ export default function CommandPalette({ isOpen, onClose, connections, queries }
     { id: 'new-query', name: 'New Query', icon: Plus, action: () => navigate('/query') },
     { id: 'new-backup', name: 'Create Backup', icon: RefreshCw, action: () => navigate('/backups') },
     { id: 'migrations', name: 'Open Migrations', icon: Terminal, action: () => navigate('/migrations') },
-    { id: 'docs', name: 'View Documentation', icon: BookOpen, action: () => navigate('/documentation') },
+    { id: 'docs', name: 'View Documentation', icon: BookOpen, action: () => navigate('/docs') },
   ];
 
   const connectionItems = (connections || []).map(conn => ({
