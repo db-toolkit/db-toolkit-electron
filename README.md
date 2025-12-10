@@ -10,52 +10,13 @@ A modern, cross-platform desktop database management application built with **El
 
 ## Features
 
-### 🗄️ Database Management
-- **Multi-Database Support** - PostgreSQL, MySQL, SQLite, MongoDB
-- **Connection Management** - Save, test, edit, and delete connections with status indicators
-- **Session Persistence** - Auto-restore previous connections on startup
-- **Connection Profiles** - Store multiple database configurations
-
-### 🔍 Schema Explorer
-- **Visual Tree Browser** - Navigate databases, schemas, tables, and columns
-- **Table Details** - View columns, data types, constraints, and indexes
-- **Search & Filter** - Quickly find tables and schemas with debounced search
-- **Real-time Updates** - Automatic schema refresh on changes
-
-### ✏️ Query Editor
-- **Monaco Editor** - Professional code editor with syntax highlighting
-- **Auto-complete** - Intelligent SQL suggestions and snippets
-- **Multiple Tabs** - Work on multiple queries simultaneously with auto-save
-- **Query History** - Track and re-run previous queries
-- **Query Formatting** - Format SQL with `Ctrl+Shift+F`
-- **Error Highlighting** - Real-time syntax error detection
-- **AI-Powered Analysis** - Generate, optimize, and explain SQL queries with Cloudflare AI
-
-### 📊 Data Explorer
-- **Inline Editing** - Double-click cells to edit data directly
-- **Insert/Delete Rows** - Add or remove records with validation
-- **Pagination** - Navigate large datasets efficiently
-- **Sorting & Filtering** - Organize data with column-level controls
-- **CSV/JSON Export** - Export query results and table data
-- **CSV Import** - Bulk import data from CSV files
-- **Cell Preview** - View large text/blob fields in modal
-- **Breadcrumb Navigation** - Track your location in the database
-
-### 💾 Backup & Restore
-- **Automated Backups** - Schedule daily, weekly, or monthly backups
-- **Manual Backups** - Create on-demand backups with compression
-- **Retention Policies** - Automatic cleanup of old backups
-- **Backup Verification** - Validate backup integrity
-- **Native & External Tools** - Support for pg_dump, mysqldump, mongodump with Node.js fallback
-- **Real-time Status** - IPC events for backup progress
-- **Notifications** - Get notified when backups complete
-
-### ⚙️ Settings & Customization
-- **Dark Mode** - Automatic OS theme detection with manual toggle
-- **Query Defaults** - Configure row limits and timeout settings
-- **Editor Preferences** - Customize font size, theme, and behavior
-- **Connection Defaults** - Set default ports and connection parameters
-- **Appearance Settings** - Personalize the UI to your preferences
+- **Multi-Database Support** - PostgreSQL, MySQL, SQLite, MongoDB with connection management and session persistence
+- **Schema Explorer** - Visual tree browser with table details, search, and real-time updates
+- **Query Editor** - Monaco-based editor with syntax highlighting, auto-complete, multiple tabs, history, and AI-powered analysis
+- **Data Explorer** - Inline editing, insert/delete rows, pagination, sorting, filtering, CSV/JSON export/import, and cell preview
+- **Backup & Restore** - Automated and manual backups with scheduling, compression, verification, and real-time progress
+- **AI Query Assistant** - Generate, optimize, and explain SQL queries with Cloudflare AI
+- **Settings & Customization** - Dark mode, query defaults, editor preferences, and appearance settings
 
 ## Tech Stack
 
