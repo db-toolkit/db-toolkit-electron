@@ -44,8 +44,19 @@ class BackupManager {
   }
 
   async _executeBackup(backup, connection, config, tables, compress) {
+    const { backupNotifier } = require('../ws/backup-notifier');
+    
     try {
       await backupStorage.updateBackup(backup.id, { status: 'in_progress' });
+      await backupNotifier.notifyBackupUpdate(backup.id, 'in_progress', { 
+        connection_name: config.name, 
+        progress: 0 
+      });
+      
+      await backupNotifier.notifyBackupUpdate(backup.id, 'in_progress', { 
+        connection_name: config.name, 
+        progress: 25 
+      });
       
       const dbType = config.type;
       if (dbType === 'postgresql') {
@@ -60,7 +71,16 @@ class BackupManager {
         throw new Error(`Backup not supported for ${dbType}`);
       }
       
+      await backupNotifier.notifyBackupUpdate(backup.id, 'in_progress', { 
+        connection_name: config.name, 
+        progress: 75 
+      });
+      
       if (compress) {
+        await backupNotifier.notifyBackupUpdate(backup.id, 'in_progress', { 
+          connection_name: config.name, 
+          progress: 85 
+        });
         const uncompressed = backup.file_path.replace('.gz', '');
         if (await this._fileExists(uncompressed)) {
           await compressFile(uncompressed);
@@ -76,10 +96,21 @@ class BackupManager {
         file_size: stats.size,
         file_path: finalPath
       });
+      
+      await backupNotifier.notifyBackupUpdate(backup.id, 'completed', { 
+        file_size: stats.size, 
+        connection_name: config.name, 
+        progress: 100 
+      });
     } catch (error) {
       await backupStorage.updateBackup(backup.id, {
         status: 'failed',
         error_message: error.message
+      });
+      
+      await backupNotifier.notifyBackupUpdate(backup.id, 'failed', { 
+        error: error.message, 
+        connection_name: config.name 
       });
     }
   }

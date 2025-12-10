@@ -12,6 +12,7 @@ const { registerDataExplorerHandlers } = require('./data-explorer');
 const { registerSessionHandlers } = require('./session');
 const { registerAnalyticsHandlers } = require('./analytics');
 const { registerBackupHandlers } = require('./backup');
+const { registerAnalyticsStreamHandlers } = require('./analytics-stream');
 
 function registerAllHandlers() {
   registerConnectionHandlers();
@@ -24,6 +25,7 @@ function registerAllHandlers() {
   registerSessionHandlers();
   registerAnalyticsHandlers();
   registerBackupHandlers();
+  registerAnalyticsStreamHandlers();
   console.log('All IPC handlers registered');
 }
 
