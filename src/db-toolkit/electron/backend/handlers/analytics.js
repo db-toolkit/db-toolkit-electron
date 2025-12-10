@@ -4,7 +4,7 @@
 
 const { ipcMain } = require('electron');
 const { connectionManager } = require('../utils/connection-manager');
-const { getConnectionById } = require('../utils/connection-storage');
+const { connectionStorage } = require('../utils/connection-storage');
 const { AnalyticsManager } = require('../operations/analytics-manager');
 
 function registerAnalyticsHandlers() {
@@ -15,7 +15,7 @@ function registerAnalyticsHandlers() {
         return { success: false, error: 'Connection not found' };
       }
 
-      const config = getConnectionById(connectionId);
+      const config = await connectionStorage.getConnection(connectionId);
       const manager = new AnalyticsManager(connection);
       return await manager.getAnalytics(config, connectionId);
     } catch (error) {
@@ -58,7 +58,7 @@ function registerAnalyticsHandlers() {
         return { success: false, error: 'Connection not found' };
       }
 
-      const config = getConnectionById(connectionId);
+      const config = await connectionStorage.getConnection(connectionId);
       const manager = new AnalyticsManager(connection);
       return { success: true, data: await manager.getTableStatistics(config) };
     } catch (error) {
@@ -73,7 +73,7 @@ function registerAnalyticsHandlers() {
         return { success: false, error: 'Connection not found' };
       }
 
-      const config = getConnectionById(connectionId);
+      const config = await connectionStorage.getConnection(connectionId);
       const manager = new AnalyticsManager(connection);
       const pdfBuffer = await manager.exportToPDF(connectionId, config.name, config);
       return { success: true, data: pdfBuffer };
@@ -89,7 +89,7 @@ function registerAnalyticsHandlers() {
         return { success: false, error: 'Connection not found' };
       }
 
-      const config = getConnectionById(connectionId);
+      const config = await connectionStorage.getConnection(connectionId);
       const manager = new AnalyticsManager(connection);
       return await manager.getQueryPlan(query, config);
     } catch (error) {
@@ -104,7 +104,7 @@ function registerAnalyticsHandlers() {
         return { success: false, error: 'Connection not found' };
       }
 
-      const config = getConnectionById(connectionId);
+      const config = await connectionStorage.getConnection(connectionId);
       const manager = new AnalyticsManager(connection);
       return await manager.killQuery(pid, config);
     } catch (error) {

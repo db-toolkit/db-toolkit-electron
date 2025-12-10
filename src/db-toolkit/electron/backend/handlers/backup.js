@@ -4,8 +4,8 @@
 
 const { ipcMain } = require('electron');
 const { BackupManager } = require('../operations/backup-manager');
-const { getConnection } = require('../utils/connection-manager');
-const { getConnectionById } = require('../utils/connection-storage');
+const { connectionManager } = require('../utils/connection-manager');
+const { connectionStorage } = require('../utils/connection-storage');
 const backupStorage = require('../utils/backup-storage');
 
 function registerBackupHandlers() {
@@ -13,8 +13,8 @@ function registerBackupHandlers() {
 
   ipcMain.handle('backup:create', async (event, connectionId, name, backupType, tables, compress) => {
     try {
-      const connection = getConnection(connectionId);
-      const config = getConnectionById(connectionId);
+      const connection = await connectionManager.getConnector(connectionId);
+      const config = await connectionStorage.getConnection(connectionId);
       
       if (!connection || !config) {
         return { success: false, error: 'Connection not found' };
@@ -48,8 +48,8 @@ function registerBackupHandlers() {
   ipcMain.handle('backup:restore', async (event, backupId, targetConnectionId) => {
     try {
       const backup = await backupStorage.getBackup(backupId);
-      const targetConnection = getConnection(targetConnectionId);
-      const targetConfig = getConnectionById(targetConnectionId);
+      const targetConnection = await connectionManager.getConnector(targetConnectionId);
+      const targetConfig = await connectionStorage.getConnection(targetConnectionId);
       
       if (!backup || !targetConnection || !targetConfig) {
         return { success: false, error: 'Backup or connection not found' };
