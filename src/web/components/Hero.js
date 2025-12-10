@@ -36,29 +36,7 @@ export default function Hero() {
           }}
           className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-purple-100/30 to-transparent rounded-full blur-3xl motion-reduce:animate-none"
         />
-        
-        {/* Floating particles */}
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-3 h-3 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full motion-reduce:hidden"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -50, 0],
-              x: [0, Math.random() * 20 - 10, 0],
-              opacity: [0.3, 0.8, 0.3],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: 4 + Math.random() * 3,
-              repeat: Infinity,
-              delay: Math.random() * 3,
-            }}
-          />
-        ))}
+
       </div>
 
       <div className="relative container mx-auto px-6 py-20 text-center">
@@ -128,6 +106,8 @@ export default function Hero() {
           </button>
           <a
             href="https://docs-dbtoolkit.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-2 px-8 py-4 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold"
           >
             View Docs
