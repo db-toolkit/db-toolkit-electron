@@ -38,6 +38,10 @@ function createWindow() {
 }
 
 function registerIpcHandlers() {
+  // Register all backend IPC handlers
+  const { registerAllHandlers } = require('./backend/handlers');
+  registerAllHandlers();
+
   ipcMain.handle('select-folder', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory']
