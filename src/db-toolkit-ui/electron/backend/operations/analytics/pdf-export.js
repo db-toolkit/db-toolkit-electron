@@ -10,8 +10,8 @@ function generateAnalyticsPDF(connectionName, metrics, historicalData, slowQueri
   
   doc.on('data', chunk => chunks.push(chunk));
   
-  // Title
-  doc.fontSize(24).fillColor('#1e40af').text('Database Analytics Report', { align: 'center' });
+  // Title with green theme
+  doc.fontSize(24).fillColor('#10b981').text('Database Analytics Report', { align: 'center' });
   doc.moveDown(0.5);
   doc.fontSize(14).fillColor('#000').text(`Connection: ${connectionName}`, { align: 'center' });
   doc.moveDown(0.5);
@@ -19,7 +19,7 @@ function generateAnalyticsPDF(connectionName, metrics, historicalData, slowQueri
   doc.moveDown(2);
   
   // Current Metrics
-  doc.fontSize(16).fillColor('#2563eb').text('Current Metrics');
+  doc.fontSize(16).fillColor('#10b981').text('Current Metrics');
   doc.moveDown(0.5);
   
   const activeConn = metrics.active_connections || 0;
@@ -35,7 +35,7 @@ function generateAnalyticsPDF(connectionName, metrics, historicalData, slowQueri
   // Query Stats
   const queryStats = metrics.query_stats || {};
   if (Object.values(queryStats).some(v => v > 0)) {
-    doc.fontSize(16).fillColor('#2563eb').text('Query Distribution');
+    doc.fontSize(16).fillColor('#10b981').text('Query Distribution');
     doc.moveDown(0.5);
     doc.fontSize(10).fillColor('#000');
     for (const [type, count] of Object.entries(queryStats)) {
@@ -44,10 +44,25 @@ function generateAnalyticsPDF(connectionName, metrics, historicalData, slowQueri
     doc.moveDown();
   }
   
+  // Historical Data
+  if (historicalData && historicalData.length > 0) {
+    doc.fontSize(16).fillColor('#10b981').text('Historical Trends');
+    doc.moveDown(0.5);
+    doc.fontSize(10).fillColor('#000');
+    doc.text(`Data points collected: ${historicalData.length}`);
+    const latest = historicalData[historicalData.length - 1];
+    if (latest) {
+      doc.text(`Latest snapshot: ${latest.timestamp || 'N/A'}`);
+      doc.text(`Active connections: ${latest.active_connections || 0}`);
+      doc.text(`Database size: ${formatBytes(latest.database_size || 0)}`);
+    }
+    doc.moveDown();
+  }
+  
   // Current Queries
   const currentQueries = metrics.current_queries || [];
   if (currentQueries.length > 0) {
-    doc.fontSize(16).fillColor('#2563eb').text('Current Active Queries');
+    doc.fontSize(16).fillColor('#10b981').text('Current Active Queries');
     doc.moveDown(0.5);
     doc.fontSize(9).fillColor('#000');
     for (const q of currentQueries.slice(0, 10)) {
@@ -61,7 +76,7 @@ function generateAnalyticsPDF(connectionName, metrics, historicalData, slowQueri
   // Slow Queries
   if (slowQueries && slowQueries.length > 0) {
     doc.addPage();
-    doc.fontSize(16).fillColor('#2563eb').text('Slow Query Log (Last 24 Hours)');
+    doc.fontSize(16).fillColor('#10b981').text('Slow Query Log (Last 24 Hours)');
     doc.moveDown(0.5);
     doc.fontSize(9).fillColor('#000');
     for (const q of slowQueries.slice(0, 20)) {
@@ -74,7 +89,7 @@ function generateAnalyticsPDF(connectionName, metrics, historicalData, slowQueri
   // Table Stats
   if (tableStats && tableStats.length > 0) {
     doc.addPage();
-    doc.fontSize(16).fillColor('#2563eb').text('Table Statistics (Top 20)');
+    doc.fontSize(16).fillColor('#10b981').text('Table Statistics (Top 20)');
     doc.moveDown(0.5);
     doc.fontSize(9).fillColor('#000');
     for (const t of tableStats.slice(0, 20)) {
