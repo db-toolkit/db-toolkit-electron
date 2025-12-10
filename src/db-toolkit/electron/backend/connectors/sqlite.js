@@ -79,13 +79,16 @@ class SQLiteConnector extends BaseConnector {
         if (rows.length > 0) {
           const columns = Object.keys(rows[0]);
           const data = rows.map(row => Object.values(row));
-          return {
+          const result = {
             success: true,
             columns,
             data,
             row_count: rows.length,
           };
+          console.log('SQLite returning data:', { columns, dataLength: data.length, firstRow: data[0] });
+          return result;
         }
+        console.log('SQLite returning empty result');
         return { success: true, columns: [], data: [], row_count: 0 };
       } else {
         const info = stmt.run();

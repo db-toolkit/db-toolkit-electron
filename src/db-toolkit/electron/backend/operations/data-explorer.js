@@ -53,6 +53,7 @@ class DataExplorer {
 
       console.log('Data explorer query:', query);
       const result = await connector.executeQuery(query);
+      console.log('Data explorer received result:', { success: result.success, error: result.error, dataLength: result.data?.length, columns: result.columns });
       const rows = result.data || [];
       const columns = result.columns || [];
 
