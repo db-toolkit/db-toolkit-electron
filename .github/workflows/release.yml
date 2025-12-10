@@ -63,18 +63,28 @@ jobs:
           ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
           ELECTRON_CUSTOM_DIR: '{{ version }}'
       
-      - name: Build Electron app
+      - name: Build for macOS
+        if: matrix.os == 'macos-latest'
         working-directory: src/db-toolkit
-        run: npm run build
+        run: npm run package:mac
+      
+      - name: Build for Windows
+        if: matrix.os == 'windows-latest'
+        working-directory: src/db-toolkit
+        run: npm run package:win
+      
+      - name: Build for Linux
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: src/db-toolkit
+        run: npm run package:linux
       
       - name: Upload Release Assets
         if: always()
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            src/db-toolkit/dist/*.dmg
-            src/db-toolkit/dist/*.zip
-            src/db-toolkit/dist/*.exe
-            src/db-toolkit/dist/*.AppImage
-            src/db-toolkit/dist/*.deb
-            src/db-toolkit/dist/*.rpm
+            src/db-toolkit/release/*.dmg
+            src/db-toolkit/release/*.zip
+            src/db-toolkit/release/*.exe
+            src/db-toolkit/release/*.AppImage
+            src/db-toolkit/release/*.deb
