@@ -135,6 +135,32 @@ export default function Hero() {
           </a>
         </motion.div>
 
+        {/* App Preview */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1 }}
+          className="mt-20 max-w-6xl mx-auto"
+        >
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700">
+            <div className="bg-gray-800 px-4 py-3 flex items-center gap-2">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              </div>
+              <div className="flex-1 text-center text-sm text-gray-400">DB Toolkit</div>
+            </div>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 aspect-video flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-6xl mb-4">🗄️</div>
+                <p className="text-gray-400 text-lg">Application Preview</p>
+                <p className="text-gray-500 text-sm mt-2">Screenshot coming soon</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
       </div>
     </section>
   );

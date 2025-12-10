@@ -17,8 +17,8 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Product</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 text-base">Product</h3>
+            <ul className="space-y-3 text-base">
               <li><Link href="/" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">Home</Link></li>
               <li><Link href="/about" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">About</Link></li>
               <li><Link href="/blog" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">Blog</Link></li>
@@ -26,8 +26,8 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 text-base">Resources</h3>
+            <ul className="space-y-3 text-base">
               <li><a href="https://docs-dbtoolkit.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">Documentation</a></li>
               <li><Link href="/downloads" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">Downloads</Link></li>
               <li><a href="https://github.com/db-toolkit/db-toolkit/issues" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">Support</a></li>
@@ -35,7 +35,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Connect</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 text-base">Connect</h3>
             <div className="flex gap-4">
               <a href="https://github.com/db-toolkit/db-toolkit" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400">
                 <Github size={20} />
