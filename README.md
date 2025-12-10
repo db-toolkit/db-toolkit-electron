@@ -24,11 +24,6 @@ A modern, cross-platform desktop database management application built with **El
 **Frontend:** Electron, React 18, Tailwind CSS, Monaco Editor, Framer Motion, Vite
 
 
-
 ## License
 
 MIT License
-
----
-
-**Built with ❤️ using Node.js, React, and Electron**
