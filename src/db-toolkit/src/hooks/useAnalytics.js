@@ -5,7 +5,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../contexts/ToastContext';
 import { WS_ENDPOINTS } from '../services/websocket';
-import api from '../services/api';
+const ipc = {
+  invoke: (channel, ...args) => window.electron.ipcRenderer.invoke(channel, ...args)
+};
 
 export function useAnalytics(connectionId) {
   const [analytics, setAnalytics] = useState(null);
@@ -118,27 +120,22 @@ export function useAnalytics(connectionId) {
 
   const killQuery = async (pid) => {
     try {
-      const response = await api.post(`/analytics/connections/${connectionId}/kill`, { pid });
+      const result = await ipc.invoke('analytics:kill-query', connectionId, pid);
       
-      if (response.data.success) {
+      if (result.success) {
         toast.success('Query terminated');
       } else {
-        toast.error(response.data.error || 'Failed to kill query');
+        toast.error(result.error || 'Failed to kill query');
       }
     } catch (err) {
-      if (err.response?.status === 404) {
-        toast.error('Connection lost. Redirecting...');
-        setTimeout(() => navigate('/connections'), 1000);
-      } else {
-        toast.error('Failed to kill query');
-      }
+      toast.error('Failed to kill query');
     }
   };
 
   const getQueryPlan = async (query) => {
     try {
-      const response = await api.post(`/analytics/connections/${connectionId}/query-plan`, { query });
-      return response.data;
+      const result = await ipc.invoke('analytics:get-query-plan', connectionId, query);
+      return result;
     } catch (err) {
       toast.error('Failed to get query plan');
       return null;
@@ -147,9 +144,9 @@ export function useAnalytics(connectionId) {
 
   const fetchHistoricalData = async (hours = 3) => {
     try {
-      const response = await api.get(`/analytics/connections/${connectionId}/history?hours=${hours}`);
-      if (response.data.success) {
-        setHistory(response.data.history);
+      const result = await ipc.invoke('analytics:get-history', connectionId, hours);
+      if (result.success) {
+        setHistory(result.history);
       }
     } catch (err) {
       // Silent fail
@@ -158,8 +155,8 @@ export function useAnalytics(connectionId) {
 
   const getSlowQueries = async (hours = 24) => {
     try {
-      const response = await api.get(`/analytics/connections/${connectionId}/slow-queries?hours=${hours}`);
-      return response.data.slow_queries || [];
+      const result = await ipc.invoke('analytics:get-slow-queries', connectionId, hours);
+      return result.slow_queries || [];
     } catch (err) {
       return [];
     }
@@ -167,8 +164,8 @@ export function useAnalytics(connectionId) {
 
   const getTableStats = async () => {
     try {
-      const response = await api.get(`/analytics/connections/${connectionId}/table-stats`);
-      return response.data.table_stats || [];
+      const result = await ipc.invoke('analytics:get-table-stats', connectionId);
+      return result.table_stats || [];
     } catch (err) {
       return [];
     }
@@ -176,8 +173,8 @@ export function useAnalytics(connectionId) {
 
   const getPoolStats = async () => {
     try {
-      const response = await api.get(`/analytics/connections/${connectionId}/pool-stats`);
-      return response.data.pool_stats || null;
+      const result = await ipc.invoke('analytics:get-pool-stats', connectionId);
+      return result.pool_stats || null;
     } catch (err) {
       return null;
     }
@@ -185,24 +182,14 @@ export function useAnalytics(connectionId) {
 
   const exportPDF = async () => {
     try {
-      const response = await api.get(`/analytics/connections/${connectionId}/export-pdf`, {
-        responseType: 'blob'
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `analytics_${Date.now()}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      toast.success('PDF exported successfully');
-    } catch (err) {
-      if (err.response?.status === 404) {
-        toast.error('Connection lost. Redirecting...');
-        setTimeout(() => navigate('/connections'), 1000);
+      const result = await ipc.invoke('analytics:export-pdf', connectionId);
+      if (result.success) {
+        toast.success('PDF exported successfully');
       } else {
         toast.error('Failed to export PDF');
       }
+    } catch (err) {
+      toast.error('Failed to export PDF');
     }
   };
 

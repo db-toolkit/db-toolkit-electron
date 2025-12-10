@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import api from '../services/api';
+const ipc = {
+  invoke: (channel, ...args) => window.electron.ipcRenderer.invoke(channel, ...args)
+};
 
 export function useBackups(connectionId = null) {
   const [backups, setBackups] = useState([]);
@@ -11,8 +13,8 @@ export function useBackups(connectionId = null) {
     setError(null);
     try {
       const params = connectionId ? { connection_id: connectionId } : {};
-      const response = await api.get('/backups', { params });
-      setBackups(response.data.backups);
+      const result = await ipc.invoke('backup:get-all', params);
+      setBackups(result.backups);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -22,9 +24,9 @@ export function useBackups(connectionId = null) {
 
   const createBackup = useCallback(async (data) => {
     try {
-      const response = await api.post('/backups', data);
+      const result = await ipc.invoke('backup:create', data);
       await fetchBackups();
-      return response.data.backup;
+      return result.backup;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -33,8 +35,7 @@ export function useBackups(connectionId = null) {
 
   const restoreBackup = useCallback(async (backupId, targetConnectionId = null, tables = null) => {
     try {
-      await api.post(`/backups/${backupId}/restore`, {
-        backup_id: backupId,
+      await ipc.invoke('backup:restore', backupId, {
         target_connection_id: targetConnectionId,
         tables,
       });
@@ -47,16 +48,12 @@ export function useBackups(connectionId = null) {
 
   const downloadBackup = useCallback(async (backupId, filename) => {
     try {
-      const response = await api.get(`/backups/${backupId}/download`, {
-        responseType: 'blob',
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const result = await ipc.invoke('backup:download', backupId);
+      if (result.success) {
+        // File should be saved by the backend
+        return true;
+      }
+      throw new Error(result.error || 'Download failed');
     } catch (err) {
       setError(err.message);
       throw err;
@@ -65,7 +62,7 @@ export function useBackups(connectionId = null) {
 
   const deleteBackup = useCallback(async (backupId) => {
     try {
-      await api.delete(`/backups/${backupId}`);
+      await ipc.invoke('backup:delete', backupId);
       await fetchBackups();
     } catch (err) {
       setError(err.message);

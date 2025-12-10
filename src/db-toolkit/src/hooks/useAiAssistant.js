@@ -2,7 +2,9 @@
  * Hook for AI assistant functionality
  */
 import { useState } from 'react';
-import api from '../services/api';
+const ipc = {
+  invoke: (channel, ...args) => window.electron.ipcRenderer.invoke(channel, ...args)
+};
 
 export function useAiAssistant(connectionId) {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,12 +14,12 @@ export function useAiAssistant(connectionId) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.post('/ai/query/generate', {
+      const result = await ipc.invoke('ai:generate-query', {
         connection_id: connectionId,
         natural_language: naturalLanguage,
         schema_context: schemaContext
       });
-      return response.data;
+      return result;
     } catch (err) {
       const errorMsg = err.response?.data?.detail || err.message || 'Failed to generate query';
       setError(errorMsg);
@@ -31,13 +33,13 @@ export function useAiAssistant(connectionId) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.post('/ai/query/optimize', {
+      const result = await ipc.invoke('ai:optimize-query', {
         connection_id: connectionId,
         query,
         execution_plan: executionPlan,
         schema_context: schemaContext
       });
-      return response.data;
+      return result;
     } catch (err) {
       const errorMsg = err.response?.data?.detail || err.message || 'Failed to optimize query';
       setError(errorMsg);
@@ -51,12 +53,12 @@ export function useAiAssistant(connectionId) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.post('/ai/query/explain', {
+      const result = await ipc.invoke('ai:explain-query', {
         connection_id: connectionId,
         query,
         schema_context: schemaContext
       });
-      return response.data;
+      return result;
     } catch (err) {
       const errorMsg = err.response?.data?.detail || err.message || 'Failed to explain query';
       setError(errorMsg);
@@ -70,13 +72,13 @@ export function useAiAssistant(connectionId) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.post('/ai/query/fix', {
+      const result = await ipc.invoke('ai:fix-query', {
         connection_id: connectionId,
         query,
         error_message: errorMessage,
         schema_context: schemaContext
       });
-      return response.data;
+      return result;
     } catch (err) {
       const errorMsg = err.response?.data?.detail || err.message || 'Failed to fix query';
       setError(errorMsg);
