@@ -123,6 +123,19 @@ function registerAIHandlers() {
       return { success: false, error: error.message };
     }
   });
+
+  ipcMain.handle('ai:generate-query', async (event, prompt, schemaContext, dbType) => {
+    try {
+      const assistant = getQueryAssistant();
+      if (!assistant) {
+        return { success: false, error: 'AI not configured. Set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in .env' };
+      }
+      
+      return await assistant.generateFromNaturalLanguage(prompt, schemaContext, dbType);
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
 }
 
 module.exports = { registerAIHandlers };

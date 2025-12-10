@@ -115,6 +115,15 @@ function registerBackupHandlers() {
       return { success: false, error: error.message };
     }
   });
+
+  ipcMain.handle('backup:get-all', async (event, connectionId) => {
+    try {
+      const backups = await backupStorage.getAllBackups(connectionId);
+      return { success: true, data: backups };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
 }
 
 module.exports = { registerBackupHandlers };

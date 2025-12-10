@@ -217,7 +217,7 @@ const api = {
       const connectionId = url.split('/')[2];
       const { schema_name, table_name } = options.params;
       const result = await ipc.invoke('dataExplorer:count', connectionId, schema_name, table_name);
-      return { data: result };
+      return { data: { count: result.data.count } };
     }
     throw new Error(`Unsupported API call: ${url}`);
   },
