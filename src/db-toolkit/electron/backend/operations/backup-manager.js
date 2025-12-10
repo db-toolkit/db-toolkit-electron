@@ -46,9 +46,6 @@ class BackupManager {
 
   async _executeBackup(backup, connection, config, tables, compress) {
     const { backupNotifier } = require('../ws/backup-notifier');
-    const { logger } = require('../utils/logger');
-    
-    logger.info(`Starting backup execution for ${backup.id}`);
     
     try {
       await backupStorage.updateBackup(backup.id, { status: 'in_progress' });
@@ -63,23 +60,18 @@ class BackupManager {
       });
       
       const dbType = config.type || config.db_type;
-      logger.info(`Backup type: ${dbType}`);
       
       if (dbType === 'postgresql') {
         await backupPostgreSQL(backup, config, tables);
       } else if (dbType === 'mysql') {
         await backupMySQL(backup, config, tables);
       } else if (dbType === 'sqlite') {
-        logger.info('Executing SQLite backup');
         await backupSQLite(backup, config);
       } else if (dbType === 'mongodb') {
         await backupMongoDB(backup, config, tables);
       } else {
-        logger.error(`Backup not supported for ${dbType}`);
         throw new Error(`Backup not supported for ${dbType}`);
       }
-      
-      logger.info('Backup operation completed');
       
       await backupNotifier.notifyBackupUpdate(backup.id, 'in_progress', { 
         connection_name: config.name, 

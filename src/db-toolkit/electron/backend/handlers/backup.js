@@ -15,29 +15,17 @@ function registerBackupHandlers() {
     const { connection_id, name, backup_type, tables, compress } = data;
     const connectionId = connection_id;
     const backupType = backup_type;
-    const { logger } = require('../utils/logger');
     
     try {
-      logger.info(`Creating backup: ${JSON.stringify(data)}`);
-      
-      // Debug: List all connections
-      const allConnections = await connectionStorage.getAllConnections();
-      logger.info(`All connections: ${JSON.stringify(allConnections.map(c => ({id: c.id, name: c.name})))}`);
-      
       const config = await connectionStorage.getConnection(connectionId);
-      logger.info(`Config retrieved: ${config ? 'found' : 'null'}`);
-      if (config) logger.info(`Config details: ${JSON.stringify({id: config.id, name: config.name, type: config.type || config.db_type})}`);
       
       if (!config) {
-        logger.error(`No config found for connection ID: ${connectionId}`);
         return { success: false, error: 'Connection not found' };
       }
 
       const backup = await backupManager.createBackup(null, config, name, backupType, tables, compress);
-      logger.info(`Backup created: ${backup.id}`);
       return { success: true, backup };
     } catch (error) {
-      logger.error(`Backup creation failed: ${error.message}`, error);
       return { success: false, error: error.message };
     }
   });
