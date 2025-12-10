@@ -6,7 +6,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const os = require('os');
 const { connectionStorage } = require('./connection-storage');
-const { logger } = require('logger.js');
+const { logger } = require('./logger');
 
 class SessionManager {
   constructor() {
