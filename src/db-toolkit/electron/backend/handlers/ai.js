@@ -125,14 +125,23 @@ function registerAIHandlers() {
   });
 
   ipcMain.handle('ai:generate-query', async (event, prompt, schemaContext, dbType) => {
+    const { logger } = require('../utils/logger');
     try {
+      logger.info(`AI generate-query called with prompt: '${prompt}', dbType: ${dbType}`);
+      logger.info(`Schema context type: ${typeof schemaContext}, keys: ${schemaContext ? Object.keys(schemaContext) : 'null'}`);
+      
       const assistant = getQueryAssistant();
       if (!assistant) {
         return { success: false, error: 'AI not configured. Set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in .env' };
       }
       
+      if (!prompt || prompt.trim() === '') {
+        return { success: false, error: 'Please provide a query description' };
+      }
+      
       return await assistant.generateFromNaturalLanguage(prompt, schemaContext, dbType);
     } catch (error) {
+      logger.error('AI generate-query error:', error);
       return { success: false, error: error.message };
     }
   });
