@@ -47,8 +47,8 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-1">GitHub</h3>
-                  <a href="https://github.com/Adelodunpeter25/db-toolkit" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
-                    github.com/Adelodunpeter25/db-toolkit
+                  <a href="https://github.com/db-toolkit/db-toolkit" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                    github.com/db-toolkit/db-toolkit
                   </a>
                 </div>
               </motion.div>
@@ -59,7 +59,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Issues & Support</h3>
-                  <a href="https://github.com/Adelodunpeter25/db-toolkit/issues" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                  <a href="https://github.com/db-toolkit/db-toolkit/issues" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
                     Report an issue on GitHub
                   </a>
                 </div>

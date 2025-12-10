@@ -24,8 +24,8 @@ export default function DownloadsPage() {
       icon: <Monitor size={48} />,
       version: 'Latest',
       downloads: [
-        { label: '64-bit (x64)', url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-win-x64.exe' },
-        { label: '32-bit (ia32)', url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-win-ia32.exe' }
+        { label: '64-bit (x64)', url: 'https://github.com/db-toolkit/db-toolkit/releases/latest/download/DB.Toolkit-win-x64.exe' },
+        { label: '32-bit (ia32)', url: 'https://github.com/db-toolkit/db-toolkit/releases/latest/download/DB.Toolkit-win-ia32.exe' }
       ]
     },
     {
@@ -33,8 +33,8 @@ export default function DownloadsPage() {
       icon: <Apple size={48} />,
       version: 'Latest',
       downloads: [
-        { label: 'Intel (x64)', url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-mac-x64.dmg' },
-        { label: 'Apple Silicon (ARM64)', url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-mac-arm64.dmg' }
+        { label: 'Intel (x64)', url: 'https://github.com/db-toolkit/db-toolkit/releases/latest/download/DB.Toolkit-mac-x64.dmg' },
+        { label: 'Apple Silicon (ARM64)', url: 'https://github.com/db-toolkit/db-toolkit/releases/latest/download/DB.Toolkit-mac-arm64.dmg' }
       ]
     },
     {
@@ -42,8 +42,8 @@ export default function DownloadsPage() {
       icon: <Monitor size={48} />,
       version: 'Latest',
       downloads: [
-        { label: 'AppImage', url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-linux.AppImage' },
-        { label: 'DEB Package', url: 'https://github.com/Adelodunpeter25/db-toolkit/releases/latest/download/DB.Toolkit-linux.deb' }
+        { label: 'AppImage', url: 'https://github.com/db-toolkit/db-toolkit/releases/latest/download/DB.Toolkit-linux.AppImage' },
+        { label: 'DEB Package', url: 'https://github.com/db-toolkit/db-toolkit/releases/latest/download/DB.Toolkit-linux.deb' }
       ]
     }
   ];

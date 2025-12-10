@@ -80,7 +80,7 @@ export default function About() {
             DB Toolkit is open source and welcomes contributions from developers around the world.
           </p>
           <a
-            href="https://github.com/Adelodunpeter25/db-toolkit"
+            href="https://github.com/db-toolkit/db-toolkit"
             className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold"
           >
             Contribute on GitHub
