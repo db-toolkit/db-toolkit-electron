@@ -89,9 +89,9 @@ function registerConnectionHandlers() {
         username: request.username,
         password: request.password,
       });
-      return result;
+      return { data: result };
     } catch (error) {
-      return { success: false, message: error.message };
+      return { data: { success: false, message: error.message } };
     }
   });
 
@@ -108,13 +108,18 @@ function registerConnectionHandlers() {
 
       if (success) {
         logger.info(`Successfully connected to '${connection.name}'`);
-        return { success: true, message: 'Connected successfully' };
+        return { data: { success: true, message: 'Connected successfully' } };
       } else {
         logger.error(`Failed to connect to '${connection.name}'`);
-        throw new Error('Failed to connect. Please check your credentials and database server.');
+        const error = new Error('Failed to connect. Please check your credentials and database server.');
+        error.response = { data: { detail: error.message } };
+        throw error;
       }
     } catch (error) {
       logger.error('Connection error:', error);
+      if (!error.response) {
+        error.response = { data: { detail: error.message } };
+      }
       throw error;
     }
   });
@@ -124,8 +129,10 @@ function registerConnectionHandlers() {
     try {
       const success = await connectionManager.disconnect(connectionId);
       return {
-        success,
-        message: success ? 'Disconnected' : 'Not connected',
+        data: {
+          success,
+          message: success ? 'Disconnected' : 'Not connected',
+        }
       };
     } catch (error) {
       logger.error('Disconnect error:', error);
