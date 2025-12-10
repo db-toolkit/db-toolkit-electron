@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Clock, Trash2, X } from 'lucide-react';
+import { Clock, Trash2 } from 'lucide-react';
 import { useQuery } from '../../hooks';
 import { Button } from '../common/Button';
 import { queryAPI } from '../../services/api';
@@ -66,10 +66,10 @@ export function QueryHistory({ connectionId, onSelectQuery }) {
               {hoveredIndex === idx && (
                 <button
                   onClick={(e) => handleDeleteQuery(idx, e)}
-                  className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-2 right-2 p-1.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 rounded opacity-0 group-hover:opacity-100 transition-all"
                   title="Delete query"
                 >
-                  <X size={14} />
+                  <Trash2 size={14} />
                 </button>
               )}
             </div>
