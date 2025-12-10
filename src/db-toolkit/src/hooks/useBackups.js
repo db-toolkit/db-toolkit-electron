@@ -52,8 +52,9 @@ export function useBackups(connectionId = null) {
   const downloadBackup = useCallback(async (backupId, filename) => {
     try {
       const result = await ipc.invoke('backup:download', backupId);
-      if (result.success) {
-        // File should be saved by the backend
+      if (result.success && result.filePath) {
+        // Use Electron's shell to show the file in finder/explorer
+        await window.electron.shell.showItemInFolder(result.filePath);
         return true;
       }
       throw new Error(result.error || 'Download failed');
