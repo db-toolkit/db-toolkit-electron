@@ -47,7 +47,7 @@ function Header({ onSearchClick }: HeaderProps) {
             {theme === 'light' ? <Moon size={20} className="md:w-6 md:h-6" /> : <Sun size={20} className="md:w-6 md:h-6" />}
           </button>
           <a 
-            href="https://github.com/Adelodunpeter25/db-toolkit" 
+            href="https://github.com/db-toolkit/db-toolkit" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="hover:scale-110 hover:text-gray-900 dark:hover:text-white transition-all"
