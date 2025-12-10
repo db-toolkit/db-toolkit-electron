@@ -146,7 +146,7 @@ export default function Hero() {
             <img 
               src="/preview.png" 
               alt="DB Toolkit Application Preview" 
-              className="w-full h-96 object-cover object-top"
+              className="w-full h-auto"
             />
           </div>
         </motion.div>
