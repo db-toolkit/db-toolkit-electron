@@ -28,22 +28,12 @@ function registerBackupHandlers() {
       logger.info(`Config retrieved: ${config ? 'found' : 'null'}`);
       if (config) logger.info(`Config details: ${JSON.stringify({id: config.id, name: config.name, type: config.type || config.db_type})}`);
       
-      const connection = config ? await connectionManager.getConnector(connectionId) : null;
-      
-      logger.info(`Connection found: ${!!connection}, Config found: ${!!config}`);
-      
       if (!config) {
         logger.error(`No config found for connection ID: ${connectionId}`);
-        logger.info(`Available connection IDs: ${allConnections.map(c => c.id).join(', ')}`);
         return { success: false, error: 'Connection not found' };
       }
-      
-      if (!connection) {
-        logger.error('Connection manager could not get connector');
-        return { success: false, error: 'Connection not active' };
-      }
 
-      const backup = await backupManager.createBackup(connection, config, name, backupType, tables, compress);
+      const backup = await backupManager.createBackup(null, config, name, backupType, tables, compress);
       logger.info(`Backup created: ${backup.id}`);
       return { success: true, backup };
     } catch (error) {
