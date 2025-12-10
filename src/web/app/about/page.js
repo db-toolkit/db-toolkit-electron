@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Database, Users, Target, Heart } from 'lucide-react';
+import { Database, Users, Target, Sparkles } from 'lucide-react';
 import { fadeInUp, staggerContainer } from '@/utils/motion';
 import Footer from '@/components/Footer';
 
@@ -63,8 +63,8 @@ export default function About() {
           </motion.div>
           <motion.div {...fadeInUp(0.8)} className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 text-center hover:shadow-xl hover:scale-105 transition-all duration-300">
             <div className="flex justify-center mb-4">
-              <div className="p-4 bg-red-100 dark:bg-red-900/20 rounded-full">
-                <Heart className="w-8 h-8 text-red-600 dark:text-red-400" />
+              <div className="p-4 bg-yellow-100 dark:bg-yellow-900/20 rounded-full">
+                <Sparkles className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
               </div>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Feature Packed</h3>

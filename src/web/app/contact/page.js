@@ -46,7 +46,8 @@ export default function Contact() {
                   <Github className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <a href="https://github.com/db-toolkit/db-toolkit" target="_blank" rel="noopener noreferrer" className="font-semibold text-gray-900 dark:text-white hover:text-emerald-600 dark:hover:text-teal-400">
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Source Code</h3>
+                  <a href="https://github.com/db-toolkit/db-toolkit" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-teal-400">
                     GitHub
                   </a>
                 </div>
