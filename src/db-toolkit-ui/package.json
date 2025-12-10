@@ -45,6 +45,7 @@
     "react-split": "^2.0.14",
     "reactflow": "^11.11.4",
     "recharts": "^3.4.1",
+    "resend": "^6.6.0",
     "sql-formatter": "^15.6.10",
     "ws": "^8.18.0"
   },
