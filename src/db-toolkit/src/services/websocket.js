@@ -1,9 +1,9 @@
 // IPC event channels
 export const WS_ENDPOINTS = {
-  ANALYTICS: 'analytics:stream',
-  BACKUPS: 'backup:stream',
-  TERMINAL: 'terminal:stream',
-  MIGRATOR: 'migrator:stream',
+  ANALYTICS: 'analytics:update',
+  BACKUPS: 'backup:update',
+  TERMINAL: 'terminal:update',
+  MIGRATOR: 'migrator:update',
 };
 
 // IPC WebSocket replacement
@@ -20,7 +20,9 @@ export class IPCWebSocket {
     if (window.electron?.ipcRenderer?.on) {
       window.electron.ipcRenderer.on(this.endpoint, (event, data) => {
         if (this.onmessage) {
-          this.onmessage({ data: JSON.stringify(data) });
+          // Extract the actual data from the IPC message
+          const messageData = data.data || data;
+          this.onmessage({ data: JSON.stringify(messageData) });
         }
       });
     }
@@ -32,7 +34,7 @@ export class IPCWebSocket {
   }
   
   send(data) {
-    if (this.endpoint === 'analytics:stream') {
+    if (this.endpoint === 'analytics:update') {
       const parsed = JSON.parse(data);
       this.connectionId = parsed.connection_id;
       window.electron?.ipcRenderer?.invoke('analytics:stream:start', parsed.connection_id);
@@ -59,7 +61,7 @@ if (typeof window !== 'undefined') {
   window.WebSocket = class {
     constructor(url) {
       if (url.includes('analytics')) {
-        return new IPCWebSocket('analytics:stream');
+        return new IPCWebSocket('analytics:update');
       } else if (url.includes('backups')) {
         return new IPCWebSocket('backup:stream');
       } else if (url.includes('migrator')) {
