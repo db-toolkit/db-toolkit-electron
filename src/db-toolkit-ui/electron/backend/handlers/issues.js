@@ -85,50 +85,17 @@ async function sendIssueEmail(issue) {
       timeZone: 'UTC'
     });
     
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background: #10b981; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
-    .badge { display: inline-block; padding: 4px 12px; border-radius: 4px; color: white; font-size: 12px; font-weight: bold; }
-    .content { background: #f9fafb; padding: 20px; border-radius: 0 0 8px 8px; }
-    .section { margin: 20px 0; }
-    .label { font-weight: bold; color: #6b7280; }
-    .footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h2>New Issue Report</h2>
-      <span class="badge" style="background: ${badgeColors[issue.issue_type] || '#6b7280'}">${issue.issue_type.toUpperCase()}</span>
-    </div>
-    <div class="content">
-      <div class="section">
-        <div class="label">Title</div>
-        <div>${issue.title}</div>
-      </div>
-      <div class="section">
-        <div class="label">Description</div>
-        <div>${issue.description}</div>
-      </div>
-      <div class="section">
-        <div class="label">Environment</div>
-        <div>OS: ${env.os || 'Unknown'}</div>
-        <div>Version: ${env.version || 'Unknown'}</div>
-      </div>
-      <div class="footer">
-        <div>Issue ID: ${issue.id}</div>
-        <div>Created: ${createdAt} UTC</div>
-      </div>
-    </div>
-  </div>
-</body>
-</html>
-    `;
+    const templatePath = path.join(__dirname, '../templates/email/issue-report.html');
+    let html = await fs.readFile(templatePath, 'utf-8');
+    
+    html = html.replace('{{badge_color}}', badgeColors[issue.issue_type] || '#6b7280');
+    html = html.replace('{{issue_type}}', issue.issue_type.toUpperCase());
+    html = html.replace('{{title}}', issue.title);
+    html = html.replace('{{description}}', issue.description);
+    html = html.replace('{{os}}', env.os || 'Unknown');
+    html = html.replace('{{version}}', env.version || 'Unknown');
+    html = html.replace('{{issue_id}}', issue.id);
+    html = html.replace('{{created_at}}', createdAt + ' UTC');
     
     await resend.emails.send({
       from: `DB Toolkit <${fromEmail}>`,
