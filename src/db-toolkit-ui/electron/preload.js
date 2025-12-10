@@ -2,7 +2,6 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electron', {
   getSystemMetrics: () => ipcRenderer.invoke('get-system-metrics'),
-  getBackendPort: () => ipcRenderer.invoke('get-backend-port'),
   onMenuAction: (callback) => {
     ipcRenderer.on('menu-action', (event, action, data) => callback(action, data));
   },
