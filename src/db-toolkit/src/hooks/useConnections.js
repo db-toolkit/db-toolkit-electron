@@ -67,42 +67,48 @@ export function useConnections() {
   const connectToDatabase = useCallback(async (id, silent = false) => {
     try {
       const response = await connectionsAPI.connect(id);
-      setConnectedIds(prev => new Set(prev).add(id));
-      // Store connection timestamp
-      localStorage.setItem(`connection_time_${id}`, Date.now().toString());
+      const result = response?.data || response; // Handle both formats
       
-      // Update recent connections in menu
-      if (window.electron?.updateRecentConnections) {
-        const recent = connections
-          .map(conn => ({
-            id: conn.id,
-            name: conn.name,
-            lastUsed: conn.id === id ? Date.now().toString() : localStorage.getItem(`connection_time_${conn.id}`)
-          }))
-          .filter(conn => conn.lastUsed)
-          .sort((a, b) => parseInt(b.lastUsed) - parseInt(a.lastUsed))
-          .slice(0, 5);
-        window.electron.updateRecentConnections(recent);
+      if (result?.success) {
+        setConnectedIds(prev => new Set(prev).add(id));
+        // Store connection timestamp
+        localStorage.setItem(`connection_time_${id}`, Date.now().toString());
+        
+        // Update recent connections in menu
+        if (window.electron?.updateRecentConnections) {
+          const recent = connections
+            .map(conn => ({
+              id: conn.id,
+              name: conn.name,
+              lastUsed: conn.id === id ? Date.now().toString() : localStorage.getItem(`connection_time_${conn.id}`)
+            }))
+            .filter(conn => conn.lastUsed)
+            .sort((a, b) => parseInt(b.lastUsed) - parseInt(a.lastUsed))
+            .slice(0, 5);
+          window.electron.updateRecentConnections(recent);
+        }
+        if (!silent) {
+          const conn = connections.find(c => c.id === id);
+          addNotification({
+            type: 'success',
+            title: 'Connected',
+            message: `Successfully connected to ${conn?.name || 'database'}`,
+            action: { label: 'View Schema', path: `/schema/${id}` }
+          });
+        }
+        return result;
+      } else {
+        throw new Error(result?.message || 'Connection failed');
       }
-      if (!silent) {
-        const conn = connections.find(c => c.id === id);
-        addNotification({
-          type: 'success',
-          title: 'Connected',
-          message: `Successfully connected to ${conn?.name || 'database'}`,
-          action: { label: 'View Schema', path: `/schema/${id}` }
-        });
-      }
-      return response.data;
     } catch (err) {
       const conn = connections.find(c => c.id === id);
       addNotification({
         type: 'error',
         title: 'Connection Failed',
-        message: err.response?.data?.detail || 'Failed to connect to database',
+        message: err.response?.data?.detail || err.message || 'Failed to connect to database',
         action: { label: 'View', path: '/connections' }
       });
-      const error = new Error(err.response?.data?.detail || 'Failed to connect. Please check your credentials and database server.');
+      const error = new Error(err.response?.data?.detail || err.message || 'Failed to connect. Please check your credentials and database server.');
       error.response = err.response;
       throw error;
     }
