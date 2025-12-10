@@ -25,8 +25,12 @@ export function useBackups(connectionId = null) {
   const createBackup = useCallback(async (data) => {
     try {
       const result = await ipc.invoke('backup:create', data);
-      await fetchBackups();
-      return result.backup;
+      if (result.success) {
+        await fetchBackups();
+        return result.backup;
+      } else {
+        throw new Error(result.error);
+      }
     } catch (err) {
       setError(err.message);
       throw err;

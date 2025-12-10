@@ -58,7 +58,7 @@ class BackupManager {
         progress: 25 
       });
       
-      const dbType = config.type;
+      const dbType = config.type || config.db_type;
       if (dbType === 'postgresql') {
         await backupPostgreSQL(backup, config, tables);
       } else if (dbType === 'mysql') {
@@ -125,7 +125,7 @@ class BackupManager {
     }
     
     try {
-      const dbType = targetConfig.type;
+      const dbType = targetConfig.type || targetConfig.db_type;
       if (dbType === 'postgresql') {
         await restorePostgreSQL(filePath, targetConfig);
       } else if (dbType === 'mysql') {

@@ -11,7 +11,8 @@ const backupStorage = require('../utils/backup-storage');
 function registerBackupHandlers() {
   const backupManager = new BackupManager();
 
-  ipcMain.handle('backup:create', async (event, connectionId, name, backupType, tables, compress) => {
+  ipcMain.handle('backup:create', async (event, data) => {
+    const { connectionId, name, backupType, tables, compress } = data;
     try {
       const connection = await connectionManager.getConnector(connectionId);
       const config = await connectionStorage.getConnection(connectionId);
