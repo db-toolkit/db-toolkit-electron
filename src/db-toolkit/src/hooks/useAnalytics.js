@@ -39,10 +39,10 @@ export function useAnalytics(connectionId) {
         return;
       }
 
-      setAnalytics(result.data);
+      setAnalytics(result);
       setHistory(prev => [...(prev || []).slice(-19), {
         timestamp: new Date(),
-        connections: result.data?.active_connections || 0
+        connections: result?.active_connections || 0
       }]);
       setLoading(false);
       setConnectionLost(false);
@@ -129,7 +129,7 @@ export function useAnalytics(connectionId) {
   const getPoolStats = async () => {
     try {
       const result = await ipc.invoke('analytics:get', connectionId);
-      return result.data?.pool_stats || null;
+      return result?.pool_stats || null;
     } catch (err) {
       return null;
     }
