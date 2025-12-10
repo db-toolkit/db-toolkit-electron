@@ -8,10 +8,10 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Database size={24} className="text-cyan-600 dark:text-cyan-400" />
-              <span className="font-bold text-gray-900 dark:text-white">DB Toolkit</span>
+              <Database size={28} className="text-cyan-600 dark:text-cyan-400" />
+              <span className="font-bold text-xl text-gray-900 dark:text-white">DB Toolkit</span>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
+            <p className="text-gray-600 dark:text-gray-400 text-base">
               Modern database management made simple.
             </p>
           </div>

@@ -9,7 +9,7 @@ export default function Hero() {
   const { download, downloading, platformUrl } = useDownload();
 
   return (
-    <section className={`relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br ${primaryGradient.light} dark:from-gray-950 dark:via-gray-900 dark:to-gray-950`}>
+    <section className={`relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br ${primaryGradient.light} dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 pt-32`}>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -151,13 +151,11 @@ export default function Hero() {
               </div>
               <div className="flex-1 text-center text-sm text-gray-400">DB Toolkit</div>
             </div>
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 aspect-video flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-6xl mb-4">🗄️</div>
-                <p className="text-gray-400 text-lg">Application Preview</p>
-                <p className="text-gray-500 text-sm mt-2">Screenshot coming soon</p>
-              </div>
-            </div>
+            <img 
+              src="/preview.png" 
+              alt="DB Toolkit Application Preview" 
+              className="w-full h-auto"
+            />
           </div>
         </motion.div>
 
