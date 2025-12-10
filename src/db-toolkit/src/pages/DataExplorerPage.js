@@ -66,7 +66,6 @@ function DataExplorerPage() {
   const loadTableData = async (schema, table, offset = 0, sort = null, order = 'ASC', filterData = {}) => {
     setLoading(true);
     try {
-      console.log('Frontend loadTableData called with:', { schema, table, offset, sort, order, filterData });
       const response = await api.post(`/connections/${connectionId}/data/browse`, {
         schema_name: schema,
         table_name: table,
@@ -77,15 +76,10 @@ function DataExplorerPage() {
         filters: filterData,
       });
 
-      console.log('Frontend received response:', { success: response.data?.success, dataSuccess: response.data?.data?.success, rowsLength: response.data?.data?.rows?.length, columns: response.data?.data?.columns });
-      
       if (response.data.success || response.data.data?.success) {
         const actualData = response.data.data || response.data;
-        console.log('Setting data:', { rows: actualData.rows?.length, columns: actualData.columns });
         setData(actualData.rows || []);
         setColumns(actualData.columns || []);
-      } else {
-        console.log('Response not successful:', response.data);
       }
 
       const countResponse = await api.get(`/connections/${connectionId}/data/count`, {

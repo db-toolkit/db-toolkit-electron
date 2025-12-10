@@ -51,14 +51,12 @@ class SQLiteConnector extends BaseConnector {
 
   async getTables(schema = null) {
     const query = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
-    console.log('SQLite getTables query:', query);
     const rows = this.connection.prepare(query).all();
     return rows.map(row => row.name);
   }
 
   async getColumns(table, schema = null) {
     const query = `PRAGMA table_info("${table}")`;
-    console.log('SQLite getColumns query:', query);
     const rows = this.connection.prepare(query).all();
     return rows.map(row => ({
       column_name: row.name,
@@ -70,7 +68,6 @@ class SQLiteConnector extends BaseConnector {
 
   async executeQuery(query) {
     try {
-      console.log('SQLite executing query:', query);
       const stmt = this.connection.prepare(query);
       const isSelect = query.trim().toUpperCase().startsWith('SELECT');
       
@@ -79,16 +76,13 @@ class SQLiteConnector extends BaseConnector {
         if (rows.length > 0) {
           const columns = Object.keys(rows[0]);
           const data = rows.map(row => Object.values(row));
-          const result = {
+          return {
             success: true,
             columns,
             data,
             row_count: rows.length,
           };
-          console.log('SQLite returning data:', { columns, dataLength: data.length, firstRow: data[0] });
-          return result;
         }
-        console.log('SQLite returning empty result');
         return { success: true, columns: [], data: [], row_count: 0 };
       } else {
         const info = stmt.run();
@@ -100,8 +94,6 @@ class SQLiteConnector extends BaseConnector {
         };
       }
     } catch (error) {
-      console.log('SQLite query failed:', query);
-      console.log('Stack trace:', new Error().stack);
       logger.error(`SQLite query error: ${error.message}`);
       return { success: false, error: error.message };
     }

@@ -27,7 +27,6 @@ function registerDataExplorerHandlers() {
         request.sort_order || 'ASC',
         request.filters
       );
-      console.log('Data explorer handler returning:', { success: result.success, dataLength: result.rows?.length, columns: result.columns });
       return { data: result };
     } catch (error) {
       logger.error('Browse data error:', error);

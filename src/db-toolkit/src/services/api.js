@@ -208,7 +208,6 @@ const api = {
     if (url.includes('/data/browse')) {
       const connectionId = url.split('/')[2];
       const result = await ipc.invoke('dataExplorer:browse', connectionId, data);
-      console.log('Frontend API received browse result:', { success: result.data?.success, dataLength: result.data?.rows?.length });
       return { data: result };
     }
     throw new Error(`Unsupported API call: ${url}`);
