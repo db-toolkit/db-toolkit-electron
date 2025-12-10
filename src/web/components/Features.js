@@ -23,12 +23,6 @@ export default function Features() {
       image: '/features/data.png'
     },
     {
-      icon: Shield,
-      title: 'Schema Browser',
-      description: 'Visual tree view of databases, tables, columns, and relationships',
-      image: '/features/placeholder.png'
-    },
-    {
       icon: Lock,
       title: 'Automated Backups',
       description: 'Schedule backups with retention policies and one-click restore',
@@ -38,7 +32,8 @@ export default function Features() {
       icon: BarChart3,
       title: 'Real-time Analytics',
       description: 'Monitor performance with live metrics and query execution insights',
-      image: '/features/analytics.png'
+      image: '/features/analytics.png',
+      showMore: true
     }
   ];
 
@@ -97,6 +92,11 @@ export default function Features() {
                     }`}>
                       {feature.description}
                     </p>
+                    {feature.showMore && (
+                      <p className="text-xs italic text-gray-400 dark:text-gray-500 mt-2">
+                        and many more...
+                      </p>
+                    )}
                   </div>
                 </div>
               </motion.button>
