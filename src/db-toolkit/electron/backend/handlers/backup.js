@@ -129,14 +129,18 @@ function registerBackupHandlers() {
   });
 
   ipcMain.handle('backup:download', async (event, backupId) => {
+    const { logger } = require('../utils/logger');
     try {
+      logger.info(`Download backup request: ${backupId}`);
       const backup = await backupStorage.getBackup(backupId);
       if (!backup) {
+        logger.error(`Backup not found: ${backupId}`);
         return { success: false, error: 'Backup not found' };
       }
-      // For Electron, we just return the file path - the frontend handles the download
+      logger.info(`Backup found, file path: ${backup.file_path}`);
       return { success: true, filePath: backup.file_path };
     } catch (error) {
+      logger.error(`Download backup failed: ${error.message}`, error);
       return { success: false, error: error.message };
     }
   });
