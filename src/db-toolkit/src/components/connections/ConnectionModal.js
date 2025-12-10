@@ -270,8 +270,25 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
                 mongodb: 27017,
                 sqlite: 0
               };
-              handleChange('db_type', newType);
-              handleChange('port', defaultPorts[newType]);
+              
+              // Update both fields at once to trigger single re-render
+              const updated = {
+                ...formData,
+                db_type: newType,
+                port: defaultPorts[newType],
+                // Clear fields not needed for SQLite
+                ...(newType === 'sqlite' && {
+                  host: '',
+                  username: '',
+                  password: ''
+                })
+              };
+              setFormData(updated);
+              setHasChanges(true);
+              
+              if (!connection) {
+                localStorage.setItem('connection-draft', JSON.stringify(updated));
+              }
             }}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
