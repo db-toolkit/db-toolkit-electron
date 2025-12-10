@@ -3,6 +3,7 @@
  */
 
 const { ConnectorFactory } = require('../connectors');
+const { settingsStorage } = require('./settings-storage');
 
 class ConnectionManager {
   constructor() {
@@ -10,10 +11,15 @@ class ConnectionManager {
     this.connectionMetadata = new Map();
   }
 
-  async connect(connection, timeout = 10000) {
+  async connect(connection, timeout = null) {
     console.log(`Connecting to '${connection.name}' (${connection.db_type})`);
     
     try {
+      if (timeout === null) {
+        const settings = await settingsStorage.getSettings();
+        timeout = settings.connection_timeout;
+      }
+      
       const connector = ConnectorFactory.createConnector(connection.db_type);
       
       const connectPromise = connector.connect(connection);
