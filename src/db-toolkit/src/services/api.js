@@ -14,7 +14,7 @@ export const connectionsAPI = {
       return { data: cached };
     }
     
-    const data = await ipc.invoke('connections:get-all');
+    const data = await ipc.invoke('connections:getAll');
     localStorageService.set(CACHE_KEYS.CONNECTIONS, data, CACHE_TTL.CONNECTIONS);
     return { data };
   },
@@ -34,7 +34,7 @@ export const connectionsAPI = {
     localStorageService.clearConnection(id);
     return { data: result };
   },
-  test: (id) => ipc.invoke('connections:test', id),
+  test: (data) => ipc.invoke('connections:test', data),
   connect: (id) => ipc.invoke('connections:connect', id),
   disconnect: async (id) => {
     const result = await ipc.invoke('connections:disconnect', id);
