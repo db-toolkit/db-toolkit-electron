@@ -47,6 +47,8 @@
     "recharts": "^3.4.1",
     "resend": "^6.6.0",
     "sql-formatter": "^15.6.10",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
