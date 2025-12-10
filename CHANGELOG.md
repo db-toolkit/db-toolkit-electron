@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0-beta] - 2025-12-09
 
-Initial beta release of DB Toolkit - a modern, cross-platform database management application.
+Beta release of DB Toolkit - a modern, cross-platform database management application.
 
 ### Features
 - **Multi-Database Support** - PostgreSQL, MySQL, SQLite, MongoDB
@@ -26,6 +26,6 @@ Initial beta release of DB Toolkit - a modern, cross-platform database managemen
 - **Cross-Platform** - Available for macOS (Intel), Windows, and Linux (deb/rpm)
 
 ### Tech Stack
-- Frontend: React 18, Tailwind CSS, Monaco Editor, Vite
-- Backend: Python FastAPI, SQLAlchemy, PyInstaller
-- Desktop: Tauri 2.x, Rust
+- Frontend: React 18, Tailwind CSS, Monaco Editor, Framer Motion, Vite
+- Backend: Node.js, Electron IPC, SQLite3, PostgreSQL, MySQL, MongoDB drivers
+- Desktop: Electron, Cross-platform (macOS, Windows, Linux)

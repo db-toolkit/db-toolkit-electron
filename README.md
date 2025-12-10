@@ -62,12 +62,7 @@ A modern, cross-platform desktop database management application built with **El
 **Backend:** Node.js, Electron IPC, SQLite3, PostgreSQL, MySQL, MongoDB drivers  
 **Frontend:** Electron, React 18, Tailwind CSS, Monaco Editor, Framer Motion, Vite
 
-## Keyboard Shortcuts
 
-- `Ctrl/Cmd + Enter` - Execute query
-- `Ctrl/Cmd + Shift + F` - Format SQL
-- `Ctrl/Cmd + K` - Toggle dark mode
-- `Escape` - Close modals
 
 ## License
 
