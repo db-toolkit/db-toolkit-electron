@@ -4,6 +4,7 @@
 
 const fs = require('fs').promises;
 const path = require('path');
+const PDFDocument = require('pdfkit');
 
 async function generateAnalyticsPDF(connectionName, metrics, historicalData, slowQueries, tableStats) {
   // Read HTML template
@@ -78,7 +79,94 @@ async function generateAnalyticsPDF(connectionName, metrics, historicalData, slo
   }
   html = html.replace('{{HISTORICAL_SUMMARY}}', historicalSummary);
   
-  return html;
+  // Convert HTML to PDF using simple text-based approach
+  return await convertHtmlToPdf(html, connectionName, metrics, historicalData, slowQueries, tableStats);
+}
+
+async function convertHtmlToPdf(html, connectionName, metrics, historicalData, slowQueries, tableStats) {
+  const doc = new PDFDocument({ margin: 50, size: 'A4' });
+  const chunks = [];
+  
+  doc.on('data', chunk => chunks.push(chunk));
+  
+  // Header
+  doc.fontSize(24).fillColor('#10b981').text('Database Analytics Report', { align: 'center' });
+  doc.moveDown(0.5);
+  doc.fontSize(14).fillColor('#000').text(connectionName, { align: 'center' });
+  doc.moveDown(0.3);
+  doc.fontSize(10).fillColor('#666').text(`Generated: ${new Date().toLocaleString()}`, { align: 'center' });
+  doc.moveDown(2);
+  
+  // Current Metrics
+  doc.fontSize(16).fillColor('#10b981').text('Current Metrics');
+  doc.moveDown(0.5);
+  doc.fontSize(11).fillColor('#000');
+  doc.text(`Active Connections: ${metrics.active_connections || 0}`);
+  doc.text(`Idle Connections: ${metrics.idle_connections || 0}`);
+  doc.text(`Database Size: ${formatBytes(metrics.database_size || 0)}`);
+  doc.text(`Total Tables: ${tableStats?.length || 0}`);
+  doc.moveDown();
+  
+  // Query Stats
+  const queryStats = metrics.query_stats || {};
+  if (Object.keys(queryStats).length > 0) {
+    doc.fontSize(16).fillColor('#10b981').text('Query Distribution');
+    doc.moveDown(0.5);
+    doc.fontSize(11).fillColor('#000');
+    Object.entries(queryStats).forEach(([type, count]) => {
+      if (count > 0) doc.text(`${type}: ${count}`);
+    });
+    doc.moveDown();
+  }
+  
+  // Current Queries
+  const currentQueries = metrics.current_queries || [];
+  if (currentQueries.length > 0) {
+    doc.fontSize(16).fillColor('#10b981').text('Current Active Queries');
+    doc.moveDown(0.5);
+    doc.fontSize(9).fillColor('#000');
+    currentQueries.slice(0, 10).forEach(q => {
+      doc.text(`PID: ${q.pid} | User: ${q.usename || q.user} | Duration: ${formatDuration(q.duration || 0)}`);
+      doc.fontSize(8).fillColor('#666').text(`  ${truncateText(q.query, 100)}`);
+      doc.fontSize(9).fillColor('#000');
+      doc.moveDown(0.3);
+    });
+    doc.moveDown();
+  }
+  
+  // Slow Queries
+  if (slowQueries && slowQueries.length > 0) {
+    doc.addPage();
+    doc.fontSize(16).fillColor('#10b981').text('Slow Query Log (Last 24 Hours)');
+    doc.moveDown(0.5);
+    doc.fontSize(9).fillColor('#000');
+    slowQueries.slice(0, 15).forEach(q => {
+      doc.text(`${q.timestamp?.slice(0, 19) || 'N/A'} | ${q.user} | ${formatDuration(q.duration)}`);
+      doc.fontSize(8).fillColor('#666').text(`  ${truncateText(q.query, 100)}`);
+      doc.fontSize(9).fillColor('#000');
+      doc.moveDown(0.3);
+    });
+  }
+  
+  // Table Stats
+  if (tableStats && tableStats.length > 0) {
+    doc.addPage();
+    doc.fontSize(16).fillColor('#10b981').text('Table Statistics (Top 20)');
+    doc.moveDown(0.5);
+    doc.fontSize(9).fillColor('#000');
+    tableStats.slice(0, 20).forEach(t => {
+      const tableName = t.tablename || t.table_name || t.collection || 'N/A';
+      const size = typeof t.size === 'number' ? formatBytes(t.size) : t.size || 'N/A';
+      const rows = (t.row_count || t.n_live_tup || 0).toLocaleString();
+      doc.text(`${truncateText(tableName, 40)} | Size: ${size} | Rows: ${rows}`);
+    });
+  }
+  
+  doc.end();
+  
+  return new Promise((resolve) => {
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+  });}
 }
 
 function formatBytes(bytes) {
