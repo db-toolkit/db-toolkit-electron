@@ -194,11 +194,7 @@ export const schemaAiAPI = {
     throw new Error('No tables found in schema');
   },
   analyzeTable: (connectionId, tableName, columns) => 
-    ipc.invoke('ai:analyze-table', {
-      connection_id: connectionId, 
-      table_name: tableName,
-      columns: columns || []
-    }),
+    ipc.invoke('ai:analyze-table', tableName, columns || [], undefined),
 };
 
 // Legacy API object for backward compatibility
