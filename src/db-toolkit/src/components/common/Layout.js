@@ -119,7 +119,7 @@ function Layout({ children }) {
             </button>
           </Tooltip>
         </header>
-        <main className="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-800">
+        <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
           {children}
         </main>
         <StatusBar />
@@ -140,7 +140,7 @@ function Layout({ children }) {
               </button>
             </Tooltip>
           </header>
-          <main className="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-800">
+          <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
             {children}
           </main>
           <StatusBar />
