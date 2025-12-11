@@ -325,6 +325,10 @@ function QueryPage() {
                   onSelectQuery={setQuery}
                   onRefresh={handleExecute}
                   currentQuery={query}
+                  onFixError={(errorMsg) => {
+                    // Manually trigger the auto-fix logic
+                    setTabs(prev => prev.map(t => t.id === activeTabId ? { ...t, error: errorMsg } : t));
+                  }}
                 />
               </div>
             </Split>

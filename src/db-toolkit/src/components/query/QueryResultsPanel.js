@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Table, MessageSquare, History, Clock } from 'lucide-react';
+import { Table, MessageSquare, History, Clock, Bot } from 'lucide-react';
 import { EditableTable } from '../data/EditableTable';
 import { QueryHistory } from './QueryHistory';
 
-export function QueryResultsPanel({ connectionId, result, executionTime, onSelectQuery, onRefresh, currentQuery }) {
+export function QueryResultsPanel({ connectionId, result, executionTime, onSelectQuery, onRefresh, currentQuery, onFixError }) {
   const [activeTab, setActiveTab] = useState('results');
   const [displayLimit, setDisplayLimit] = useState(() => {
     return parseInt(localStorage.getItem('query-display-limit') || '100');
   });
-  
+
   // Extract table name from query
   const extractTableInfo = (query) => {
     if (!query) return { table: 'table_name', schema: 'public' };
@@ -21,7 +21,7 @@ export function QueryResultsPanel({ connectionId, result, executionTime, onSelec
     }
     return { table: 'table_name', schema: 'public' };
   };
-  
+
   const { schema, table } = extractTableInfo(currentQuery);
 
   const handleLimitChange = (newLimit) => {
@@ -48,11 +48,10 @@ export function QueryResultsPanel({ connectionId, result, executionTime, onSelec
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition ${
-                  activeTab === tab.id
-                    ? 'border-green-500 text-green-600 dark:text-green-400'
-                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition ${activeTab === tab.id
+                  ? 'border-green-500 text-green-600 dark:text-green-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
               >
                 <Icon size={16} />
                 {tab.label}
@@ -91,7 +90,14 @@ export function QueryResultsPanel({ connectionId, result, executionTime, onSelec
                 <div className="flex items-center justify-center h-full p-4">
                   <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-2xl">
                     <h4 className="text-red-800 dark:text-red-400 font-semibold mb-2">Query Error</h4>
-                    <p className="text-red-700 dark:text-red-300 text-sm whitespace-pre-wrap">{result.error}</p>
+                    <p className="text-red-700 dark:text-red-300 text-sm whitespace-pre-wrap mb-4">{result.error}</p>
+                    <button
+                      onClick={() => onFixError && onFixError(result.error)}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors text-sm font-medium"
+                    >
+                      <Bot size={16} />
+                      Fix with AI
+                    </button>
                   </div>
                 </div>
               ) : (
