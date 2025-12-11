@@ -36,8 +36,8 @@ export function ERDiagram({ schema, onClose }) {
   const [layoutDirection, setLayoutDirection] = useState(() => {
     return localStorage.getItem('er-diagram-layout') || 'LR';
   });
-  const [edgeType, setEdgeType] = useState('smoothstep');
   const [searchQuery, setSearchQuery] = useState('');
+  const [exporting, setExporting] = useState(false);
   const { fitView, getViewport } = useReactFlow();
 
   // Generate nodes and edges from schema
@@ -160,6 +160,7 @@ export function ERDiagram({ schema, onClose }) {
       return;
     }
 
+    setExporting(true);
     try {
       const { toBlob } = await import('html-to-image');
       const isDark = document.documentElement.classList.contains('dark');
@@ -183,6 +184,8 @@ export function ERDiagram({ schema, onClose }) {
     } catch (err) {
       console.error('Export failed:', err);
       alert('Export failed. Use browser screenshot: Ctrl+Shift+S (Windows) or Cmd+Shift+4 (Mac)');
+    } finally {
+      setExporting(false);
     }
   }, []);
 
@@ -238,21 +241,6 @@ export function ERDiagram({ schema, onClose }) {
         <div className="flex items-center gap-2">
           <div className="flex bg-gray-100 dark:bg-gray-800 rounded p-1 mr-2">
             <button
-              onClick={() => setEdgeType('smoothstep')}
-              className={`px-2 py-1 text-xs rounded ${edgeType === 'smoothstep' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-            >
-              Step
-            </button>
-            <button
-              onClick={() => setEdgeType('default')}
-              className={`px-2 py-1 text-xs rounded ${edgeType === 'default' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-            >
-              Curve
-            </button>
-          </div>
-
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded p-1 mr-2">
-            <button
               onClick={() => toggleAllNodes(false)}
               className="px-2 py-1 text-xs rounded text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-gray-700"
             >
@@ -279,8 +267,10 @@ export function ERDiagram({ schema, onClose }) {
             size="sm"
             icon={<Download size={16} />}
             onClick={exportToPng}
+            disabled={exporting}
+            loading={exporting}
           >
-            Export PNG
+            {exporting ? 'Exporting...' : 'Export PNG'}
           </Button>
           <Button
             variant="secondary"
@@ -303,7 +293,7 @@ export function ERDiagram({ schema, onClose }) {
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}
           nodeTypes={nodeTypes}
-          defaultEdgeOptions={{ ...defaultEdgeOptions, type: edgeType }}
+          defaultEdgeOptions={defaultEdgeOptions}
           fitView
           fitViewOptions={{ padding: 0.2 }}
           minZoom={0.1}
