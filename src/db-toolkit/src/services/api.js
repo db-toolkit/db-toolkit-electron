@@ -210,6 +210,11 @@ const api = {
       const result = await ipc.invoke('dataExplorer:browse', connectionId, data);
       return { data: result };
     }
+    if (url.includes('/data/cell')) {
+      const connectionId = url.split('/')[2];
+      const result = await ipc.invoke('dataExplorer:cell', connectionId, data);
+      return { data: { success: true, data: result.data } };
+    }
     throw new Error(`Unsupported API call: ${url}`);
   },
   get: async (url, options) => {
