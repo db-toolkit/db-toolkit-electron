@@ -149,13 +149,38 @@ function QueryPage() {
 
       // Trigger AI Auto-Fix
       try {
-        const fixResult = await fixQueryError(query, errorMsg, { tables: schema });
+        console.log('Triggering AI Auto-Fix for error:', errorMsg);
+
+        // Extract tables from schema structure
+        let tables = {};
+        if (schema) {
+          if (schema.tables) {
+            tables = schema.tables;
+          } else if (schema.schemas) {
+            // Flatten schemas
+            Object.values(schema.schemas).forEach(s => {
+              if (s.tables) Object.assign(tables, s.tables);
+            });
+          } else {
+            // Assume schema is the tables map itself if it has values with columns
+            const firstKey = Object.keys(schema)[0];
+            if (firstKey && schema[firstKey]?.columns) {
+              tables = schema;
+            }
+          }
+        }
+
+        const fixResult = await fixQueryError(query, errorMsg, tables);
+        console.log('AI Auto-Fix result:', fixResult);
+
         if (fixResult && fixResult.fixed_query) {
           setFixSuggestion({
             original: query,
             fixed: fixResult.fixed_query,
             explanation: fixResult.explanation
           });
+        } else {
+          console.warn('AI Auto-Fix returned no fixed query');
         }
       } catch (aiErr) {
         console.error('Auto-fix failed:', aiErr);
