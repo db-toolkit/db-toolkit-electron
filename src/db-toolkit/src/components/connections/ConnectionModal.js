@@ -123,14 +123,20 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
       // Handle SQLite special case
       if (url.startsWith('sqlite:///')) {
         const filePath = url.replace('sqlite:///', '');
-        return {
+        const parsed = {
           db_type: 'sqlite',
           database: filePath,
           host: '',
           port: 0,
           username: '',
           password: '',
+          ssl_enabled: false,
+          ssl_mode: 'require',
         };
+        setFormData(prev => ({ ...prev, ...parsed }));
+        setUseUrl(false);
+        toast.success('URL parsed successfully');
+        return parsed;
       }
 
       const urlObj = new URL(url);
@@ -164,6 +170,22 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
         toast.error('Database name is required in URL');
         return null;
       }
+
+      // Parse SSL parameters from query string
+      const searchParams = urlObj.searchParams;
+      let ssl_enabled = false;
+      let ssl_mode = 'require';
+
+      // Check for SSL/TLS parameters
+      if (searchParams.has('ssl') || searchParams.has('tls') || searchParams.has('sslmode')) {
+        const sslParam = searchParams.get('ssl') || searchParams.get('tls');
+        const sslModeParam = searchParams.get('sslmode');
+        
+        if (sslParam === 'true' || sslParam === '1' || sslModeParam) {
+          ssl_enabled = true;
+          ssl_mode = sslModeParam || 'require';
+        }
+      }
       
       const parsed = {
         db_type: dbType,
@@ -172,11 +194,14 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
         database,
         username: urlObj.username || '',
         password: urlObj.password || '',
+        ssl_enabled,
+        ssl_mode,
       };
       
-      // Auto-populate fields for immediate editing
+      // Auto-populate fields and switch to form view
       setFormData(prev => ({ ...prev, ...parsed }));
-      toast.success('URL parsed successfully');
+      setUseUrl(false);
+      toast.success('URL parsed successfully - review and save');
       
       return parsed;
     } catch (err) {
@@ -257,7 +282,12 @@ export function ConnectionModal({ isOpen, onClose, onSave, connection }) {
               required
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Examples: postgresql://user:pass@host:5432/db, postgresql+asyncpg://..., mysql+aiomysql://..., mongodb+srv://..., sqlite:///path/to/db.sqlite
+              Examples:<br/>
+              • postgresql://user:pass@host:5432/db<br/>
+              • postgresql://user:pass@host:5432/db?sslmode=require<br/>
+              • mysql://user:pass@host:3306/db?ssl=true<br/>
+              • mongodb://user:pass@host:27017/db?tls=true<br/>
+              • sqlite:///path/to/db.sqlite
             </p>
           </div>
         ) : (
