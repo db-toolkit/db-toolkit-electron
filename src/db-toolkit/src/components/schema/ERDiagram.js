@@ -197,31 +197,38 @@ export function ERDiagram({ schema, onClose }) {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Schema Diagram
           </h2>
-          <div className="flex items-center gap-1">
+          <div className="flex bg-gray-100 dark:bg-gray-800 rounded p-1">
+            <button
+              onClick={() => setLayoutDirection('SMART')}
+              className={`px-3 py-1.5 text-xs rounded transition ${layoutDirection === 'SMART' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
+              title="Smart 2D Layout"
+            >
+              Smart
+            </button>
             <button
               onClick={() => setLayoutDirection('TB')}
-              className={`p-2 rounded transition ${layoutDirection === 'TB' ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
+              className={`p-1.5 rounded transition ${layoutDirection === 'TB' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
               title="Top to Bottom"
             >
               <ArrowDown size={16} />
             </button>
             <button
               onClick={() => setLayoutDirection('LR')}
-              className={`p-2 rounded transition ${layoutDirection === 'LR' ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
+              className={`p-1.5 rounded transition ${layoutDirection === 'LR' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
               title="Left to Right"
             >
               <ArrowRight size={16} />
             </button>
             <button
               onClick={() => setLayoutDirection('BT')}
-              className={`p-2 rounded transition ${layoutDirection === 'BT' ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
+              className={`p-1.5 rounded transition ${layoutDirection === 'BT' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
               title="Bottom to Top"
             >
               <ArrowUp size={16} />
             </button>
             <button
               onClick={() => setLayoutDirection('RL')}
-              className={`p-2 rounded transition ${layoutDirection === 'RL' ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
+              className={`p-1.5 rounded transition ${layoutDirection === 'RL' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
               title="Right to Left"
             >
               <ArrowLeft size={16} />

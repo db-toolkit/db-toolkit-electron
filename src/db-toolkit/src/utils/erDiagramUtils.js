@@ -150,22 +150,27 @@ export function relationshipsToEdges(relationships) {
  * Auto-layout nodes using dagre
  */
 export function getLayoutedElements(nodes, edges, direction = 'LR') {
+  // Force-directed layout for 'SMART' direction
+  if (direction === 'SMART') {
+    return getForceDirectedLayout(nodes, edges);
+  }
+
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-  const nodeWidth = 280; // Slightly wider for better readability
+  const nodeWidth = 280;
 
   // Dynamic spacing based on number of nodes
   const nodeCount = nodes.length;
-  const nodesep = nodeCount > 20 ? 80 : nodeCount > 10 ? 100 : 120;
-  const ranksep = nodeCount > 20 ? 120 : nodeCount > 10 ? 150 : 180;
+  const nodesep = nodeCount > 20 ? 100 : nodeCount > 10 ? 150 : 200;
+  const ranksep = nodeCount > 20 ? 150 : nodeCount > 10 ? 200 : 250;
 
   dagreGraph.setGraph({
     rankdir: direction,
     nodesep,
     ranksep,
-    marginx: 50,
-    marginy: 50
+    marginx: 100,
+    marginy: 100
   });
 
   nodes.forEach((node) => {
@@ -206,6 +211,82 @@ export function getLayoutedElements(nodes, edges, direction = 'LR') {
       },
     };
   });
+
+  return { nodes: layoutedNodes, edges };
+}
+
+/**
+ * Force-directed layout for organic 2D spread
+ */
+export function getForceDirectedLayout(nodes, edges) {
+  const nodeWidth = 280;
+  const nodeHeight = 200;
+  const centerX = 500;
+  const centerY = 400;
+  const radius = 300;
+
+  // Build adjacency map
+  const adjacency = new Map();
+  nodes.forEach(node => adjacency.set(node.id, []));
+  edges.forEach(edge => {
+    adjacency.get(edge.source)?.push(edge.target);
+    adjacency.get(edge.target)?.push(edge.source);
+  });
+
+  // Find root nodes (most connections)
+  const connectionCounts = nodes.map(node => ({
+    id: node.id,
+    count: adjacency.get(node.id)?.length || 0
+  }));
+  connectionCounts.sort((a, b) => b.count - a.count);
+
+  const positioned = new Set();
+  const positions = new Map();
+
+  // Position root node at center
+  if (connectionCounts.length > 0) {
+    const root = connectionCounts[0].id;
+    positions.set(root, { x: centerX, y: centerY });
+    positioned.add(root);
+
+    // Position connected nodes in circles around root
+    const connected = adjacency.get(root) || [];
+    const angleStep = (2 * Math.PI) / Math.max(connected.length, 1);
+    connected.forEach((nodeId, i) => {
+      if (!positioned.has(nodeId)) {
+        const angle = i * angleStep;
+        positions.set(nodeId, {
+          x: centerX + radius * Math.cos(angle),
+          y: centerY + radius * Math.sin(angle)
+        });
+        positioned.add(nodeId);
+      }
+    });
+  }
+
+  // Position remaining nodes in expanding circles
+  let currentRadius = radius * 1.8;
+  let unpositioned = nodes.filter(n => !positioned.has(n.id));
+  
+  while (unpositioned.length > 0) {
+    const angleStep = (2 * Math.PI) / Math.max(unpositioned.length, 1);
+    unpositioned.forEach((node, i) => {
+      const angle = i * angleStep;
+      positions.set(node.id, {
+        x: centerX + currentRadius * Math.cos(angle),
+        y: centerY + currentRadius * Math.sin(angle)
+      });
+      positioned.add(node.id);
+    });
+    currentRadius += 300;
+    unpositioned = nodes.filter(n => !positioned.has(n.id));
+  }
+
+  // Apply positions to nodes
+  const layoutedNodes = nodes.map(node => ({
+    ...node,
+    position: positions.get(node.id) || { x: 0, y: 0 }
+  }));
 
   return { nodes: layoutedNodes, edges };
 }
