@@ -105,6 +105,8 @@ export function ERDiagram({ schema, onClose }) {
     const connectedNodeIds = new Set(
       connectedEdges.flatMap(edge => [edge.source, edge.target])
     );
+    // Always include the clicked node
+    connectedNodeIds.add(node.id);
 
     setNodes(nodes =>
       nodes.map(n => ({
