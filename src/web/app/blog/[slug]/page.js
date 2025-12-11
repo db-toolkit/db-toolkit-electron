@@ -39,7 +39,7 @@ export default function BlogPost({ params }) {
             </div>
           )}
           
-          <div className="p-8 md:p-12">
+          <div className={`${inter.className} p-8 md:p-12`}>
             {post.tags && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {post.tags.map((tag) => (
@@ -71,7 +71,7 @@ export default function BlogPost({ params }) {
               </span>
             </div>
             
-            <div className={`${inter.className} prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-3 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-cyan-600 dark:prose-a:text-teal-400 prose-a:no-underline hover:prose-a:underline prose-a:font-medium prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-cyan-600 dark:prose-code:text-teal-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-900 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-ul:my-6 prose-li:my-2`}>
+            <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-3 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-cyan-600 dark:prose-a:text-teal-400 prose-a:no-underline hover:prose-a:underline prose-a:font-medium prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-cyan-600 dark:prose-code:text-teal-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-900 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-ul:my-6 prose-li:my-2">
               <MDXRemote source={post.content} />
             </div>
           </div>
