@@ -12,17 +12,6 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: steps
-    attributes:
-      label: Steps to reproduce
-      placeholder: |
-        1. Go to...
-        2. Click...
-        3. See error
-    validations:
-      required: false
-
   - type: input
     id: version
     attributes:

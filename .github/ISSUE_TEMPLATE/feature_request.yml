@@ -13,15 +13,6 @@ body:
       required: true
 
   - type: textarea
-    id: why
-    attributes:
-      label: Why do you need this?
-      description: What problem does it solve?
-      placeholder: This would help me...
-    validations:
-      required: true
-
-  - type: textarea
     id: additional
     attributes:
       label: Additional info
