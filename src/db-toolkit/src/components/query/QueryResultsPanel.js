@@ -5,6 +5,9 @@ import { QueryHistory } from './QueryHistory';
 
 export function QueryResultsPanel({ connectionId, result, executionTime, onSelectQuery, onRefresh, currentQuery }) {
   const [activeTab, setActiveTab] = useState('results');
+  const [displayLimit, setDisplayLimit] = useState(() => {
+    return parseInt(localStorage.getItem('query-display-limit') || '100');
+  });
   
   // Extract table name from query
   const extractTableInfo = (query) => {
@@ -21,6 +24,14 @@ export function QueryResultsPanel({ connectionId, result, executionTime, onSelec
   
   const { schema, table } = extractTableInfo(currentQuery);
 
+  const handleLimitChange = (newLimit) => {
+    setDisplayLimit(newLimit);
+    localStorage.setItem('query-display-limit', newLimit.toString());
+  };
+
+  const displayedRows = result?.rows?.slice(0, displayLimit) || [];
+  const totalRows = result?.rows?.length || 0;
+
   const tabs = [
     { id: 'results', label: 'Results', icon: Table },
     { id: 'messages', label: 'Messages', icon: MessageSquare },
@@ -29,24 +40,47 @@ export function QueryResultsPanel({ connectionId, result, executionTime, onSelec
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-800">
-      <div className="flex items-center border-b border-gray-200 dark:border-gray-700">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition ${
-                activeTab === tab.id
-                  ? 'border-green-500 text-green-600 dark:text-green-400'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-              }`}
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition ${
+                  activeTab === tab.id
+                    ? 'border-green-500 text-green-600 dark:text-green-400'
+                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                }`}
+              >
+                <Icon size={16} />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+        {activeTab === 'results' && totalRows > 0 && (
+          <div className="flex items-center gap-2 px-4 text-sm text-gray-600 dark:text-gray-400">
+            <span>Show:</span>
+            <select
+              value={displayLimit}
+              onChange={(e) => handleLimitChange(parseInt(e.target.value))}
+              className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             >
-              <Icon size={16} />
-              {tab.label}
-            </button>
-          );
-        })}
+              <option value={10}>10 rows</option>
+              <option value={20}>20 rows</option>
+              <option value={50}>50 rows</option>
+              <option value={100}>100 rows</option>
+              <option value={500}>500 rows</option>
+              <option value={1000}>1000 rows</option>
+              <option value={totalRows}>All ({totalRows})</option>
+            </select>
+            {totalRows > displayLimit && (
+              <span className="text-xs">Showing {displayLimit} of {totalRows}</span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-hidden">
@@ -63,7 +97,7 @@ export function QueryResultsPanel({ connectionId, result, executionTime, onSelec
               ) : (
                 <EditableTable
                   connectionId={connectionId}
-                  result={result}
+                  result={{ ...result, rows: displayedRows }}
                   onRefresh={onRefresh}
                   tableName={table}
                   schemaName={schema}

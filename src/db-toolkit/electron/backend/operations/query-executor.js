@@ -55,14 +55,12 @@ class QueryExecutor {
         }
       }
 
-      const paginatedQuery = this.addPagination(query, connection.db_type, limit, offset);
-
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Query timeout')), timeout * 1000)
       );
 
       const result = await Promise.race([
-        connector.executeQuery(paginatedQuery),
+        connector.executeQuery(query),
         timeoutPromise,
       ]);
 
@@ -133,23 +131,7 @@ class QueryExecutor {
     return { safe: true };
   }
 
-  addPagination(query, dbType, limit, offset) {
-    const queryUpper = query.toUpperCase().trim();
 
-    if (dbType === 'mongodb') {
-      return query;
-    }
-
-    if (queryUpper.includes('LIMIT')) {
-      return query;
-    }
-
-    if (['sqlite', 'postgresql', 'mysql'].includes(dbType)) {
-      return `${query} LIMIT ${limit} OFFSET ${offset}`;
-    }
-
-    return query;
-  }
 }
 
 const queryExecutor = new QueryExecutor();
