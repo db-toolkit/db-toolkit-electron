@@ -5,7 +5,7 @@ import { Calendar, Clock, ArrowRight, Star } from 'lucide-react';
 export default function FeaturedBlogCard({ post }) {
   return (
     <Link href={`/blog/${post.slug}`}>
-      <article className="group bg-white dark:bg-gray-800 rounded-2xl border-2 border-cyan-200 dark:border-cyan-800 overflow-hidden hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 flex flex-col md:flex-row max-w-5xl mx-auto">
+      <article className="group bg-white dark:bg-gray-800 rounded-2xl border-2 border-cyan-200 dark:border-cyan-800 overflow-hidden hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 flex flex-col md:flex-row max-w-6xl mx-auto">
         {post.image && (
           <div className="relative w-full md:w-1/2 h-96 overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
             <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 bg-cyan-600 text-white rounded-full text-sm font-semibold">
