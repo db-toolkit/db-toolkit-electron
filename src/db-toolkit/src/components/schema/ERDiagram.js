@@ -14,10 +14,10 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { Download, Minimize2, ArrowDown, ArrowRight, ArrowUp, ArrowLeft, Search, RotateCcw } from 'lucide-react';
 import TableNode from './TableNode';
-import { 
-  schemaToNodes, 
-  detectRelationships, 
-  relationshipsToEdges, 
+import {
+  schemaToNodes,
+  detectRelationships,
+  relationshipsToEdges,
   getLayoutedElements,
   filterNodesBySearch
 } from '../../utils/erDiagramUtils';
@@ -28,7 +28,6 @@ const nodeTypes = {
 };
 
 const defaultEdgeOptions = {
-  type: 'smoothstep',
   animated: false,
   style: { strokeWidth: 2 },
 };
@@ -37,13 +36,9 @@ export function ERDiagram({ schema, onClose }) {
   const [layoutDirection, setLayoutDirection] = useState(() => {
     return localStorage.getItem('er-diagram-layout') || 'LR';
   });
+  const [edgeType, setEdgeType] = useState('smoothstep');
   const [searchQuery, setSearchQuery] = useState('');
   const { fitView, getViewport } = useReactFlow();
-
-  // Save layout direction to localStorage
-  useEffect(() => {
-    localStorage.setItem('er-diagram-layout', layoutDirection);
-  }, [layoutDirection]);
 
   // Generate nodes and edges from schema
   const initialNodes = useMemo(() => schemaToNodes(schema), [schema]);
@@ -58,6 +53,23 @@ export function ERDiagram({ schema, onClose }) {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
+
+  const toggleAllNodes = useCallback((collapsed) => {
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: { ...node.data, forceCollapse: collapsed }
+      }))
+    );
+
+    // Re-fit view after a short delay to allow expansion/collapse animation
+    setTimeout(() => fitView({ padding: 0.2, duration: 300 }), 300);
+  }, [setNodes, fitView]);
+
+  // Save layout direction to localStorage
+  useEffect(() => {
+    localStorage.setItem('er-diagram-layout', layoutDirection);
+  }, [layoutDirection]);
 
   // Update nodes when layout direction changes
   useEffect(() => {
@@ -142,7 +154,7 @@ export function ERDiagram({ schema, onClose }) {
   // Export diagram as PNG (optimized)
   const exportToPng = useCallback(async () => {
     const flowElement = document.querySelector('.react-flow__viewport');
-    
+
     if (!flowElement) {
       alert('Unable to export. Please try browser screenshot instead.');
       return;
@@ -151,22 +163,22 @@ export function ERDiagram({ schema, onClose }) {
     try {
       const { toBlob } = await import('html-to-image');
       const isDark = document.documentElement.classList.contains('dark');
-      
+
       const blob = await toBlob(flowElement, {
         backgroundColor: isDark ? '#111827' : '#ffffff',
         pixelRatio: 1,
         cacheBust: false,
         skipFonts: true,
       });
-      
+
       if (!blob) throw new Error('Failed to create image');
-      
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.download = `er-diagram-${Date.now()}.png`;
       link.href = url;
       link.click();
-      
+
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Export failed:', err);
@@ -224,6 +236,36 @@ export function ERDiagram({ schema, onClose }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex bg-gray-100 dark:bg-gray-800 rounded p-1 mr-2">
+            <button
+              onClick={() => setEdgeType('smoothstep')}
+              className={`px-2 py-1 text-xs rounded ${edgeType === 'smoothstep' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+            >
+              Step
+            </button>
+            <button
+              onClick={() => setEdgeType('default')}
+              className={`px-2 py-1 text-xs rounded ${edgeType === 'default' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+            >
+              Curve
+            </button>
+          </div>
+
+          <div className="flex bg-gray-100 dark:bg-gray-800 rounded p-1 mr-2">
+            <button
+              onClick={() => toggleAllNodes(false)}
+              className="px-2 py-1 text-xs rounded text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-gray-700"
+            >
+              Expand All
+            </button>
+            <button
+              onClick={() => toggleAllNodes(true)}
+              className="px-2 py-1 text-xs rounded text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-gray-700"
+            >
+              Collapse All
+            </button>
+          </div>
+
           <Button
             variant="secondary"
             size="sm"
@@ -261,7 +303,7 @@ export function ERDiagram({ schema, onClose }) {
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}
           nodeTypes={nodeTypes}
-          defaultEdgeOptions={defaultEdgeOptions}
+          defaultEdgeOptions={{ ...defaultEdgeOptions, type: edgeType }}
           fitView
           fitViewOptions={{ padding: 0.2 }}
           minZoom={0.1}
@@ -298,6 +340,6 @@ export function ERDiagram({ schema, onClose }) {
           </Panel>
         </ReactFlow>
       </div>
-    </div>
+    </div >
   );
 }

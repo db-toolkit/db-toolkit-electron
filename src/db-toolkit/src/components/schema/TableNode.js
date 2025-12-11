@@ -1,23 +1,30 @@
 /**
  * Custom table node for ER diagram
  */
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import { Key, Link, ChevronDown, ChevronRight, Columns } from 'lucide-react';
 
 function TableNode({ data }) {
   if (!data) return null;
 
-  const { label, columns = [], schema } = data;
+  const { label, columns = [], schema, forceCollapse } = data;
   // Default to collapsed if more than 10 columns
   const [isCollapsed, setIsCollapsed] = useState(columns.length > 10);
+
+  // Sync with global forceCollapse prop if it changes
+  useEffect(() => {
+    if (forceCollapse !== undefined) {
+      setIsCollapsed(forceCollapse);
+    }
+  }, [forceCollapse]);
 
   const primaryKeys = columns.filter(col =>
     col && (col.primary_key || col.name === 'id')
   );
 
   const foreignKeys = columns.filter(col =>
-    col && col.name && (col.foreign_key || col.name.endsWith('_id'))
+    col && col.name && (col.foreign_key || (typeof col.name === 'string' && col.name.endsWith('_id')))
   );
 
   const visibleColumns = isCollapsed
