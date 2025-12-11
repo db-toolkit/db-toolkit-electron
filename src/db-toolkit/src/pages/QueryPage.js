@@ -26,7 +26,7 @@ function QueryPage() {
   const { loading, executeQuery } = useQuery(connectionId);
   const { schema, fetchSchemaTree } = useSchema(connectionId);
   const toast = useToast();
-  
+
   const activeTab = tabs.find(t => t.id === activeTabId);
   const query = activeTab?.query || '';
   const result = activeTab?.result || null;
@@ -78,10 +78,10 @@ function QueryPage() {
   useEffect(() => {
     const reconnect = async () => {
       if (!connectionId) return;
-      
+
       setReconnecting(true);
       let retries = 3;
-      
+
       while (retries > 0) {
         try {
           await connectionsAPI.connect(connectionId);
@@ -98,10 +98,10 @@ function QueryPage() {
           }
         }
       }
-      
+
       setReconnecting(false);
     };
-    
+
     reconnect();
   }, [connectionId, fetchSchemaTree, toast]);
 
@@ -158,11 +158,10 @@ function QueryPage() {
             <div
               key={tab.id}
               onClick={() => setActiveTabId(tab.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-t cursor-pointer transition ${
-                activeTabId === tab.id
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-t cursor-pointer transition ${activeTabId === tab.id
                   ? 'bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-100'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
+                }`}
             >
               <span className="text-sm font-medium whitespace-nowrap">{tab.name}</span>
               {tabs.length > 1 && (
@@ -215,98 +214,70 @@ function QueryPage() {
 
 
 
-      <div className="flex-1 min-h-0 flex">
-        {showAiAssistant ? (
-          <Split
-            sizes={[75, 25]}
-            minSize={[400, 300]}
-            gutterSize={8}
-            className="flex h-full w-full"
-          >
-            <div className="h-full flex flex-col overflow-hidden">
-              <Split
-                direction="vertical"
-                sizes={[50, 50]}
-                minSize={200}
-                gutterSize={8}
-                className="flex flex-col h-full"
-              >
-                <div className="overflow-hidden">
-                  <QueryEditor
-                    query={query}
-                    onChange={setQuery}
-                    onExecute={handleExecute}
-                    loading={loading}
-                    schema={schema}
-                    error={error}
-                  />
-                </div>
+      <div className="flex-1 min-h-0 flex relative">
+        <Split
+          sizes={showAiAssistant ? [75, 25] : [100, 0]}
+          minSize={showAiAssistant ? [400, 300] : [0, 0]}
+          gutterSize={showAiAssistant ? 8 : 0}
+          className="flex h-full w-full"
+          gutterStyle={() => ({
+            display: showAiAssistant ? 'flex' : 'none',
+            width: showAiAssistant ? '8px' : '0px',
+          })}
+        >
+          <div className="h-full w-full flex flex-col overflow-hidden">
+            <Split
+              direction="vertical"
+              sizes={[50, 50]}
+              minSize={200}
+              gutterSize={8}
+              className="flex flex-col h-full w-full"
+            >
+              <div className="overflow-hidden h-full w-full relative">
+                <QueryEditor
+                  query={query}
+                  onChange={setQuery}
+                  onExecute={handleExecute}
+                  loading={loading}
+                  schema={schema}
+                  error={error}
+                />
+              </div>
 
-                <div className="overflow-hidden">
-                  <QueryResultsPanel
-                    connectionId={connectionId}
-                    result={result}
-                    executionTime={executionTime}
-                    onSelectQuery={setQuery}
-                    onRefresh={handleExecute}
-                    currentQuery={query}
-                  />
-                </div>
-              </Split>
-            </div>
-            
-            <div className="h-full flex flex-col overflow-hidden">
-              <AiAssistant
-                connectionId={connectionId}
-                currentQuery={query}
-                onQueryGenerated={setQuery}
-                onQueryOptimized={(result) => {
-                  console.log('Query optimized:', result);
-                }}
-                lastError={error}
-                schemaContext={{ tables: schema }}
-                isVisible={showAiAssistant}
-                onClose={() => setShowAiAssistant(false)}
-                chatHistory={activeTab?.chatHistory || []}
-                onChatUpdate={(newHistory) => {
-                  setTabs(prev => prev.map(t => 
-                    t.id === activeTabId ? { ...t, chatHistory: newHistory.slice(-10) } : t
-                  ));
-                }}
-              />
-            </div>
-          </Split>
-        ) : (
-          <Split
-            direction="vertical"
-            sizes={[50, 50]}
-            minSize={200}
-            gutterSize={8}
-            className="flex flex-col h-full w-full"
-          >
-            <div className="overflow-hidden">
-              <QueryEditor
-                query={query}
-                onChange={setQuery}
-                onExecute={handleExecute}
-                loading={loading}
-                schema={schema}
-                error={error}
-              />
-            </div>
+              <div className="overflow-hidden h-full w-full relative">
+                <QueryResultsPanel
+                  connectionId={connectionId}
+                  result={result}
+                  executionTime={executionTime}
+                  onSelectQuery={setQuery}
+                  onRefresh={handleExecute}
+                  currentQuery={query}
+                />
+              </div>
+            </Split>
+          </div>
 
-            <div className="overflow-hidden">
-              <QueryResultsPanel
-                connectionId={connectionId}
-                result={result}
-                executionTime={executionTime}
-                onSelectQuery={setQuery}
-                onRefresh={handleExecute}
-                currentQuery={query}
-              />
-            </div>
-          </Split>
-        )}
+          <div className={`h-full flex flex-col overflow-hidden ${showAiAssistant ? '' : 'hidden'}`}>
+            <AiAssistant
+              connectionId={connectionId}
+              currentQuery={query}
+              onQueryGenerated={setQuery}
+              onQueryOptimized={(result) => {
+                console.log('Query optimized:', result);
+              }}
+              lastError={error}
+              schemaContext={{ tables: schema }}
+              isVisible={showAiAssistant}
+              onClose={() => setShowAiAssistant(false)}
+              chatHistory={activeTab?.chatHistory || []}
+              onChatUpdate={(newHistory) => {
+                setTabs(prev => prev.map(t =>
+                  t.id === activeTabId ? { ...t, chatHistory: newHistory.slice(-10) } : t
+                ));
+              }}
+            />
+          </div>
+        </Split>
       </div>
 
       <CsvExportModal
