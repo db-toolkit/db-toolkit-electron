@@ -134,6 +134,8 @@ function QueryPage() {
     if (!query.trim()) return;
     const startTime = Date.now();
     setFixSuggestion(null); // Clear previous suggestions
+    // Clear previous error
+    setTabs(prev => prev.map(t => t.id === activeTabId ? { ...t, error: null } : t));
 
     try {
       const limit = settings?.default_query_limit || 1000;
@@ -146,54 +148,59 @@ function QueryPage() {
       const errorMsg = err.response?.data?.detail || err.message;
       const time = Date.now() - startTime;
       setTabs(prev => prev.map(t => t.id === activeTabId ? { ...t, error: errorMsg, executionTime: time } : t));
-
-      // Trigger AI Auto-Fix
-      setTimeout(async () => {
-        try {
-          console.log('Triggering AI Auto-Fix for error:', errorMsg);
-          toast.info('Attempting to auto-fix query error...');
-
-          // Extract tables from schema structure
-          let tables = {};
-          if (schema) {
-            if (schema.tables) {
-              tables = schema.tables;
-            } else if (schema.schemas) {
-              // Flatten schemas
-              Object.values(schema.schemas).forEach(s => {
-                if (s.tables) Object.assign(tables, s.tables);
-              });
-            } else {
-              // Assume schema is the tables map itself if it has values with columns
-              const firstKey = Object.keys(schema)[0];
-              if (firstKey && schema[firstKey]?.columns) {
-                tables = schema;
-              }
-            }
-          }
-
-          const fixResult = await fixQueryError(query, errorMsg, tables);
-          console.log('AI Auto-Fix result:', fixResult);
-
-          if (fixResult && fixResult.fixed_query) {
-            console.log('AI Auto-Fix success:', fixResult);
-            toast.success('AI found a fix!');
-            setFixSuggestion({
-              original: query,
-              fixed: fixResult.fixed_query,
-              explanation: fixResult.explanation
-            });
-          } else {
-            console.warn('AI Auto-Fix returned no fixed query');
-            toast.error('AI could not find a fix.');
-          }
-        } catch (aiErr) {
-          console.error('Auto-fix failed:', aiErr);
-          toast.error(`Auto-fix failed: ${aiErr.message}`);
-        }
-      }, 100);
     }
   };
+
+  // Auto-fix effect
+  useEffect(() => {
+    const triggerAutoFix = async () => {
+      if (!error || !query || fixSuggestion) return;
+
+      try {
+        console.log('Auto-fix effect triggered for error:', error);
+        toast.info('Attempting to auto-fix query error...');
+
+        // Extract tables from schema structure
+        let tables = {};
+        if (schema) {
+          if (schema.tables) {
+            tables = schema.tables;
+          } else if (schema.schemas) {
+            // Flatten schemas
+            Object.values(schema.schemas).forEach(s => {
+              if (s.tables) Object.assign(tables, s.tables);
+            });
+          } else {
+            // Assume schema is the tables map itself if it has values with columns
+            const firstKey = Object.keys(schema)[0];
+            if (firstKey && schema[firstKey]?.columns) {
+              tables = schema;
+            }
+          }
+        }
+
+        const fixResult = await fixQueryError(query, error, tables);
+
+        if (fixResult && fixResult.fixed_query) {
+          console.log('AI Auto-Fix success:', fixResult);
+          toast.success('AI found a fix!');
+          setFixSuggestion({
+            original: query,
+            fixed: fixResult.fixed_query,
+            explanation: fixResult.explanation
+          });
+        } else {
+          console.warn('AI Auto-Fix returned no fixed query');
+          toast.error('AI could not find a fix.');
+        }
+      } catch (aiErr) {
+        console.error('Auto-fix failed:', aiErr);
+        toast.error(`Auto-fix failed: ${aiErr.message}`);
+      }
+    };
+
+    triggerAutoFix();
+  }, [error, query, schema]); // Dependencies ensure this runs when error appears
 
   const handleAcceptFix = () => {
     if (fixSuggestion) {
