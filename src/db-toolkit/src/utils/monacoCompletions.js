@@ -23,7 +23,7 @@ export function parseSchemaToCompletions(schema, monaco) {
         insertText: tableName,
         detail: `Table in ${schemaName}`,
         documentation: `${tableData.column_count || 0} columns`,
-        sortText: `1_${tableName}`, // Tables first
+        sortText: `0_${tableName}`, // Tables first
       });
 
       // Add column suggestions
@@ -34,7 +34,7 @@ export function parseSchemaToCompletions(schema, monaco) {
           insertText: `${tableName}.${column.column_name}`,
           detail: `${column.data_type}`,
           documentation: `Column in ${tableName}`,
-          sortText: `2_${tableName}_${column.column_name}`, // Columns second
+          sortText: `1_${tableName}_${column.column_name}`, // Columns second
         });
 
         // Add column name only (for use after table is specified)
@@ -44,7 +44,7 @@ export function parseSchemaToCompletions(schema, monaco) {
           insertText: column.column_name,
           detail: `${column.data_type} - ${tableName}`,
           documentation: column.is_nullable === 'YES' ? 'Nullable' : 'Not null',
-          sortText: `3_${column.column_name}`, // Column names third
+          sortText: `2_${column.column_name}`, // Column names third
         });
       });
     });
@@ -70,7 +70,7 @@ export function getSQLKeywords(monaco) {
     kind: monaco.languages.CompletionItemKind.Keyword,
     insertText: keyword,
     detail: 'SQL Keyword',
-    sortText: `0_${keyword}`, // Keywords first
+    sortText: `9_${keyword}`, // Keywords last
   }));
 }
 
@@ -128,13 +128,12 @@ export function filterByContext(suggestions, context, monaco) {
  * Create Monaco completion provider
  */
 export function createSQLCompletionProvider(getSchema, monaco) {
-  let cachedSuggestions = [];
-  let cachedKeywords = getSQLKeywords(monaco);
-
-  return {
+  const provider = {
+    cachedSuggestions: [],
+    cachedKeywords: getSQLKeywords(monaco),
     triggerCharacters: ['.', ' '],
 
-    provideCompletionItems: async (model, position) => {
+    provideCompletionItems: async function(model, position) {
       const word = model.getWordUntilPosition(position);
       const range = {
         startLineNumber: position.lineNumber,
@@ -152,10 +151,10 @@ export function createSQLCompletionProvider(getSchema, monaco) {
       });
 
       // Fetch schema if not cached
-      if (cachedSuggestions.length === 0) {
+      if (this.cachedSuggestions.length === 0) {
         try {
           const schema = await getSchema();
-          cachedSuggestions = parseSchemaToCompletions(schema, monaco);
+          this.cachedSuggestions = parseSchemaToCompletions(schema, monaco);
         } catch (error) {
           console.error('Failed to fetch schema for autocomplete:', error);
         }
@@ -165,24 +164,28 @@ export function createSQLCompletionProvider(getSchema, monaco) {
       const context = detectSQLContext(textBeforeCursor);
 
       // Filter suggestions by context
-      const filteredSuggestions = filterByContext(cachedSuggestions, context, monaco);
+      const filteredSuggestions = filterByContext(this.cachedSuggestions, context, monaco);
 
       // Combine keywords and schema suggestions
-      const allSuggestions = [...cachedKeywords, ...filteredSuggestions].map(s => ({
+      const allSuggestions = [...this.cachedKeywords, ...filteredSuggestions].map(s => ({
         ...s,
         range
       }));
 
       return { suggestions: allSuggestions };
+    },
+
+    clearCache: function() {
+      this.cachedSuggestions = [];
     }
   };
+
+  return provider;
 }
 
 /**
  * Clear cached suggestions (call when schema changes)
  */
 export function clearCompletionCache(provider) {
-  if (provider && provider.cachedSuggestions) {
-    provider.cachedSuggestions = [];
-  }
+  provider?.clearCache?.();
 }

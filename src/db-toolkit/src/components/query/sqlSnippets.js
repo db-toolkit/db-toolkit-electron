@@ -21,6 +21,7 @@ export function registerSqlSnippets(monaco) {
           documentation: 'SELECT statement',
           detail: 'SELECT query template',
           range,
+          sortText: 'z_select',
         },
         {
           label: 'insert',
@@ -30,6 +31,7 @@ export function registerSqlSnippets(monaco) {
           documentation: 'INSERT statement',
           detail: 'INSERT query template',
           range,
+          sortText: 'z_insert',
         },
         {
           label: 'update',
@@ -39,6 +41,7 @@ export function registerSqlSnippets(monaco) {
           documentation: 'UPDATE statement',
           detail: 'UPDATE query template',
           range,
+          sortText: 'z_update',
         },
         {
           label: 'delete',
@@ -48,6 +51,7 @@ export function registerSqlSnippets(monaco) {
           documentation: 'DELETE statement',
           detail: 'DELETE query template',
           range,
+          sortText: 'z_delete',
         },
         {
           label: 'createtable',
@@ -57,6 +61,7 @@ export function registerSqlSnippets(monaco) {
           documentation: 'CREATE TABLE statement',
           detail: 'CREATE TABLE template',
           range,
+          sortText: 'z_createtable',
         },
         {
           label: 'join',
@@ -66,6 +71,7 @@ export function registerSqlSnippets(monaco) {
           documentation: 'JOIN statement',
           detail: 'INNER JOIN template',
           range,
+          sortText: 'z_join',
         },
         {
           label: 'leftjoin',
@@ -75,6 +81,7 @@ export function registerSqlSnippets(monaco) {
           documentation: 'LEFT JOIN statement',
           detail: 'LEFT JOIN template',
           range,
+          sortText: 'z_leftjoin',
         },
         {
           label: 'groupby',
@@ -84,6 +91,7 @@ export function registerSqlSnippets(monaco) {
           documentation: 'GROUP BY statement',
           detail: 'GROUP BY template',
           range,
+          sortText: 'z_groupby',
         },
         {
           label: 'createindex',
@@ -93,6 +101,7 @@ export function registerSqlSnippets(monaco) {
           documentation: 'CREATE INDEX statement',
           detail: 'CREATE INDEX template',
           range,
+          sortText: 'z_createindex',
         },
       ];
 
