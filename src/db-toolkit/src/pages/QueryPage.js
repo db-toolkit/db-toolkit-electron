@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Download, Plus, X, Bot, Loader2, Workflow } from 'lucide-react';
 import Split from 'react-split';
@@ -151,11 +151,14 @@ function QueryPage() {
     }
   };
 
+  const isFixingRef = useRef(false);
+
   // Auto-fix effect
   useEffect(() => {
     const triggerAutoFix = async () => {
-      if (!error || !query || fixSuggestion) return;
+      if (!error || !query || fixSuggestion || isFixingRef.current) return;
 
+      isFixingRef.current = true;
       try {
         console.log('Auto-fix effect triggered for error:', error);
         toast.info('Attempting to auto-fix query error...');
@@ -196,11 +199,14 @@ function QueryPage() {
       } catch (aiErr) {
         console.error('Auto-fix failed:', aiErr);
         toast.error(`Auto-fix failed: ${aiErr.message}`);
+      } finally {
+        isFixingRef.current = false;
       }
     };
 
     triggerAutoFix();
-  }, [error, query, schema]); // Dependencies ensure this runs when error appears
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error, query]); // Removed schema to prevent loops, added isFixing check
 
   const handleAcceptFix = () => {
     if (fixSuggestion) {
