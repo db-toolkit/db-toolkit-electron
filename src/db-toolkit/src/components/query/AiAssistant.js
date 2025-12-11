@@ -145,7 +145,7 @@ export function AiAssistant({
 
 
   return (
-    <div className="bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full">
+    <div className="bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -162,7 +162,7 @@ export function AiAssistant({
       </div>
 
       {/* Content */}
-      <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto">
+      <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto min-h-0">
         <div className="space-y-3 mb-4">
           {chatHistory.length === 0 ? (
             <div className="text-center text-gray-500 dark:text-gray-400 text-sm py-8">
@@ -210,7 +210,7 @@ export function AiAssistant({
       </div>
 
       {/* Input at bottom */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="relative">
           <textarea
             value={naturalLanguage}
