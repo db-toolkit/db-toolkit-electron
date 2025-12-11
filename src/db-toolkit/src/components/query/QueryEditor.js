@@ -18,6 +18,27 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema, error
   const { theme } = useTheme();
   const { settings } = useSettingsContext();
 
+  const handleExecuteWithFormat = () => {
+    // Format query before execution if setting is enabled
+    if (settings?.auto_format_on_paste && editorRef.current) {
+      try {
+        const formatted = format(query, {
+          language: 'postgresql',
+          tabWidth: 2,
+          keywordCase: 'upper',
+        });
+        onChange(formatted);
+        // Execute after a brief delay to allow state update
+        setTimeout(() => onExecute(), 50);
+      } catch (err) {
+        console.error('Format error:', err);
+        onExecute();
+      }
+    } else {
+      onExecute();
+    }
+  };
+
   // Update schema ref and clear cache when schema changes
   useEffect(() => {
     schemaRef.current = schema;
@@ -30,11 +51,12 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema, error
     editorRef.current = editor;
     monacoRef.current = monaco;
 
-    // Execute query: Ctrl+Enter
+    // Execute query: Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux)
     editor.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
       () => {
-        onExecute();
+        console.log('Cmd+Enter pressed');
+        handleExecuteWithFormat();
       }
     );
 
@@ -182,11 +204,11 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema, error
           <Button
             size="sm"
             icon={<Play size={16} />}
-            onClick={onExecute}
+            onClick={handleExecuteWithFormat}
             disabled={loading || !query.trim()}
             loading={loading}
           >
-            Run (Ctrl+Enter)
+            Run (Cmd+Enter)
           </Button>
         </div>
       </div>
