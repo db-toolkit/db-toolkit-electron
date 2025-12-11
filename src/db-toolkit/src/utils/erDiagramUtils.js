@@ -176,8 +176,8 @@ export function getLayoutedElements(nodes, edges, direction = 'LR') {
     let estimatedHeight = 60; // Header + padding
 
     if (columns.length > 10) {
-      const pks = columns.filter(c => c.primary_key || c.name === 'id').length;
-      const fks = columns.filter(c => c.foreign_key || c.name.endsWith('_id')).length;
+      const pks = columns.filter(c => c && (c.primary_key || c.name === 'id')).length;
+      const fks = columns.filter(c => c && (c.foreign_key || (typeof c.name === 'string' && c.name.endsWith('_id')))).length;
       const visibleCount = Math.max(pks + fks, 1); // At least 1 row
       estimatedHeight += (visibleCount * 28) + 30; // +30 for "more" link
     } else {
@@ -226,8 +226,8 @@ export function getPrimaryKeys(columns) {
  */
 export function getForeignKeys(columns) {
   return columns.filter(col =>
-    col.foreign_key ||
-    col.name.endsWith('_id')
+    col && (col.foreign_key ||
+      (typeof col.name === 'string' && col.name.endsWith('_id')))
   );
 }
 
