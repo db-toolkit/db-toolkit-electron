@@ -83,11 +83,16 @@ class DataEditor {
   }
 
   async updateSQL(connector, table, schema, primaryKey, changes) {
+    const escapeValue = (val) => {
+      if (val === null || val === undefined) return 'NULL';
+      return `'${String(val).replace(/'/g, "''")}'`;
+    };
+
     const setClause = Object.entries(changes)
-      .map(([col, val]) => `"${col}" = '${val}'`)
+      .map(([col, val]) => `"${col}" = ${escapeValue(val)}`)
       .join(', ');
     const whereClause = Object.entries(primaryKey)
-      .map(([col, val]) => `"${col}" = '${val}'`)
+      .map(([col, val]) => `"${col}" = ${escapeValue(val)}`)
       .join(' AND ');
 
     let query;
@@ -107,8 +112,13 @@ class DataEditor {
   }
 
   async insertSQL(connector, table, schema, data) {
+    const escapeValue = (val) => {
+      if (val === null || val === undefined) return 'NULL';
+      return `'${String(val).replace(/'/g, "''")}'`;
+    };
+
     const columns = Object.keys(data).map(col => `"${col}"`).join(', ');
-    const values = Object.values(data).map(val => `'${val}'`).join(', ');
+    const values = Object.values(data).map(val => escapeValue(val)).join(', ');
 
     let query;
     if (schema && schema !== 'main' && schema !== 'public') {
@@ -127,8 +137,13 @@ class DataEditor {
   }
 
   async deleteSQL(connector, table, schema, primaryKey) {
+    const escapeValue = (val) => {
+      if (val === null || val === undefined) return 'NULL';
+      return `'${String(val).replace(/'/g, "''")}'`;
+    };
+
     const whereClause = Object.entries(primaryKey)
-      .map(([col, val]) => `"${col}" = '${val}'`)
+      .map(([col, val]) => `"${col}" = ${escapeValue(val)}`)
       .join(' AND ');
 
     let query;
