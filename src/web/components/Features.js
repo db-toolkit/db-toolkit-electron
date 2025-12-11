@@ -13,25 +13,25 @@ export default function Features() {
     {
       icon: Code,
       title: 'Query Editor',
-      description: 'Monaco editor with syntax highlighting, autocomplete, and query formatting',
+      description: 'Monaco editor with syntax highlighting, autocomplete, and query formatting.',
       image: '/features/editor.png'
     },
     {
       icon: Zap,
       title: 'Data Explorer',
-      description: 'Browse, edit, and manage table data with inline editing and pagination',
+      description: 'Browse, edit, and manage table data with inline editing, pagination, CSV and JSON export.',
       image: '/features/data.png'
     },
     {
       icon: Lock,
       title: 'Automated Backups',
-      description: 'Schedule backups with retention policies and one-click restore',
+      description: 'Schedule backups with retention policies and one-click restore.',
       image: '/features/backup.png'
     },
     {
       icon: BarChart3,
       title: 'Real-time Analytics',
-      description: 'Monitor performance with live metrics and query execution insights',
+      description: 'Monitor performance with live metrics and query execution insights.',
       image: '/features/analytics.png'
     }
   ];
