@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Analytics Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: #f9fafb;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header .connection {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .header .timestamp {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #10b981;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .metric-unit {
+            font-size: 16px;
+            color: #6b7280;
+            margin-left: 4px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        thead {
+            background: #f3f4f6;
+        }
+        
+        th {
+            text-align: left;
+            padding: 12px;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+        
+        .query-text {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #4b5563;
+            background: #f3f4f6;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 4px;
+            word-break: break-all;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .chart-placeholder {
+            background: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #6b7280;
+            margin: 20px 0;
+        }
+        
+        .footer {
+            background: #f9fafb;
+            padding: 20px 40px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Database Analytics Report</h1>
+            <div class="connection">{{CONNECTION_NAME}}</div>
+            <div class="timestamp">Generated: {{TIMESTAMP}}</div>
+        </div>
+        
+        <div class="content">
+            <!-- Current Metrics -->
+            <div class="section">
+                <h2 class="section-title">Current Metrics</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Active Connections</div>
+                        <div class="metric-value">{{ACTIVE_CONNECTIONS}}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Idle Connections</div>
+                        <div class="metric-value">{{IDLE_CONNECTIONS}}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Database Size</div>
+                        <div class="metric-value">{{DATABASE_SIZE}}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Total Tables</div>
+                        <div class="metric-value">{{TOTAL_TABLES}}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Query Distribution -->
+            <div class="section">
+                <h2 class="section-title">Query Distribution</h2>
+                <div class="metrics-grid">
+                    {{QUERY_STATS}}
+                </div>
+            </div>
+            
+            <!-- Current Active Queries -->
+            <div class="section">
+                <h2 class="section-title">Current Active Queries</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PID</th>
+                            <th>User</th>
+                            <th>Duration</th>
+                            <th>State</th>
+                            <th>Query</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{CURRENT_QUERIES}}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Slow Query Log -->
+            <div class="section">
+                <h2 class="section-title">Slow Query Log (Last 24 Hours)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Duration</th>
+                            <th>Query</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{SLOW_QUERIES}}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Table Statistics -->
+            <div class="section">
+                <h2 class="section-title">Table Statistics (Top 20)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>Size</th>
+                            <th>Row Count</th>
+                            <th>Index Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{TABLE_STATS}}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Historical Trends -->
+            <div class="section">
+                <h2 class="section-title">Historical Trends</h2>
+                <div class="chart-placeholder">
+                    <p>📈 Historical data visualization</p>
+                    <p style="font-size: 12px; margin-top: 10px;">{{HISTORICAL_SUMMARY}}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Generated by DB Toolkit • Database Management & Analytics Platform</p>
+        </div>
+    </div>
+</body>
+</html>
