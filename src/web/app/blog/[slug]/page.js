@@ -117,7 +117,7 @@ export default function BlogPost({ params }) {
         {/* Author Bio */}
         {post.author && (
           <div className="mt-12">
-            <AuthorBio author={post.author} />
+            <AuthorBio authorName={post.author} />
           </div>
         )}
         
