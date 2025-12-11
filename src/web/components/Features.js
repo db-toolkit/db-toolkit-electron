@@ -25,7 +25,7 @@ export default function Features() {
     {
       icon: Lock,
       title: 'Automated Backups',
-      description: 'Schedule backups with multiple formats (SQL, JSON, CSV), retention policies, and one-click restore.',
+      description: 'Schedule backups with multiple backup types, retention policies, and one-click restore.',
       image: '/features/backup.png'
     },
     {

@@ -22,7 +22,7 @@ export default function FAQ() {
     },
     {
       question: 'Can I backup my databases?',
-      answer: 'Yes, DB Toolkit includes automated backup scheduling with retention policies and manual backup options.'
+      answer: 'Yes, DB Toolkit includes automated backup scheduling with retention policies, multiple backup types, and manual backup options.'
     },
     {
       question: 'Does it support database migrations?',
@@ -30,7 +30,7 @@ export default function FAQ() {
     },
     {
       question: 'Is my data secure?',
-      answer: 'Yes, all credentials are encrypted and stored securely. DB Toolkit uses parameterized queries to prevent SQL injection.'
+      answer: 'Yes, your data is stored locally on your computer. All credentials are encrypted and stored securely. DB Toolkit uses parameterized queries to prevent SQL injection.'
     }
   ];
 
