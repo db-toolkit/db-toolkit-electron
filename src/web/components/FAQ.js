@@ -25,12 +25,16 @@ export default function FAQ() {
       answer: 'Yes, DB Toolkit includes automated backup scheduling with retention policies, multiple backup types, and manual backup options.'
     },
     {
-      question: 'Does it support database migrations?',
-      answer: 'Yes, DB Toolkit has integrated migration support with real-time output streaming and project-based management.'
+      question: 'Can I export query results?',
+      answer: 'Yes, you can export query results and table data to CSV and JSON formats with one click.'
+    },
+    {
+      question: 'Does it work offline?',
+      answer: 'Yes, DB Toolkit is a desktop application that works completely offline. No internet connection required.'
     },
     {
       question: 'Is my data secure?',
-      answer: 'Yes, your data is stored locally on your computer. All credentials are encrypted and stored securely. DB Toolkit uses parameterized queries to prevent SQL injection.'
+      answer: 'Yes, your data is stored locally on your computer. DB Toolkit uses parameterized queries to prevent SQL injection.'
     }
   ];
 
