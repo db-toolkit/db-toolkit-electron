@@ -32,12 +32,12 @@ export function detectRelationships(schema) {
   // Detect relationships
   allTables.forEach((table, tableName) => {
     if (!table.columns || !Array.isArray(table.columns)) return;
-    
+
     table.columns.forEach(column => {
       if (!column || !column.name) return;
-      
+
       const sourceId = `${table.schemaName}.${tableName}`;
-      
+
       // Detect foreign keys by naming convention or constraints
       if (column.foreign_key) {
         const targetId = `${table.schemaName}.${column.foreign_key.table}`;
@@ -50,20 +50,27 @@ export function detectRelationships(schema) {
           type: 'foreignKey'
         });
       }
-      // Fallback: detect by naming convention (e.g., user_id -> users.id)
+      // Fallback: detect by naming convention (e.g., user_id -> users.id or user.id)
       else if (typeof column.name === 'string' && column.name.endsWith('_id')) {
-        const targetTable = column.name.replace('_id', 's');
-        if (allTables.has(targetTable)) {
-          const target = allTables.get(targetTable);
-          const targetId = `${target.schemaName}.${targetTable}`;
-          relationships.push({
-            id: `${sourceId}-${column.name}`,
-            source: sourceId,
-            target: targetId,
-            sourceColumn: column.name,
-            targetColumn: 'id',
-            type: 'inferred'
-          });
+        const baseName = column.name.replace('_id', '');
+        const potentialTargets = [baseName, `${baseName}s`, `${baseName}es`];
+
+        for (const targetTable of potentialTargets) {
+          if (allTables.has(targetTable)) {
+            const target = allTables.get(targetTable);
+            // Avoid self-referencing inferred relationships if not intended (optional check)
+
+            const targetId = `${target.schemaName}.${targetTable}`;
+            relationships.push({
+              id: `${sourceId}-${column.name}`,
+              source: sourceId,
+              target: targetId,
+              sourceColumn: column.name,
+              targetColumn: 'id',
+              type: 'inferred'
+            });
+            break; // Found a match, stop searching
+          }
         }
       }
     });
@@ -145,16 +152,15 @@ export function relationshipsToEdges(relationships) {
 export function getLayoutedElements(nodes, edges, direction = 'LR') {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
-  
-  const nodeWidth = 250;
-  const nodeHeight = 200;
-  
+
+  const nodeWidth = 280; // Slightly wider for better readability
+
   // Dynamic spacing based on number of nodes
   const nodeCount = nodes.length;
   const nodesep = nodeCount > 20 ? 80 : nodeCount > 10 ? 100 : 120;
   const ranksep = nodeCount > 20 ? 120 : nodeCount > 10 ? 150 : 180;
 
-  dagreGraph.setGraph({ 
+  dagreGraph.setGraph({
     rankdir: direction,
     nodesep,
     ranksep,
@@ -163,7 +169,25 @@ export function getLayoutedElements(nodes, edges, direction = 'LR') {
   });
 
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    // Calculate dynamic height based on columns
+    // Header (40) + Padding (20) + Columns * 28
+    // Assume collapsed state for > 10 columns: Header + (PKs+FKs)*28 + "More"*20 + Padding
+    const columns = node.data.columns || [];
+    let estimatedHeight = 60; // Header + padding
+
+    if (columns.length > 10) {
+      const pks = columns.filter(c => c.primary_key || c.name === 'id').length;
+      const fks = columns.filter(c => c.foreign_key || c.name.endsWith('_id')).length;
+      const visibleCount = Math.max(pks + fks, 1); // At least 1 row
+      estimatedHeight += (visibleCount * 28) + 30; // +30 for "more" link
+    } else {
+      estimatedHeight += (columns.length * 28);
+    }
+
+    // Min height 100, Max height 500
+    const height = Math.min(Math.max(estimatedHeight, 100), 500);
+
+    dagreGraph.setNode(node.id, { width: nodeWidth, height });
   });
 
   edges.forEach((edge) => {
@@ -178,7 +202,7 @@ export function getLayoutedElements(nodes, edges, direction = 'LR') {
       ...node,
       position: {
         x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2,
+        y: nodeWithPosition.y - (dagreGraph.node(node.id).height / 2),
       },
     };
   });
@@ -190,9 +214,9 @@ export function getLayoutedElements(nodes, edges, direction = 'LR') {
  * Find primary key columns
  */
 export function getPrimaryKeys(columns) {
-  return columns.filter(col => 
-    col.primary_key || 
-    col.name === 'id' || 
+  return columns.filter(col =>
+    col.primary_key ||
+    col.name === 'id' ||
     col.name.toLowerCase().includes('_pk')
   );
 }
@@ -201,8 +225,8 @@ export function getPrimaryKeys(columns) {
  * Find foreign key columns
  */
 export function getForeignKeys(columns) {
-  return columns.filter(col => 
-    col.foreign_key || 
+  return columns.filter(col =>
+    col.foreign_key ||
     col.name.endsWith('_id')
   );
 }
@@ -212,9 +236,9 @@ export function getForeignKeys(columns) {
  */
 export function filterNodesBySearch(nodes, searchQuery) {
   if (!searchQuery.trim()) return nodes;
-  
+
   const query = searchQuery.toLowerCase();
-  return nodes.filter(node => 
+  return nodes.filter(node =>
     node.data?.label?.toLowerCase().includes(query) ||
     node.data?.schema?.toLowerCase().includes(query) ||
     node.data?.columns?.some(col => col?.name?.toLowerCase().includes(query))
