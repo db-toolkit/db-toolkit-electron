@@ -5,6 +5,9 @@ import { getPostBySlug, getAllPostSlugs, getAllPosts } from '@/utils/blog';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { Inter } from 'next/font/google';
 import BlogCard from '@/components/BlogCard';
+import TableOfContents from '@/components/TableOfContents';
+import AuthorBio from '@/components/AuthorBio';
+import { generateTOC } from '@/utils/toc';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,6 +28,8 @@ const components = {
       )}
     </figure>
   ),
+  h2: (props) => <h2 id={props.children?.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')} {...props} />,
+  h3: (props) => <h3 id={props.children?.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')} {...props} />,
 };
 
 export function generateStaticParams() {
@@ -34,6 +39,7 @@ export function generateStaticParams() {
 export default function BlogPost({ params }) {
   const post = getPostBySlug(params.slug);
   const allPosts = getAllPosts();
+  const toc = generateTOC(post.content);
   
   // Get related posts based on tags
   const relatedPosts = allPosts
@@ -42,7 +48,9 @@ export default function BlogPost({ params }) {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 pt-24">
-      <article className="container mx-auto px-6 max-w-4xl py-12">
+      <div className="container mx-auto px-6 py-12">
+        <div className="max-w-7xl mx-auto flex gap-8">
+          <article className="flex-1 max-w-4xl">
         <Link
           href="/blog"
           className="inline-flex items-center gap-2 px-4 py-2 text-cyan-600 dark:text-teal-400 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg transition-all hover:scale-105 mb-8 font-medium"
@@ -106,6 +114,13 @@ export default function BlogPost({ params }) {
           </div>
         </div>
         
+        {/* Author Bio */}
+        {post.author && (
+          <div className="mt-12">
+            <AuthorBio author={post.author} />
+          </div>
+        )}
+        
         {/* Related Posts */}
         {relatedPosts.length > 0 && (
           <div className="mt-16">
@@ -120,6 +135,13 @@ export default function BlogPost({ params }) {
           </div>
         )}
       </article>
+      
+      {/* Table of Contents */}
+      <aside className="w-64 flex-shrink-0">
+        <TableOfContents headings={toc} />
+      </aside>
+    </div>
+    </div>
     </main>
   );
 }
