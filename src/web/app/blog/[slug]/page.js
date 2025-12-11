@@ -27,12 +27,13 @@ export default function BlogPost({ params }) {
         
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           {post.image && (
-            <div className="relative h-96 w-full">
+            <div className="relative w-full h-auto">
               <Image
                 src={post.image}
                 alt={post.title}
-                fill
-                className="object-cover"
+                width={1200}
+                height={630}
+                className="w-full h-auto"
                 priority
               />
             </div>
