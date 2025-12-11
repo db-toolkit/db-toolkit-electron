@@ -73,7 +73,7 @@ function Layout({ children }) {
     const savedQueries = JSON.parse(localStorage.getItem('query-tabs') || '[]');
     setConnections(savedConnections);
     setQueries(savedQueries);
-    
+
     // Update recent connections in menu
     if (window.electron?.updateRecentConnections) {
       const recent = savedConnections
@@ -107,43 +107,43 @@ function Layout({ children }) {
             <Sidebar />
           </div>
           <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex justify-end items-center gap-2">
-          <NotificationCenter />
-          <Tooltip text="Application settings">
-            <button
-              onClick={() => setShowSettings(true)}
-              className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-            >
-              <Settings size={20} />
-              <span className="hidden sm:inline text-sm font-medium">Settings</span>
-            </button>
-          </Tooltip>
-        </header>
-        <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
-          {children}
-        </main>
-        <StatusBar />
+            <header className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex justify-end items-center gap-2">
+              <NotificationCenter />
+              <Tooltip text="Application settings">
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+                >
+                  <Settings size={20} />
+                  <span className="hidden sm:inline text-sm font-medium">Settings</span>
+                </button>
+              </Tooltip>
+            </header>
+            <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
+              {children}
+            </main>
+            <StatusBar />
           </div>
         </Split>
       ) : (
         <div className="flex h-full">
           <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex justify-end items-center gap-2">
-            <NotificationCenter />
-            <Tooltip text="Application settings">
-              <button
-                onClick={() => setShowSettings(true)}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-              >
-                <Settings size={20} />
-                <span className="hidden sm:inline text-sm font-medium">Settings</span>
-              </button>
-            </Tooltip>
-          </header>
-          <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
-            {children}
-          </main>
-          <StatusBar />
+            <header className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex justify-end items-center gap-2">
+              <NotificationCenter />
+              <Tooltip text="Application settings">
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+                >
+                  <Settings size={20} />
+                  <span className="hidden sm:inline text-sm font-medium">Settings</span>
+                </button>
+              </Tooltip>
+            </header>
+            <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
+              {children}
+            </main>
+            <StatusBar />
           </div>
         </div>
       )}
@@ -151,8 +151,8 @@ function Layout({ children }) {
       <KeyboardShortcutsModal isOpen={showKeyboardShortcuts} onClose={() => setShowKeyboardShortcuts(false)} />
       <ReportIssueModal isOpen={showReportIssue} onClose={() => setShowReportIssue(false)} />
 
-      <CommandPalette 
-        isOpen={showCommandPalette} 
+      <CommandPalette
+        isOpen={showCommandPalette}
         onClose={() => setShowCommandPalette(false)}
         connections={connections}
         queries={queries}
