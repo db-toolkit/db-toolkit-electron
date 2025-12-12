@@ -52,6 +52,16 @@ export function WorkspaceProvider({ children }) {
 
     const createWorkspace = useCallback(async (connectionId, connectionName, connectionType) => {
         try {
+            // Check workspace limit
+            if (workspaces.length >= 10) {
+                const confirmed = window.confirm(
+                    'You have reached the recommended limit of 10 workspaces.\n\n' +
+                    'Having more than 10 workspaces open simultaneously may impact RAM usage and application performance.\n\n' +
+                    'Do you want to continue and create another workspace?'
+                );
+                if (!confirmed) return null;
+            }
+
             const result = await ipc.createWorkspace(connectionId, connectionName, connectionType);
 
             if (result.success) {
@@ -65,7 +75,7 @@ export function WorkspaceProvider({ children }) {
             console.error('Failed to create workspace:', error);
             throw error;
         }
-    }, []);
+    }, [workspaces.length, ipc]);
 
     const closeWorkspace = useCallback(async (workspaceId) => {
         try {
