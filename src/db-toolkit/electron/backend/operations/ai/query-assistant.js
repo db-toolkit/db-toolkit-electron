@@ -248,8 +248,14 @@ function getQueryAssistant() {
     try {
       const { logger } = require('../../utils/logger');
       
-      // Load .env file from project root
-      require('dotenv').config({ path: require('path').join(__dirname, '../../../../../../.env') });
+      // Best-effort load of .env when available; ignore if missing (packaged apps)
+      try {
+        const dotenv = require('dotenv');
+        const path = require('path');
+        dotenv.config({ path: path.join(__dirname, '../../../../../../.env') });
+      } catch (envError) {
+        logger.warn('dotenv not found or .env missing, falling back to process env');
+      }
       
       const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
       const apiToken = process.env.CLOUDFLARE_API_TOKEN;
