@@ -13,6 +13,9 @@ function createWindow() {
     height: 800,
     title: 'DB Toolkit',
     icon: iconPath,
+    frame: false,
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 10, y: 10 },
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

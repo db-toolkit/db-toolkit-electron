@@ -10,7 +10,7 @@ import { SettingsModal } from '../settings/SettingsModal';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 import { ReportIssueModal } from './ReportIssueModal';
 import { Tooltip } from './Tooltip';
-import { WorkspaceTabBar } from '../workspace/WorkspaceTabBar';
+import { CustomTitleBar } from '../titlebar/CustomTitleBar';
 
 
 function Layout({ children }) {
@@ -92,6 +92,7 @@ function Layout({ children }) {
 
   return (
     <div className="h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
+      <CustomTitleBar />
       {showSidebar ? (
         <Split
           sizes={[sidebarWidth, 100 - sidebarWidth]}
@@ -103,6 +104,7 @@ function Layout({ children }) {
             localStorage.setItem('sidebar-width', sizes[0]);
           }}
           className="flex h-full"
+          style={{ height: 'calc(100vh - 40px)' }}
         >
           <div>
             <Sidebar />
@@ -120,7 +122,6 @@ function Layout({ children }) {
                 </button>
               </Tooltip>
             </header>
-            <WorkspaceTabBar />
             <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
               {children}
             </main>
@@ -128,7 +129,7 @@ function Layout({ children }) {
           </div>
         </Split>
       ) : (
-        <div className="flex h-full">
+        <div className="flex h-full" style={{ height: 'calc(100vh - 40px)' }}>
           <div className="flex-1 flex flex-col overflow-hidden">
             <header className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex justify-end items-center gap-2">
               <NotificationCenter />
@@ -142,7 +143,6 @@ function Layout({ children }) {
                 </button>
               </Tooltip>
             </header>
-            <WorkspaceTabBar />
             <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
               {children}
             </main>

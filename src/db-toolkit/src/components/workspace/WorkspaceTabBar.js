@@ -56,7 +56,7 @@ export function WorkspaceTabBar() {
 
 
     return (
-        <div className="flex items-center bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+        <div className="flex items-center overflow-x-auto">
             {/* Workspace Tabs */}
             <div className="flex items-center flex-1 overflow-x-auto">
                 {workspaces.map((workspace, index) => (
