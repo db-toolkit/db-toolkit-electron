@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useWorkspace } from '../components/workspace/WorkspaceProvider';
 import { Download, Plus, X, Bot, Loader2, Workflow } from 'lucide-react';
 import Split from 'react-split';
@@ -19,8 +19,10 @@ import { cacheService } from '../services/indexedDB';
 
 function QueryPage() {
   const { connectionId } = useParams();
+  const location = useLocation();
   const { activeWorkspace, setHasUnsavedChanges } = useWorkspace();
-  const [tabs, setTabs] = useState([{ id: 1, name: 'Query 1', query: '', result: null, executionTime: 0, error: null, chatHistory: [], saved: true }]);
+  const initialQuery = location.state?.initialQuery || '';
+  const [tabs, setTabs] = useState([{ id: 1, name: 'Query 1', query: initialQuery, result: null, executionTime: 0, error: null, chatHistory: [], saved: !initialQuery }]);
   const [activeTabId, setActiveTabId] = useState(1);
   const [showExport, setShowExport] = useState(false);
   const [showAiAssistant, setShowAiAssistant] = useState(false);

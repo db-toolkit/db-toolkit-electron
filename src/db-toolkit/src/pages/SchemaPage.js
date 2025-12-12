@@ -39,6 +39,44 @@ function SchemaPage() {
     setSelectedTable({ schema: schemaName, table: tableName });
   };
 
+  const handleViewData = (schemaName, tableName) => {
+    navigate(`/data-explorer?connection=${connectionId}&schema=${schemaName}&table=${tableName}`);
+  };
+
+  const handleGenerateQuery = (query) => {
+    navigate(`/query/${connectionId}`, { state: { initialQuery: query } });
+  };
+
+  const handleAnalyzeTable = async (schemaName, tableName, tableData) => {
+    try {
+      const result = await analyzeSchema(schemaName, false);
+      setSchemaAnalysis(result);
+      setShowAiPanel(true);
+      toast.success(`Analyzing ${tableName}...`);
+    } catch (err) {
+      toast.error('Failed to analyze table');
+    }
+  };
+
+  const handleRefreshTable = async (schemaName, tableName) => {
+    try {
+      await refreshSchema();
+      toast.success(`Refreshed ${tableName}`);
+    } catch (err) {
+      toast.error('Failed to refresh table');
+    }
+  };
+
+  const handleDropTable = async (schemaName, tableName) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to drop table "${schemaName}.${tableName}"?\n\nThis action cannot be undone!`
+    );
+    
+    if (confirmed) {
+      toast.error('Drop table functionality not yet implemented. Use Query Editor to execute DROP TABLE.');
+    }
+  };
+
   const handleAnalyzeSchema = async (forceRefresh = false) => {
     if (!schema?.schemas || Object.keys(schema.schemas).length === 0) {
       toast.error('No schema to analyze');
@@ -129,7 +167,15 @@ function SchemaPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
           {schema && !schema.error ? (
-            <SchemaTree schema={schema} onTableClick={handleTableClick} />
+            <SchemaTree 
+              schema={schema} 
+              onTableClick={handleTableClick}
+              onViewData={handleViewData}
+              onGenerateQuery={handleGenerateQuery}
+              onAnalyzeWithAI={handleAnalyzeTable}
+              onRefreshTable={handleRefreshTable}
+              onDropTable={handleDropTable}
+            />
           ) : (
             <EmptyState
               icon={FolderTree}

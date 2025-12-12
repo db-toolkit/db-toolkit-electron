@@ -1,12 +1,25 @@
 import { useState, useMemo, useCallback, memo } from 'react';
 import { ChevronRight, ChevronDown, Database, Table, Search } from 'lucide-react';
 import { useDebounce } from '../../utils/debounce';
+import { ContextMenu, useContextMenu } from '../common/ContextMenu';
+import { getTableContextMenuItems } from '../../utils/contextMenuActions';
+import { useToast } from '../../contexts/ToastContext';
 
-const SchemaTree = memo(function SchemaTree({ schema, onTableClick }) {
+const SchemaTree = memo(function SchemaTree({ 
+  schema, 
+  onTableClick, 
+  onViewData, 
+  onGenerateQuery, 
+  onAnalyzeWithAI, 
+  onRefreshTable, 
+  onDropTable 
+}) {
   const [expandedSchemas, setExpandedSchemas] = useState({});
   const [selectedTable, setSelectedTable] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300);
+  const contextMenu = useContextMenu();
+  const toast = useToast();
 
   const toggleSchema = useCallback((schemaName) => {
     setExpandedSchemas((prev) => ({ ...prev, [schemaName]: !prev[schemaName] }));
@@ -82,6 +95,8 @@ const SchemaTree = memo(function SchemaTree({ schema, onTableClick }) {
                   {tableNames.map((tableName) => {
                     const tableKey = `${schemaName}.${tableName}`;
                     const isSelected = selectedTable === tableKey;
+                    const tableData = tables[tableName];
+                    
                     return (
                       <div
                         key={tableName}
@@ -89,6 +104,11 @@ const SchemaTree = memo(function SchemaTree({ schema, onTableClick }) {
                           isSelected ? 'bg-green-50 dark:bg-green-900/20 border-l-2 border-l-green-500' : ''
                         }`}
                         onClick={() => handleTableClick(schemaName, tableName)}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          contextMenu.open(e, { schemaName, tableName, tableData });
+                        }}
                       >
                         <Table size={14} className="text-green-600 dark:text-green-400" />
                         <span className="text-sm text-gray-700 dark:text-gray-300">{tableName}</span>
@@ -101,6 +121,23 @@ const SchemaTree = memo(function SchemaTree({ schema, onTableClick }) {
           );
         })}
       </div>
+      
+      <ContextMenu
+        isOpen={contextMenu.isOpen}
+        position={contextMenu.position}
+        onClose={contextMenu.close}
+        items={contextMenu.data ? getTableContextMenuItems({
+          schemaName: contextMenu.data.schemaName,
+          tableName: contextMenu.data.tableName,
+          tableData: contextMenu.data.tableData,
+          onViewData,
+          onGenerateQuery,
+          onAnalyzeWithAI,
+          onRefresh: onRefreshTable,
+          onDrop: onDropTable,
+          toast
+        }) : []}
+      />
     </div>
   );
 });
