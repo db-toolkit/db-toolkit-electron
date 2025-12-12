@@ -7,7 +7,7 @@ import { WorkspaceTab } from './WorkspaceTab';
 import { useNavigate } from 'react-router-dom';
 
 export function WorkspaceTabBar() {
-    const { workspaces, activeWorkspaceId, switchWorkspace, closeWorkspace, createWorkspace } = useWorkspace();
+    const { workspaces, activeWorkspaceId, switchWorkspace, closeWorkspace, createWorkspace, updateWorkspace } = useWorkspace();
     const navigate = useNavigate();
 
     const handleNewWorkspace = async () => {
@@ -39,6 +39,7 @@ export function WorkspaceTabBar() {
                         isActive={workspace.id === activeWorkspaceId}
                         onClick={handleTabClick}
                         onClose={handleCloseTab}
+                        onUpdate={updateWorkspace}
                     />
                 ))}
             </div>

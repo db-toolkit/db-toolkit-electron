@@ -8,7 +8,7 @@ const ipc = {
     invoke: (channel, ...args) => window.electron.ipcRenderer.invoke(channel, ...args)
 };
 
-export function WorkspaceTab({ workspace, isActive, onClick, onClose }) {
+export function WorkspaceTab({ workspace, isActive, onClick, onClose, onUpdate }) {
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [isRenaming, setIsRenaming] = useState(false);
@@ -54,8 +54,7 @@ export function WorkspaceTab({ workspace, isActive, onClick, onClose }) {
 
     const handleRenameSubmit = async () => {
         if (newName.trim() && newName !== workspace.connectionName) {
-            await ipc.invoke('workspace:update', workspace.id, { connectionName: newName.trim() });
-            window.location.reload();
+            await onUpdate(workspace.id, { connectionName: newName.trim() });
         }
         setIsRenaming(false);
     };
@@ -104,7 +103,7 @@ export function WorkspaceTab({ workspace, isActive, onClick, onClose }) {
                     onChange={(e) => setNewName(e.target.value)}
                     onBlur={handleRenameSubmit}
                     onKeyDown={handleRenameKeyDown}
-                    className="text-sm font-medium flex-1 bg-white dark:bg-gray-700 border border-green-500 rounded px-1 outline-none"
+                    className="text-sm font-medium flex-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-500 rounded px-1 outline-none"
                     onClick={(e) => e.stopPropagation()}
                 />
             ) : (

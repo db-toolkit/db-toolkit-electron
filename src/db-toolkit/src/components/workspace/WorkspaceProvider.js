@@ -130,6 +130,21 @@ export function WorkspaceProvider({ children }) {
         }
     }, [location.pathname, activeWorkspaceId]);
 
+    const updateWorkspace = useCallback(async (workspaceId, updates) => {
+        try {
+            const result = await ipc.invoke('workspace:update', workspaceId, updates);
+            if (result.success) {
+                setWorkspaces(prev => prev.map(w =>
+                    w.id === workspaceId ? result.workspace : w
+                ));
+            }
+            return result.success;
+        } catch (error) {
+            console.error('Failed to update workspace:', error);
+            return false;
+        }
+    }, []);
+
     const value = {
         workspaces,
         activeWorkspaceId,
@@ -139,6 +154,7 @@ export function WorkspaceProvider({ children }) {
         closeWorkspace,
         switchWorkspace,
         updateWorkspaceState,
+        updateWorkspace,
         loadWorkspaces
     };
 
