@@ -1,7 +1,7 @@
 /**
  * Individual Workspace Tab Component
  */
-import { X, Database, Edit2, Trash2 } from 'lucide-react';
+import { X, Database, Edit2, Trash2, Palette } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 const ipc = {
@@ -12,9 +12,18 @@ export function WorkspaceTab({ workspace, isActive, onClick, onClose, onUpdate }
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [isRenaming, setIsRenaming] = useState(false);
+    const [showColorPicker, setShowColorPicker] = useState(false);
     const [newName, setNewName] = useState(workspace.connectionName);
     const menuRef = useRef(null);
     const inputRef = useRef(null);
+    const colorPickerRef = useRef(null);
+
+    const colors = [
+        '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16',
+        '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
+        '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
+        '#ec4899', '#f43f5e'
+    ];
 
     useEffect(() => {
         if (isRenaming && inputRef.current) {
@@ -28,12 +37,15 @@ export function WorkspaceTab({ workspace, isActive, onClick, onClose, onUpdate }
             if (menuRef.current && !menuRef.current.contains(e.target)) {
                 setShowContextMenu(false);
             }
+            if (colorPickerRef.current && !colorPickerRef.current.contains(e.target)) {
+                setShowColorPicker(false);
+            }
         };
-        if (showContextMenu) {
+        if (showContextMenu || showColorPicker) {
             document.addEventListener('mousedown', handleClickOutside);
             return () => document.removeEventListener('mousedown', handleClickOutside);
         }
-    }, [showContextMenu]);
+    }, [showContextMenu, showColorPicker]);
 
     const handleClose = (e) => {
         e.stopPropagation();
@@ -66,6 +78,16 @@ export function WorkspaceTab({ workspace, isActive, onClick, onClose, onUpdate }
             setNewName(workspace.connectionName);
             setIsRenaming(false);
         }
+    };
+
+    const handleChangeColor = () => {
+        setShowContextMenu(false);
+        setShowColorPicker(true);
+    };
+
+    const handleColorSelect = async (color) => {
+        await onUpdate(workspace.id, { color });
+        setShowColorPicker(false);
     };
 
     const handleDelete = async () => {
@@ -143,12 +165,40 @@ export function WorkspaceTab({ workspace, isActive, onClick, onClose, onUpdate }
                         Rename
                     </button>
                     <button
+                        onClick={handleChangeColor}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                        <Palette size={14} />
+                        Change Color
+                    </button>
+                    <button
                         onClick={handleDelete}
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                         <Trash2 size={14} />
                         Delete
                     </button>
+                </div>
+            )}
+
+            {/* Color Picker */}
+            {showColorPicker && (
+                <div
+                    ref={colorPickerRef}
+                    className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3 z-50"
+                    style={{ left: menuPosition.x, top: menuPosition.y }}
+                >
+                    <div className="grid grid-cols-6 gap-2">
+                        {colors.map(color => (
+                            <button
+                                key={color}
+                                onClick={() => handleColorSelect(color)}
+                                className="w-6 h-6 rounded-full hover:scale-110 transition-transform"
+                                style={{ backgroundColor: color }}
+                                title={color}
+                            />
+                        ))}
+                    </div>
                 </div>
             )}
         </div>
