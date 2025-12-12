@@ -11,9 +11,25 @@ export function WorkspaceProvider({ children }) {
     const [workspaces, setWorkspaces] = useState([]);
     const [activeWorkspaceId, setActiveWorkspaceId] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [maxWorkspaces, setMaxWorkspaces] = useState(10);
     const location = useLocation();
     const navigate = useNavigate();
     const ipc = useWorkspaceIPC();
+
+    // Load settings to get maxWorkspaces
+    useEffect(() => {
+        const loadSettings = async () => {
+            try {
+                const result = await window.electron.ipcRenderer.invoke('settings:get');
+                if (result.success) {
+                    setMaxWorkspaces(result.settings.workspaces?.maxWorkspaces || 10);
+                }
+            } catch (error) {
+                console.error('Failed to load workspace settings:', error);
+            }
+        };
+        loadSettings();
+    }, []);
 
     // Load workspaces on mount and create default if none exist
     useEffect(() => {
@@ -53,12 +69,17 @@ export function WorkspaceProvider({ children }) {
     const createWorkspace = useCallback(async (connectionId, connectionName, connectionType) => {
         try {
             // Check workspace limit
-            if (workspaces.length >= 10) {
-                const confirmed = window.confirm(
-                    'You have reached the recommended limit of 10 workspaces.\n\n' +
-                    'Having more than 10 workspaces open simultaneously may impact RAM usage and application performance.\n\n' +
-                    'Do you want to continue and create another workspace?'
-                );
+            if (workspaces.length >= maxWorkspaces) {
+                const message = maxWorkspaces > 10
+                    ? `You have reached the maximum limit of ${maxWorkspaces} workspaces.\n\nPlease close some workspaces before creating new ones, or increase the limit in Settings.`
+                    : `You have reached the recommended limit of ${maxWorkspaces} workspaces.\n\nHaving more than 10 workspaces open simultaneously may impact RAM usage and application performance.\n\nDo you want to continue and create another workspace?`;
+                
+                if (maxWorkspaces > 10) {
+                    window.alert(message);
+                    return null;
+                }
+                
+                const confirmed = window.confirm(message);
                 if (!confirmed) return null;
             }
 
@@ -75,7 +96,7 @@ export function WorkspaceProvider({ children }) {
             console.error('Failed to create workspace:', error);
             throw error;
         }
-    }, [workspaces.length, ipc]);
+    }, [workspaces.length, maxWorkspaces, ipc]);
 
     const closeWorkspace = useCallback(async (workspaceId) => {
         try {

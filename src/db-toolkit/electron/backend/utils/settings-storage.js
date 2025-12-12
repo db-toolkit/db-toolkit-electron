@@ -20,6 +20,10 @@ const DEFAULT_SETTINGS = {
   default_db_type: 'postgresql',
   connection_timeout: 10,
   auto_reconnect: true,
+  workspaces: {
+    enabled: true,
+    maxWorkspaces: 10
+  }
 };
 
 class SettingsStorage {
