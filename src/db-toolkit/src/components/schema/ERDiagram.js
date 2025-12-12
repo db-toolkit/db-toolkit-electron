@@ -13,6 +13,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Download, Minimize2, ArrowDown, ArrowRight, ArrowUp, ArrowLeft, Search, RotateCcw } from 'lucide-react';
+import { useToast } from '../../contexts/ToastContext';
 import TableNode from './TableNode';
 import {
   schemaToNodes,
@@ -38,7 +39,9 @@ export function ERDiagram({ schema, onClose }) {
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [exporting, setExporting] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(100);
   const { fitView, getViewport } = useReactFlow();
+  const toast = useToast();
 
   // Generate nodes and edges from schema
   const initialNodes = useMemo(() => schemaToNodes(schema), [schema]);
@@ -66,22 +69,28 @@ export function ERDiagram({ schema, onClose }) {
     setTimeout(() => fitView({ padding: 0.2, duration: 300 }), 300);
   }, [setNodes, fitView]);
 
-  // Save layout direction to localStorage
+  // Save layout direction and update layout (combined effect)
   useEffect(() => {
     localStorage.setItem('er-diagram-layout', layoutDirection);
-  }, [layoutDirection]);
-
-  // Update nodes when layout direction changes
-  useEffect(() => {
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
-  }, [layoutDirection, setNodes, setEdges]);
 
-  // Fit view after layout update
-  useEffect(() => {
+    // Fit view after a short delay
     const timer = setTimeout(() => fitView({ padding: 0.2, duration: 300 }), 100);
     return () => clearTimeout(timer);
-  }, [layoutDirection, fitView]);
+  }, [layoutDirection, layoutedNodes, layoutedEdges, setNodes, setEdges, fitView]);
+
+  // Track zoom level
+  useEffect(() => {
+    const updateZoom = () => {
+      const viewport = getViewport();
+      setZoomLevel(Math.round(viewport.zoom * 100));
+    };
+
+    updateZoom();
+    const interval = setInterval(updateZoom, 500);
+    return () => clearInterval(interval);
+  }, [getViewport]);
 
   // Filter nodes by search
   const filteredNodes = useMemo(() => {
@@ -158,7 +167,7 @@ export function ERDiagram({ schema, onClose }) {
     const flowElement = document.querySelector('.react-flow__viewport');
 
     if (!flowElement) {
-      alert('Unable to export. Please try browser screenshot instead.');
+      toast.error('Unable to export diagram. Please try using your browser\'s screenshot feature.');
       return;
     }
 
@@ -183,13 +192,14 @@ export function ERDiagram({ schema, onClose }) {
       link.click();
 
       URL.revokeObjectURL(url);
+      toast.success('Diagram exported successfully');
     } catch (err) {
       console.error('Export failed:', err);
-      alert('Export failed. Use browser screenshot: Ctrl+Shift+S (Windows) or Cmd+Shift+4 (Mac)');
+      toast.error('Export failed. Try using browser screenshot: Ctrl+Shift+S (Windows) or Cmd+Shift+4 (Mac)');
     } finally {
       setExporting(false);
     }
-  }, []);
+  }, [toast]);
 
   return (
     <div className="fixed inset-0 z-50 bg-white dark:bg-gray-900">
