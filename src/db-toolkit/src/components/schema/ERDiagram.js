@@ -7,22 +7,21 @@ import ReactFlow, {
   Controls,
   Background,
   useNodesState,
-  useEdgesState,
-  Panel,
-  useReactFlow
+  useEdgesState
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Download, Minimize2, ArrowDown, ArrowRight, ArrowUp, ArrowLeft, Search, RotateCcw } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import TableNode from './TableNode';
+import { ERDToolbar } from './erd/ERDToolbar';
+import { ERDLegend } from './erd/ERDLegend';
+import { useERDLayout } from './erd/useERDLayout';
+import { useERDInteractions } from './erd/useERDInteractions';
 import {
   schemaToNodes,
   detectRelationships,
   relationshipsToEdges,
-  getLayoutedElements,
   filterNodesBySearch
 } from '../../utils/erDiagramUtils';
-import { Button } from '../common/Button';
 
 const nodeTypes = {
   tableNode: TableNode,
@@ -34,13 +33,7 @@ const defaultEdgeOptions = {
 };
 
 export function ERDiagram({ schema, onClose }) {
-  const [layoutDirection, setLayoutDirection] = useState(() => {
-    return localStorage.getItem('er-diagram-layout') || 'LR';
-  });
-  const [searchQuery, setSearchQuery] = useState('');
   const [exporting, setExporting] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(100);
-  const { fitView, getViewport } = useReactFlow();
   const toast = useToast();
 
   // Generate nodes and edges from schema
@@ -48,49 +41,32 @@ export function ERDiagram({ schema, onClose }) {
   const relationships = useMemo(() => detectRelationships(schema), [schema]);
   const initialEdges = useMemo(() => relationshipsToEdges(relationships), [relationships]);
 
-  // Apply auto-layout
-  const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(
-    () => getLayoutedElements(initialNodes, initialEdges, layoutDirection),
-    [initialNodes, initialEdges, layoutDirection]
-  );
+  // Use custom hooks
+  const {
+    layoutDirection,
+    setLayoutDirection,
+    layoutedNodes,
+    layoutedEdges,
+    zoomLevel
+  } = useERDLayout(initialNodes, initialEdges);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
 
-  const toggleAllNodes = useCallback((collapsed) => {
-    setNodes((nds) =>
-      nds.map((node) => ({
-        ...node,
-        data: { ...node.data, forceCollapse: collapsed }
-      }))
-    );
+  const {
+    searchQuery,
+    setSearchQuery,
+    toggleAllNodes,
+    onNodeClick,
+    onPaneClick,
+    resetLayout
+  } = useERDInteractions(nodes, setNodes, edges, setEdges);
 
-    // Re-fit view after a short delay to allow expansion/collapse animation
-    setTimeout(() => fitView({ padding: 0.2, duration: 300 }), 300);
-  }, [setNodes, fitView]);
-
-  // Save layout direction and update layout (combined effect)
+  // Update nodes/edges when layout changes
   useEffect(() => {
-    localStorage.setItem('er-diagram-layout', layoutDirection);
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
-
-    // Fit view after a short delay
-    const timer = setTimeout(() => fitView({ padding: 0.2, duration: 300 }), 100);
-    return () => clearTimeout(timer);
-  }, [layoutDirection, layoutedNodes, layoutedEdges, setNodes, setEdges, fitView]);
-
-  // Track zoom level
-  useEffect(() => {
-    const updateZoom = () => {
-      const viewport = getViewport();
-      setZoomLevel(Math.round(viewport.zoom * 100));
-    };
-
-    updateZoom();
-    const interval = setInterval(updateZoom, 500);
-    return () => clearInterval(interval);
-  }, [getViewport]);
+  }, [layoutedNodes, layoutedEdges, setNodes, setEdges]);
 
   // Filter nodes by search
   const filteredNodes = useMemo(() => {
@@ -105,62 +81,6 @@ export function ERDiagram({ schema, onClose }) {
       },
     }));
   }, [nodes, searchQuery]);
-
-  // Highlight connected nodes on click
-  const onNodeClick = useCallback((event, node) => {
-    const connectedEdges = edges.filter(
-      edge => edge.source === node.id || edge.target === node.id
-    );
-    const connectedNodeIds = new Set(
-      connectedEdges.flatMap(edge => [edge.source, edge.target])
-    );
-    // Always include the clicked node
-    connectedNodeIds.add(node.id);
-
-    setNodes(nodes =>
-      nodes.map(n => ({
-        ...n,
-        style: {
-          ...n.style,
-          opacity: connectedNodeIds.has(n.id) ? 1 : 0.3,
-        },
-      }))
-    );
-
-    setEdges(edges =>
-      edges.map(e => ({
-        ...e,
-        style: {
-          ...e.style,
-          opacity: connectedEdges.some(ce => ce.id === e.id) ? 1 : 0.2,
-        },
-      }))
-    );
-  }, [edges, setNodes, setEdges]);
-
-  // Reset highlight on pane click
-  const onPaneClick = useCallback(() => {
-    setSearchQuery('');
-    setNodes(nodes =>
-      nodes.map(n => ({
-        ...n,
-        style: { ...n.style, opacity: 1 },
-      }))
-    );
-    setEdges(edges =>
-      edges.map(e => ({
-        ...e,
-        style: { ...e.style, opacity: 1 },
-      }))
-    );
-  }, [setNodes, setEdges]);
-
-  // Reset layout
-  const resetLayout = useCallback(() => {
-    setSearchQuery('');
-    onPaneClick();
-    fitView({ padding: 0.2, duration: 300 });
-  }, [onPaneClick, fitView]);
 
   // Export diagram as PNG (optimized)
   const exportToPng = useCallback(async () => {
@@ -203,104 +123,19 @@ export function ERDiagram({ schema, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-white dark:bg-gray-900">
-      {/* Header */}
-      <div className="h-14 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Schema Diagram
-          </h2>
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded p-1">
-            <button
-              onClick={() => setLayoutDirection('SMART')}
-              className={`px-3 py-1.5 text-xs rounded transition ${layoutDirection === 'SMART' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
-              title="Smart 2D Layout"
-            >
-              Smart
-            </button>
-            <button
-              onClick={() => setLayoutDirection('TB')}
-              className={`p-1.5 rounded transition ${layoutDirection === 'TB' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
-              title="Top to Bottom"
-            >
-              <ArrowDown size={16} />
-            </button>
-            <button
-              onClick={() => setLayoutDirection('LR')}
-              className={`p-1.5 rounded transition ${layoutDirection === 'LR' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
-              title="Left to Right"
-            >
-              <ArrowRight size={16} />
-            </button>
-            <button
-              onClick={() => setLayoutDirection('BT')}
-              className={`p-1.5 rounded transition ${layoutDirection === 'BT' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
-              title="Bottom to Top"
-            >
-              <ArrowUp size={16} />
-            </button>
-            <button
-              onClick={() => setLayoutDirection('RL')}
-              className={`p-1.5 rounded transition ${layoutDirection === 'RL' ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
-              title="Right to Left"
-            >
-              <ArrowLeft size={16} />
-            </button>
-          </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search tables..."
-              className="pl-9 pr-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-64"
-            />
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded p-1 mr-2">
-            <button
-              onClick={() => toggleAllNodes(false)}
-              className="px-2 py-1 text-xs rounded text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-gray-700"
-            >
-              Expand All
-            </button>
-            <button
-              onClick={() => toggleAllNodes(true)}
-              className="px-2 py-1 text-xs rounded text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-gray-700"
-            >
-              Collapse All
-            </button>
-          </div>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            icon={<RotateCcw size={16} />}
-            onClick={resetLayout}
-          >
-            Reset
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            icon={<Download size={16} />}
-            onClick={exportToPng}
-            disabled={exporting}
-            loading={exporting}
-          >
-            {exporting ? 'Exporting...' : 'Export PNG'}
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            icon={<Minimize2 size={16} />}
-            onClick={onClose}
-          >
-            Close
-          </Button>
-        </div>
-      </div>
+      {/* Toolbar */}
+      <ERDToolbar
+        layoutDirection={layoutDirection}
+        onLayoutChange={setLayoutDirection}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onToggleExpand={() => toggleAllNodes(false)}
+        onToggleCollapse={() => toggleAllNodes(true)}
+        onReset={resetLayout}
+        onExport={exportToPng}
+        onClose={onClose}
+        exporting={exporting}
+      />
 
       {/* Diagram */}
       <div className="h-[calc(100vh-3.5rem)]">
@@ -326,27 +161,7 @@ export function ERDiagram({ schema, onClose }) {
             maskColor="rgba(0, 0, 0, 0.1)"
             className="!bg-gray-100 dark:!bg-gray-800"
           />
-          <Panel position="top-left" className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-            <div className="text-sm space-y-1">
-              <div className="font-semibold text-gray-900 dark:text-gray-100">Legend</div>
-              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <div className="w-3 h-3 bg-yellow-600 rounded"></div>
-                <span>Primary Key</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <div className="w-3 h-3 bg-green-600 rounded"></div>
-                <span>Foreign Key</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <div className="w-8 h-0.5 bg-green-600"></div>
-                <span>Relationship</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <div className="w-8 h-0.5 bg-gray-400 border-dashed border-t-2"></div>
-                <span>Inferred</span>
-              </div>
-            </div>
-          </Panel>
+          <ERDLegend zoomLevel={zoomLevel} />
         </ReactFlow>
       </div>
     </div >
