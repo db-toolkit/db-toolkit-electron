@@ -27,12 +27,18 @@ export function WorkspaceSettings({ settings, onChange }) {
               Allow multiple workspace tabs (requires app restart)
             </p>
           </div>
-          <input
-            type="checkbox"
-            checked={settings.workspaces?.enabled ?? true}
-            onChange={(e) => onChange('workspaces', { ...settings.workspaces, enabled: e.target.checked })}
-            className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-          />
+          <button
+            onClick={() => onChange('workspaces', { ...settings.workspaces, enabled: !(settings.workspaces?.enabled ?? true) })}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+              settings.workspaces?.enabled ?? true ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                settings.workspaces?.enabled ?? true ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
         </div>
 
         <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-3">

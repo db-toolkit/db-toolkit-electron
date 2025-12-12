@@ -12,17 +12,19 @@ export function WorkspaceProvider({ children }) {
     const [activeWorkspaceId, setActiveWorkspaceId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [maxWorkspaces, setMaxWorkspaces] = useState(10);
+    const [workspacesEnabled, setWorkspacesEnabled] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
     const ipc = useWorkspaceIPC();
 
-    // Load settings to get maxWorkspaces
+    // Load settings to get maxWorkspaces and enabled status
     useEffect(() => {
         const loadSettings = async () => {
             try {
                 const result = await window.electron.ipcRenderer.invoke('settings:get');
                 if (result.success) {
                     setMaxWorkspaces(result.settings.workspaces?.maxWorkspaces || 10);
+                    setWorkspacesEnabled(result.settings.workspaces?.enabled ?? true);
                 }
             } catch (error) {
                 console.error('Failed to load workspace settings:', error);
@@ -31,17 +33,21 @@ export function WorkspaceProvider({ children }) {
         loadSettings();
     }, []);
 
-    // Load workspaces on mount and create default if none exist
+    // Load workspaces on mount and create default if none exist (only if enabled)
     useEffect(() => {
-        loadWorkspaces();
-    }, []);
+        if (workspacesEnabled) {
+            loadWorkspaces();
+        } else {
+            setLoading(false);
+        }
+    }, [workspacesEnabled]);
 
-    // Auto-create default workspace if none exist
+    // Auto-create default workspace if none exist (only if enabled)
     useEffect(() => {
-        if (!loading && workspaces.length === 0) {
+        if (workspacesEnabled && !loading && workspaces.length === 0) {
             createWorkspace(null, 'Default Workspace', null);
         }
-    }, [loading, workspaces.length]);
+    }, [workspacesEnabled, loading, workspaces.length]);
 
     const loadWorkspaces = useCallback(async () => {
         try {
