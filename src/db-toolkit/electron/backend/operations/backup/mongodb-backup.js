@@ -50,6 +50,7 @@ async function backupMongoDBDump(backup, config, tables) {
 
 async function backupMongoDBNative(backup, config, tables) {
   const { MongoClient } = require('mongodb');
+  const { backupNotifier } = require('../../ws/backup-notifier');
   const outputFile = backup.file_path.replace('.gz', '').replace('.sql', '.json');
   
   const uri = `mongodb://${config.username}:${config.password}@${config.host}:${config.port || 27017}`;
@@ -67,7 +68,16 @@ async function backupMongoDBNative(backup, config, tables) {
       collectionList = collections.map(c => c.name);
     }
     
+    const totalCollections = collectionList.length;
+    let processedCollections = 0;
+    
     for (const collName of collectionList) {
+      processedCollections++;
+      const progress = Math.floor((processedCollections / totalCollections) * 70) + 10;
+      await backupNotifier.notifyBackupUpdate(backup.id, 'in_progress', { 
+        connection_name: config.name, 
+        progress 
+      });
       const collection = db.collection(collName);
       const documents = await collection.find().toArray();
       
@@ -76,6 +86,11 @@ async function backupMongoDBNative(backup, config, tables) {
         return doc;
       });
     }
+    
+    await backupNotifier.notifyBackupUpdate(backup.id, 'in_progress', { 
+      connection_name: config.name, 
+      progress: 80 
+    });
     
     await fs.writeFile(outputFile, JSON.stringify(content, null, 2));
   } finally {

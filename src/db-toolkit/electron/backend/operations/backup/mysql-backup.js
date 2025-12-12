@@ -50,6 +50,7 @@ async function backupMySQLDump(backup, config, tables) {
 
 async function backupMySQLNative(backup, config, tables) {
   const mysql = require('mysql2/promise');
+  const { backupNotifier } = require('../../ws/backup-notifier');
   const outputFile = backup.file_path.replace('.gz', '');
   
   const connection = await mysql.createConnection({
@@ -69,7 +70,16 @@ async function backupMySQLNative(backup, config, tables) {
       tableList = rows.map(r => Object.values(r)[0]);
     }
     
+    const totalTables = tableList.length;
+    let processedTables = 0;
+    
     for (const table of tableList) {
+      processedTables++;
+      const progress = Math.floor((processedTables / totalTables) * 70) + 10;
+      await backupNotifier.notifyBackupUpdate(backup.id, 'in_progress', { 
+        connection_name: config.name, 
+        progress 
+      });
       if (backup.backup_type !== 'data_only') {
         const [createTable] = await connection.query(`SHOW CREATE TABLE \`${table}\``);
         content += `\n-- Table: ${table}\n`;
@@ -100,6 +110,11 @@ async function backupMySQLNative(backup, config, tables) {
         }
       }
     }
+    
+    await backupNotifier.notifyBackupUpdate(backup.id, 'in_progress', { 
+      connection_name: config.name, 
+      progress: 80 
+    });
     
     await fs.writeFile(outputFile, content);
   } finally {
