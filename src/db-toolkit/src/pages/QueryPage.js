@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useWorkspace } from '../components/workspace/WorkspaceProvider';
 import { Download, Plus, X, Bot, Loader2, Workflow } from 'lucide-react';
+import { ContextMenu, useContextMenu } from '../components/common/ContextMenu';
+import { Edit3 } from 'lucide-react';
 import Split from 'react-split';
 import { useQuery, useSchema } from '../hooks';
 import { useAiAssistant } from '../hooks/useAiAssistant';
@@ -138,6 +140,22 @@ function QueryPage() {
       setActiveTabId(newTabs[Math.max(0, index - 1)].id);
     }
   };
+
+  const renameTab = (id, newName) => {
+    setTabs(prev => prev.map(t => t.id === id ? { ...t, name: newName } : t));
+  };
+
+  const closeOtherTabs = (id) => {
+    setTabs(prev => prev.filter(t => t.id === id));
+    setActiveTabId(id);
+  };
+
+  const closeAllTabs = () => {
+    setTabs([{ id: 1, name: 'Query 1', query: '', result: null, executionTime: 0, error: null, chatHistory: [], saved: true }]);
+    setActiveTabId(1);
+  };
+
+  const tabContextMenu = useContextMenu();
   const { settings } = useSettingsContext();
 
   const { fixQueryError } = useAiAssistant(connectionId);
@@ -282,6 +300,10 @@ function QueryPage() {
             <div
               key={tab.id}
               onClick={() => setActiveTabId(tab.id)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                tabContextMenu.open(e, { tabId: tab.id });
+              }}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-t cursor-pointer transition ${activeTabId === tab.id
                 ? 'bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-100'
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -434,6 +456,49 @@ function QueryPage() {
           }}
         />
       )}
+
+      <ContextMenu
+        isOpen={tabContextMenu.isOpen}
+        position={tabContextMenu.position}
+        onClose={tabContextMenu.close}
+        items={tabContextMenu.data ? [
+          {
+            label: 'Rename Tab',
+            icon: <Edit3 size={16} />,
+            onClick: () => {
+              const newName = prompt('Enter new tab name:', tabs.find(t => t.id === tabContextMenu.data.tabId)?.name);
+              if (newName && newName.trim()) {
+                renameTab(tabContextMenu.data.tabId, newName.trim());
+                toast.success('Tab renamed');
+              }
+            }
+          },
+          { separator: true },
+          {
+            label: 'Close Tab',
+            icon: <X size={16} />,
+            onClick: () => closeTab(tabContextMenu.data.tabId),
+            disabled: tabs.length === 1
+          },
+          {
+            label: 'Close Other Tabs',
+            icon: <X size={16} />,
+            onClick: () => closeOtherTabs(tabContextMenu.data.tabId),
+            disabled: tabs.length === 1
+          },
+          {
+            label: 'Close All Tabs',
+            icon: <X size={16} />,
+            danger: true,
+            onClick: () => {
+              if (window.confirm('Close all tabs? Unsaved changes will be lost.')) {
+                closeAllTabs();
+                toast.success('All tabs closed');
+              }
+            }
+          }
+        ] : []}
+      />
     </div>
   );
 }
