@@ -37,7 +37,7 @@ export function TableDetails({ connectionId, schemaName, tableName }) {
   const handleAnalyzeTable = async (forceRefresh = false) => {
     try {
       setShowAiInsights(true);
-      const result = await analyzeTable(schemaName, tableName, forceRefresh);
+      const result = await analyzeTable(tableName, tableInfo?.columns || [], forceRefresh);
       setTableAnalysis(result);
       toast.success('Table analysis complete');
     } catch (err) {

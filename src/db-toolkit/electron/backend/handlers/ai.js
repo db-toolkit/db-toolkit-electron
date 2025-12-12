@@ -97,15 +97,36 @@ function registerAIHandlers() {
     }
   });
 
-  ipcMain.handle('ai:analyze-table', async (event, tableName, columns, dbType) => {
+  ipcMain.handle('ai:analyze-table', async (event, arg1, arg2, arg3) => {
     try {
-      logger.info(`AI analyze-table called with table: '${tableName}', dbType: ${dbType}`);
+      let connectionId = null;
+      let tableName = arg1;
+      let columns = arg2 || [];
+      let dbType = arg3;
+
+      // Support object payload shape: { connection_id, table_name, columns, db_type }
+      if (arg1 && typeof arg1 === 'object' && !Array.isArray(arg1)) {
+        connectionId = arg1.connection_id || arg1.connectionId || null;
+        tableName = arg1.table_name || arg1.tableName;
+        columns = arg1.columns || [];
+        dbType = arg1.db_type || arg1.dbType || arg3;
+      }
+
+      // Derive DB type from connection when available
+      if (!dbType && connectionId) {
+        const connection = await connectionManager.getConnection(connectionId);
+        dbType = connection ? connection.db_type : dbType;
+      }
+
+      const resolvedDbType = dbType || 'postgres';
+
+      logger.info(`AI analyze-table called with table: '${tableName}', dbType: ${resolvedDbType}`);
       const analyzer = getSchemaAnalyzer();
       if (!analyzer) {
         return { success: false, error: 'AI not configured' };
       }
 
-      return await analyzer.analyzeTable(tableName, columns, dbType);
+      return await analyzer.analyzeTable(tableName, columns, resolvedDbType);
     } catch (error) {
       logger.error('AI analyze-table error:', error);
       return { success: false, error: error.message };

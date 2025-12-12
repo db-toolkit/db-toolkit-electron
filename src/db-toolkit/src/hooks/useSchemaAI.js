@@ -54,7 +54,7 @@ export function useSchemaAI(connectionId) {
     }
   }, [connectionId]);
 
-  const analyzeTable = useCallback(async (tableName, columns, forceRefresh = false) => {
+  const analyzeTable = useCallback(async (tableName, columns = [], forceRefresh = false) => {
     if (!connectionId || !tableName) {
       setError('Connection ID and table name required');
       return null;

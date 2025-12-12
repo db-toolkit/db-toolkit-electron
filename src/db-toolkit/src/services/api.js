@@ -184,17 +184,36 @@ export const schemaAiAPI = {
         const firstTableName = Object.keys(tables)[0];
         const firstTable = tables[firstTableName];
         
-        return ipc.invoke('ai:analyze-table', {
+        const columns = Array.isArray(firstTable.columns)
+          ? firstTable.columns
+          : Object.values(firstTable.columns || []).map(col => ({
+              name: col.name || col.column_name,
+              type: col.type || col.data_type
+            }));
+
+        const result = await ipc.invoke('ai:analyze-table', {
           connection_id: connectionId, 
           table_name: firstTableName,
-          columns: firstTable.columns || []
+          columns
         });
+
+        return { data: result };
       }
     }
     throw new Error('No tables found in schema');
   },
-  analyzeTable: (connectionId, tableName, columns) => 
-    ipc.invoke('ai:analyze-table', tableName, columns || [], undefined),
+  analyzeTable: async (connectionId, tableName, columns = []) => {
+    const result = await ipc.invoke('ai:analyze-table', {
+      connection_id: connectionId,
+      table_name: tableName,
+      columns: columns.map(col => ({
+        name: col.name || col.column_name,
+        type: col.type || col.data_type
+      }))
+    });
+
+    return { data: result };
+  },
 };
 
 // Legacy API object for backward compatibility
