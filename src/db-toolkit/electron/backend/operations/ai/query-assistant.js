@@ -247,14 +247,20 @@ function getQueryAssistant() {
   if (_queryAssistant === null) {
     try {
       const { logger } = require('../../utils/logger');
+      const { app } = require('electron');
+      const path = require('path');
       
-      // Best-effort load of .env when available; ignore if missing (packaged apps)
+      // Load .env from correct location
       try {
         const dotenv = require('dotenv');
-        const path = require('path');
-        dotenv.config({ path: path.join(__dirname, '../../../../../../.env') });
+        const envPath = app.isPackaged 
+          ? path.join(process.resourcesPath, '.env')
+          : path.join(__dirname, '../../../../../../.env');
+        
+        dotenv.config({ path: envPath });
+        logger.info(`Loading .env from: ${envPath}`);
       } catch (envError) {
-        logger.warn('dotenv not found or .env missing, falling back to process env');
+        logger.warn('Failed to load .env, using process env:', envError.message);
       }
       
       const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;

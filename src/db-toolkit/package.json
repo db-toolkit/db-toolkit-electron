@@ -28,6 +28,7 @@
     "axios": "^1.13.2",
     "better-sqlite3": "^12.5.0",
     "dagre": "^0.8.5",
+    "dotenv": "^16.0.0",
     "framer-motion": "^12.23.24",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.554.0",
@@ -90,6 +91,10 @@
         "filter": [
           "**/*"
         ]
+      },
+      {
+        "from": ".env",
+        "to": ".env"
       }
     ],
     "directories": {
