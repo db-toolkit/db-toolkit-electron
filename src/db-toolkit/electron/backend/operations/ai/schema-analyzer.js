@@ -308,15 +308,38 @@ let _schemaAnalyzer = null;
 function getSchemaAnalyzer() {
   if (_schemaAnalyzer === null) {
     try {
+      const { logger } = require('../../utils/logger');
+      const { app } = require('electron');
+      const path = require('path');
+
+      // Load .env from correct location
+      try {
+        const dotenv = require('dotenv');
+        const envPath = app.isPackaged
+          ? path.join(process.resourcesPath, '.env')
+          : path.join(__dirname, '../../../../../../.env');
+
+        dotenv.config({ path: envPath });
+        logger.info(`[Schema Analyzer] Loading .env from: ${envPath}`);
+      } catch (envError) {
+        logger.warn('[Schema Analyzer] Failed to load .env, using process env:', envError.message);
+      }
+
       const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
       const apiToken = process.env.CLOUDFLARE_API_TOKEN;
 
+      logger.info(`[Schema Analyzer] AI Config check - AccountID: ${accountId ? 'present' : 'missing'}, Token: ${apiToken ? 'present' : 'missing'}`);
+
       if (!accountId || !apiToken) {
+        logger.warn('[Schema Analyzer] Cloudflare AI credentials not configured');
         return null;
       }
 
       _schemaAnalyzer = new SchemaAnalyzer(accountId, apiToken);
+      logger.info('[Schema Analyzer] Schema analyzer initialized successfully');
     } catch (error) {
+      const { logger } = require('../../utils/logger');
+      logger.error('[Schema Analyzer] Failed to initialize schema analyzer:', error);
       return null;
     }
   }
@@ -324,3 +347,4 @@ function getSchemaAnalyzer() {
 }
 
 module.exports = { SchemaAnalyzer, getSchemaAnalyzer };
+```

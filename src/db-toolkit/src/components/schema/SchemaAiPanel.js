@@ -48,17 +48,6 @@ export function SchemaAiPanel({ analysis, loading, onClose, onRefresh }) {
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               {analysis.error || 'Unable to analyze schema'}
             </p>
-            {analysis.error === 'AI not configured' && (
-              <div className="text-xs text-gray-500 dark:text-gray-500 bg-gray-100 dark:bg-gray-900 p-3 rounded mb-4">
-                <p className="mb-2">AI features require Cloudflare credentials.</p>
-                <p>Add to your .env file:</p>
-                <code className="block mt-1 text-left">
-                  CLOUDFLARE_ACCOUNT_ID=...
-                  <br />
-                  CLOUDFLARE_API_TOKEN=...
-                </code>
-              </div>
-            )}
             <button
               onClick={onRefresh}
               className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm font-medium"
