@@ -3,7 +3,6 @@
  */
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useWorkspaceShortcuts } from '../../hooks/useWorkspaceShortcuts';
 
 const WorkspaceContext = createContext(null);
 
@@ -17,8 +16,6 @@ export function WorkspaceProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
-    
-    useWorkspaceShortcuts();
 
     // Load workspaces on mount and create default if none exist
     useEffect(() => {

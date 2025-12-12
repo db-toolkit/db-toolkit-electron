@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { useWorkspaceShortcuts } from './hooks/useWorkspaceShortcuts';
 import Layout from './components/common/Layout';
 import SplashScreen from './components/common/SplashScreen';
 import { Spinner } from './components/common/Spinner';
@@ -23,6 +24,7 @@ const DocumentationPage = lazy(() => import('./pages/DocumentationPage'));
 function AppContent() {
   const navigate = useNavigate();
   useMenuActions();
+  useWorkspaceShortcuts();
 
   useEffect(() => {
     const sessionState = JSON.parse(localStorage.getItem('session-state') || '{}');
