@@ -56,7 +56,10 @@ jobs:
       - name: Create .env file
         working-directory: src/db-toolkit
         run: |
-          echo "CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" > .env
+          echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" > .env
+          echo "FROM_EMAIL=${{ secrets.FROM_EMAIL }}" >> .env
+          echo "ISSUE_EMAIL=${{ secrets.ISSUE_EMAIL }}" >> .env
+          echo "CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" >> .env
           echo "CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}" >> .env
       
       - name: Install dependencies
