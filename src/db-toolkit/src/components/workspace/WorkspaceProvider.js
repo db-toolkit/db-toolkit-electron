@@ -89,16 +89,18 @@ export function WorkspaceProvider({ children }) {
                 if (!confirmed) return false;
             }
 
+            // If closing active workspace, switch to another first
+            if (activeWorkspaceId === workspaceId) {
+                const remaining = workspaces.filter(w => w.id !== workspaceId);
+                if (remaining.length > 0) {
+                    setActiveWorkspaceId(remaining[0].id);
+                }
+            }
+
             const result = await ipc.deleteWorkspace(workspaceId);
 
             if (result.success) {
                 setWorkspaces(prev => prev.filter(w => w.id !== workspaceId));
-
-                // If closing active workspace, switch to another
-                if (activeWorkspaceId === workspaceId) {
-                    const remaining = workspaces.filter(w => w.id !== workspaceId);
-                    setActiveWorkspaceId(remaining.length > 0 ? remaining[0].id : null);
-                }
             }
 
             return result.success;
@@ -110,13 +112,7 @@ export function WorkspaceProvider({ children }) {
 
     const switchWorkspace = useCallback((workspaceId) => {
         setActiveWorkspaceId(workspaceId);
-        
-        // Restore workspace's last active route
-        const workspace = workspaces.find(w => w.id === workspaceId);
-        if (workspace?.state?.activeRoute) {
-            navigate(workspace.state.activeRoute);
-        }
-    }, [workspaces, navigate]);
+    }, []);
 
     const saveTimerRef = useRef({});
 
