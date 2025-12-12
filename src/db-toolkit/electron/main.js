@@ -36,6 +36,8 @@ app.on('window-all-closed', async () => {
 });
 
 app.on('before-quit', async () => {
+  const { stopBackgroundTasks } = require('./backend/operations/tasks');
+  stopBackgroundTasks();
   await cleanupSession();
 });
 

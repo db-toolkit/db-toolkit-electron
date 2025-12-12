@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { FolderOpen } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
+import { useToast } from '../../contexts/ToastContext';
 
 export function ScheduleModal({ isOpen, onClose, onSave, connections }) {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     connection_id: '',
     name: '',
@@ -12,6 +15,7 @@ export function ScheduleModal({ isOpen, onClose, onSave, connections }) {
     retention_count: 5,
     compressed: true,
     enabled: true,
+    backup_path: '',
   });
 
   const handleChange = (field, value) => {
@@ -30,6 +34,7 @@ export function ScheduleModal({ isOpen, onClose, onSave, connections }) {
       retention_count: 5,
       compressed: true,
       enabled: true,
+      backup_path: '',
     });
   };
 
@@ -102,6 +107,40 @@ export function ScheduleModal({ isOpen, onClose, onSave, connections }) {
           max="30"
           required
         />
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Backup Location
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={formData.backup_path}
+              onChange={(e) => handleChange('backup_path', e.target.value)}
+              placeholder="Select folder for backups"
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              required
+              readOnly
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              icon={<FolderOpen size={16} />}
+              onClick={async () => {
+                try {
+                  const folderPath = await window.electron.ipcRenderer.invoke('select-folder');
+                  if (folderPath) {
+                    handleChange('backup_path', folderPath);
+                  }
+                } catch (err) {
+                  toast.error('Failed to select folder');
+                }
+              }}
+            >
+              Browse
+            </Button>
+          </div>
+        </div>
 
         <div className="mb-4">
           <label className="flex items-center gap-2">

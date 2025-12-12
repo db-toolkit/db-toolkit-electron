@@ -23,12 +23,12 @@ class BackupManager {
     await fs.mkdir(BACKUP_DIR, { recursive: true });
   }
 
-  async createBackup(connection, config, name, backupType, tables = null, compress = true, scheduleId = null) {
+  async createBackup(connection, config, name, backupType, tables = null, compress = true, scheduleId = null, customPath = null) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
     let filename = `${config.name}_${timestamp}.sql`;
     if (compress) filename += '.gz';
     
-    const filePath = path.join(BACKUP_DIR, filename);
+    const filePath = customPath ? path.join(customPath, filename) : path.join(BACKUP_DIR, filename);
     
     const backup = await backupStorage.addBackup(
       config.id,

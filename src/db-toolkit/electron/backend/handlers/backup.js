@@ -85,7 +85,21 @@ function registerBackupHandlers() {
 
   ipcMain.handle('backup:schedule:create', async (event, schedule) => {
     try {
-      const result = await backupStorage.addSchedule(schedule);
+      const scheduleId = `schedule_${Date.now()}`;
+      const now = new Date();
+      const { backupScheduler } = require('../operations/backup/backup-scheduler');
+      
+      const nextRun = backupScheduler.calculateNextRun(schedule.schedule, now);
+      
+      const scheduleData = {
+        ...schedule,
+        id: scheduleId,
+        created_at: now.toISOString(),
+        next_run: nextRun.toISOString(),
+        last_run: null
+      };
+      
+      const result = await backupStorage.addSchedule(scheduleData);
       return { success: true, schedule: result };
     } catch (error) {
       return { success: false, error: error.message };
