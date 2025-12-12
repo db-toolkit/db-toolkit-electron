@@ -41,14 +41,23 @@ export function WorkspaceSettings({ settings, onChange }) {
             <label className="text-sm font-medium text-gray-900 dark:text-gray-100 block mb-2">
               Maximum Workspaces: {maxWorkspaces}
             </label>
-            <input
-              type="range"
-              min="1"
-              max="20"
-              value={maxWorkspaces}
-              onChange={(e) => onChange('workspaces', { ...settings.workspaces, maxWorkspaces: Number(e.target.value) })}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600 accent-green-600"
-            />
+            <div className="relative">
+              <input
+                type="range"
+                min="1"
+                max="20"
+                value={maxWorkspaces}
+                onChange={(e) => onChange('workspaces', { ...settings.workspaces, maxWorkspaces: Number(e.target.value) })}
+                className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                style={{
+                  background: `linear-gradient(to right, 
+                    ${maxWorkspaces <= 10 ? '#16a34a' : maxWorkspaces <= 15 ? '#eab308' : '#ef4444'} 0%, 
+                    ${maxWorkspaces <= 10 ? '#16a34a' : maxWorkspaces <= 15 ? '#eab308' : '#ef4444'} ${(maxWorkspaces / 20) * 100}%, 
+                    #d1d5db ${(maxWorkspaces / 20) * 100}%, 
+                    #d1d5db 100%)`
+                }}
+              />
+            </div>
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
               <span>1</span>
               <span>20</span>
