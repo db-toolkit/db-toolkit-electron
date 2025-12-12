@@ -15,7 +15,6 @@ export function CustomTitleBar({ onToggleSidebar }) {
             try {
                 const settings = await window.electron.ipcRenderer.invoke('settings:get');
                 const enabled = settings?.workspaces?.enabled ?? true;
-                console.log('Workspace enabled setting:', enabled, settings);
                 setWorkspacesEnabled(enabled);
             } catch (error) {
                 console.error('Failed to load workspace settings:', error);
