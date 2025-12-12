@@ -22,6 +22,12 @@ export function CustomTitleBar({ onToggleSidebar }) {
             }
         };
         loadSettings();
+
+        const handleSettingsUpdate = () => {
+            loadSettings();
+        };
+        window.addEventListener('settings-updated', handleSettingsUpdate);
+        return () => window.removeEventListener('settings-updated', handleSettingsUpdate);
     }, []);
 
     return (

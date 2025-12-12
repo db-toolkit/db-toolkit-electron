@@ -40,6 +40,7 @@ export function useSettings() {
     try {
       const response = await settingsAPI.update(updates);
       setSettings(response.data);
+      window.dispatchEvent(new Event('settings-updated'));
       return response.data;
     } catch (err) {
       setError(err.message);

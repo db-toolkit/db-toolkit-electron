@@ -41,6 +41,7 @@ export function WorkspaceSettings({ settings, onChange }) {
           </button>
         </div>
 
+        {(settings.workspaces?.enabled ?? true) && (
         <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-3">
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-gray-100 block mb-2">
@@ -78,6 +79,7 @@ export function WorkspaceSettings({ settings, onChange }) {
             </div>
           )}
         </div>
+        )}
       </div>
     </div>
   );
