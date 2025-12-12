@@ -466,11 +466,15 @@ function QueryPage() {
             label: 'Rename Tab',
             icon: <Edit3 size={16} />,
             onClick: () => {
-              const newName = prompt('Enter new tab name:', tabs.find(t => t.id === tabContextMenu.data.tabId)?.name);
-              if (newName && newName.trim()) {
-                renameTab(tabContextMenu.data.tabId, newName.trim());
-                toast.success('Tab renamed');
-              }
+              const tabId = tabContextMenu.data.tabId;
+              const currentName = tabs.find(t => t.id === tabId)?.name;
+              setTimeout(() => {
+                const newName = prompt('Enter new tab name:', currentName);
+                if (newName && newName.trim()) {
+                  renameTab(tabId, newName.trim());
+                  toast.success('Tab renamed');
+                }
+              }, 100);
             }
           },
           { separator: true },
