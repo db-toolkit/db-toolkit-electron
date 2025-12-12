@@ -233,7 +233,20 @@ function QueryPage() {
 
   const handleAcceptFix = () => {
     if (fixSuggestion) {
-      setQuery(fixSuggestion.fixed);
+      let finalQuery = '';
+
+      // Add explanation as SQL comments if present
+      if (fixSuggestion.explanation) {
+        const explanationLines = fixSuggestion.explanation.split('\n');
+        const commentedExplanation = explanationLines
+          .map(line => `-- ${line}`)
+          .join('\n');
+        finalQuery = `${commentedExplanation}\n\n${fixSuggestion.fixed}`;
+      } else {
+        finalQuery = fixSuggestion.fixed;
+      }
+
+      setQuery(finalQuery);
       setFixSuggestion(null);
     }
   };
