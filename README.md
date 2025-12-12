@@ -12,7 +12,7 @@ A modern, cross-platform desktop database management application built with **El
 
 ## Features
 
-- **Workspaces** - Multiple isolated workspace tabs (up to 20) for working with different databases simultaneously, with custom names, colors, keyboard shortcuts, and persistent state
+- **Workspaces** - Multiple isolated workspace tabs (up to 20) for working with different databases simultaneously, with custom names, colors and keyboard shortcuts
 - **Multi-Database Support** - PostgreSQL, MySQL, SQLite, MongoDB with connection management and session persistence
 - **Schema Explorer** - Visual tree browser with table details, search, and real-time updates
 - **Query Editor** - Monaco-based editor with syntax highlighting, auto-complete, multiple tabs, history, and AI-powered analysis
