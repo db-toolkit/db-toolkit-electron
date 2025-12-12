@@ -292,7 +292,7 @@ function BackupsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredSchedules.map((schedule) => (
             <ScheduleCard
-              key={schedule.id}
+              key={schedule.id || schedule.name}
               schedule={schedule}
               onToggle={handleToggleSchedule}
               onDelete={handleDeleteSchedule}
