@@ -384,4 +384,3 @@ export function QueryBuilder({ schema, onClose, onExecuteQuery }) {
     </div>
   );
 }
-```
