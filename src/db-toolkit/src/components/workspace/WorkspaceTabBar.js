@@ -35,21 +35,25 @@ export function WorkspaceTabBar() {
     const handleDragOver = (e, index) => {
         e.preventDefault();
         if (draggedIndex === null || draggedIndex === index) return;
+        setDraggedIndex(index);
+    };
+
+    const handleDragEnd = (e, index) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === index) {
+            setDraggedIndex(null);
+            return;
+        }
 
         const newWorkspaces = [...workspaces];
         const draggedItem = newWorkspaces[draggedIndex];
         newWorkspaces.splice(draggedIndex, 1);
         newWorkspaces.splice(index, 0, draggedItem);
 
-        // Update order in backend
         newWorkspaces.forEach((ws, idx) => {
             updateWorkspace(ws.id, { order: idx });
         });
 
-        setDraggedIndex(index);
-    };
-
-    const handleDragEnd = () => {
         setDraggedIndex(null);
     };
 
@@ -65,7 +69,8 @@ export function WorkspaceTabBar() {
                         draggable
                         onDragStart={(e) => handleDragStart(e, index)}
                         onDragOver={(e) => handleDragOver(e, index)}
-                        onDragEnd={handleDragEnd}
+                        onDrop={(e) => handleDragEnd(e, index)}
+                        onDragEnd={() => setDraggedIndex(null)}
                     >
                         <WorkspaceTab
                             workspace={workspace}
