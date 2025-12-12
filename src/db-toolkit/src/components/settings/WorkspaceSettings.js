@@ -24,15 +24,14 @@ export function WorkspaceSettings({ settings, onChange }) {
               Enable Workspaces
             </label>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              Allow multiple workspace tabs (coming soon)
+              Allow multiple workspace tabs (requires app restart)
             </p>
           </div>
           <input
             type="checkbox"
             checked={settings.workspaces?.enabled ?? true}
             onChange={(e) => onChange('workspaces', { ...settings.workspaces, enabled: e.target.checked })}
-            disabled
-            className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 opacity-50 cursor-not-allowed"
+            className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
           />
         </div>
 
