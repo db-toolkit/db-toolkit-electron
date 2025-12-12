@@ -3,12 +3,9 @@
  */
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useWorkspaceIPC } from '../../hooks/useWorkspaceIPC';
 
 const WorkspaceContext = createContext(null);
-
-const ipc = {
-    invoke: (channel, ...args) => window.electron.ipcRenderer.invoke(channel, ...args)
-};
 
 export function WorkspaceProvider({ children }) {
     const [workspaces, setWorkspaces] = useState([]);
@@ -16,6 +13,7 @@ export function WorkspaceProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
+    const ipc = useWorkspaceIPC();
 
     // Load workspaces on mount and create default if none exist
     useEffect(() => {
@@ -32,7 +30,7 @@ export function WorkspaceProvider({ children }) {
     const loadWorkspaces = useCallback(async () => {
         try {
             setLoading(true);
-            const result = await ipc.invoke('workspace:load');
+            const result = await ipc.loadWorkspaces();
 
             if (result.success && result.workspaces) {
                 setWorkspaces(result.workspaces);
@@ -54,7 +52,7 @@ export function WorkspaceProvider({ children }) {
 
     const createWorkspace = useCallback(async (connectionId, connectionName, connectionType) => {
         try {
-            const result = await ipc.invoke('workspace:create', connectionId, connectionName, connectionType);
+            const result = await ipc.createWorkspace(connectionId, connectionName, connectionType);
 
             if (result.success) {
                 setWorkspaces(prev => [...prev, result.workspace]);
@@ -81,7 +79,7 @@ export function WorkspaceProvider({ children }) {
                 if (!confirmed) return false;
             }
 
-            const result = await ipc.invoke('workspace:delete', workspaceId);
+            const result = await ipc.deleteWorkspace(workspaceId);
 
             if (result.success) {
                 setWorkspaces(prev => prev.filter(w => w.id !== workspaceId));
@@ -114,7 +112,7 @@ export function WorkspaceProvider({ children }) {
 
     const updateWorkspaceState = useCallback(async (workspaceId, stateUpdates) => {
         try {
-            const result = await ipc.invoke('workspace:updateState', workspaceId, stateUpdates);
+            const result = await ipc.updateWorkspaceState(workspaceId, stateUpdates);
 
             if (result.success) {
                 setWorkspaces(prev => prev.map(w =>
@@ -179,7 +177,7 @@ export function WorkspaceProvider({ children }) {
 
     const updateWorkspace = useCallback(async (workspaceId, updates) => {
         try {
-            const result = await ipc.invoke('workspace:update', workspaceId, updates);
+            const result = await ipc.updateWorkspace(workspaceId, updates);
             if (result.success) {
                 setWorkspaces(prev => prev.map(w =>
                     w.id === workspaceId ? result.workspace : w
