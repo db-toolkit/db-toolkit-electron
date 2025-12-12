@@ -30,7 +30,7 @@ async function writeMetadata(data) {
 
 async function addBackup(connectionId, name, backupType, filePath, tables = null, compressed = false, scheduleId = null) {
   const data = await readMetadata();
-  const backupId = `backup_${Date.now()}`;
+  const backupId = `backup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   const backup = {
     id: backupId,
