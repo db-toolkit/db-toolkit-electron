@@ -6,6 +6,7 @@ export { dataExplorerData } from './dataExplorer';
 export { backupRestoreData } from './backupRestore';
 export { settingsData } from './settings';
 export { migrationsData } from './migrations';
+export { workspacesData } from './workspaces';
 export { changelogData } from './changelog';
 
 export interface DocSection {

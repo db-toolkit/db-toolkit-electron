@@ -1,5 +1,24 @@
 export const changelogVersions = [
   {
+    version: "Unreleased",
+    date: "TBD",
+    sections: [
+      {
+        heading: "Added",
+        content: `- **Workspaces** - Multiple isolated workspace tabs for working with different databases simultaneously
+  - Up to 20 configurable workspace tabs (default 10)
+  - Each workspace maintains isolated state (connection, queries, active page)
+  - Custom workspace names and colors (17 color options)
+  - Keyboard shortcuts: Cmd/Ctrl+T (new), Cmd/Ctrl+W (close), Cmd/Ctrl+1-9 (switch)
+  - Right-click context menu (Rename, Change Color, Close, Close Others, Close All)
+  - Unsaved changes tracking with visual indicator
+  - Workspace settings in Settings modal (enable/disable, max workspaces slider)
+  - Persistent state across app restarts
+  - Custom frameless titlebar with integrated workspace tabs (Wave Terminal style)`
+      }
+    ]
+  },
+  {
     version: "0.1.0-beta",
     date: "2025-12-10",
     sections: [
