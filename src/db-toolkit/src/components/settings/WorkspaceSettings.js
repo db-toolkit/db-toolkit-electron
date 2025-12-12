@@ -7,18 +7,18 @@ export function WorkspaceSettings({ settings, onChange }) {
   const maxWorkspaces = settings.workspaces?.maxWorkspaces || 10;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
           Workspace Settings
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
           Configure workspace behavior and limits
         </p>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
               Enable Workspaces
@@ -36,7 +36,7 @@ export function WorkspaceSettings({ settings, onChange }) {
           />
         </div>
 
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-4">
+        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-3">
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-gray-100 block mb-2">
               Maximum Workspaces: {maxWorkspaces}
