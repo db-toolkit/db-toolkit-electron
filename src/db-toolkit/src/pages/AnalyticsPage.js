@@ -25,11 +25,19 @@ import { pageTransition } from '../utils/animations';
 function AnalyticsPage() {
   const navigate = useNavigate();
   const { connections, connectToDatabase } = useConnections();
-  const { getWorkspaceState, setWorkspaceState } = useWorkspace();
+  const { getWorkspaceState, setWorkspaceState, activeWorkspaceId } = useWorkspace();
   const toast = useToast();
-  const [connectionId, setConnectionId] = useState(() => getWorkspaceState('analyticsConnectionId'));
-  const [connectionName, setConnectionName] = useState(() => getWorkspaceState('analyticsConnectionName') || '');
+  const [connectionId, setConnectionId] = useState(null);
+  const [connectionName, setConnectionName] = useState('');
   const [connecting, setConnecting] = useState(null);
+
+  // Sync with workspace state when workspace changes
+  useEffect(() => {
+    const savedConnectionId = getWorkspaceState('analyticsConnectionId');
+    const savedConnectionName = getWorkspaceState('analyticsConnectionName');
+    setConnectionId(savedConnectionId || null);
+    setConnectionName(savedConnectionName || '');
+  }, [activeWorkspaceId, getWorkspaceState]);
   const [timeRange, setTimeRange] = useState(1);
   const [planModal, setPlanModal] = useState({ isOpen: false, query: '', plan: null });
   const [slowQueries, setSlowQueries] = useState([]);
