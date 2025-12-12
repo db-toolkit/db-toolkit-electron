@@ -111,8 +111,14 @@ export function WorkspaceProvider({ children }) {
     }, [activeWorkspaceId, workspaces]);
 
     const switchWorkspace = useCallback((workspaceId) => {
+        const workspace = workspaces.find(w => w.id === workspaceId);
         setActiveWorkspaceId(workspaceId);
-    }, []);
+        
+        // Restore workspace's last active route
+        if (workspace?.state?.activeRoute && workspace.state.activeRoute !== location.pathname) {
+            navigate(workspace.state.activeRoute);
+        }
+    }, [workspaces, location.pathname, navigate]);
 
     const saveTimerRef = useRef({});
 
@@ -167,12 +173,25 @@ export function WorkspaceProvider({ children }) {
         return workspaces.find(w => w.id === activeWorkspaceId);
     }, [workspaces, activeWorkspaceId]);
 
-    // Save active route when location changes (debounced)
+    // Save active route when location changes (immediate, not debounced)
     useEffect(() => {
         if (activeWorkspaceId && location.pathname) {
-            setWorkspaceState('activeRoute', location.pathname);
+            // Update in-memory immediately
+            setWorkspaces(prev => prev.map(w => 
+                w.id === activeWorkspaceId 
+                    ? { ...w, state: { ...w.state, activeRoute: location.pathname } }
+                    : w
+            ));
+            
+            // Save to backend (debounced)
+            if (saveTimerRef.current[`${activeWorkspaceId}-route`]) {
+                clearTimeout(saveTimerRef.current[`${activeWorkspaceId}-route`]);
+            }
+            saveTimerRef.current[`${activeWorkspaceId}-route`] = setTimeout(() => {
+                updateWorkspaceState(activeWorkspaceId, { activeRoute: location.pathname });
+            }, 1000);
         }
-    }, [location.pathname, activeWorkspaceId, setWorkspaceState]);
+    }, [location.pathname, activeWorkspaceId, updateWorkspaceState]);
 
     // Cleanup timers on unmount
     useEffect(() => {
