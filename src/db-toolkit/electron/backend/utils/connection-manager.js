@@ -10,6 +10,7 @@ class ConnectionManager {
   constructor() {
     this.activeConnections = new Map();
     this.connectionMetadata = new Map();
+    this.reconnectTimers = new Map();
   }
 
   async connect(connection, timeout = null) {
@@ -34,6 +35,11 @@ class ConnectionManager {
         this.activeConnections.set(connection.id, connector);
         this.connectionMetadata.set(connection.id, connection);
         logger.info(`Successfully connected to '${connection.name}'`);
+        
+        if (connection.auto_reconnect) {
+          this.setupAutoReconnect(connection.id);
+        }
+        
         return true;
       }
       
@@ -41,12 +47,19 @@ class ConnectionManager {
       return false;
     } catch (error) {
       logger.error(`Connection error for '${connection.name}': ${error.message}`);
+      
+      if (connection.auto_reconnect) {
+        this.scheduleReconnect(connection.id, connection);
+      }
+      
       return false;
     }
   }
 
   async disconnect(connectionId) {
     logger.info(`Disconnecting from connection '${connectionId}'`);
+    
+    this.clearReconnectTimer(connectionId);
     
     const connector = this.activeConnections.get(connectionId);
     if (connector) {
@@ -85,6 +98,53 @@ class ConnectionManager {
     const connectionIds = Array.from(this.activeConnections.keys());
     for (const connectionId of connectionIds) {
       await this.disconnect(connectionId);
+    }
+  }
+
+  setupAutoReconnect(connectionId) {
+    const checkInterval = setInterval(async () => {
+      const connector = this.activeConnections.get(connectionId);
+      const connection = this.connectionMetadata.get(connectionId);
+      
+      if (!connector || !connection) {
+        this.clearReconnectTimer(connectionId);
+        return;
+      }
+      
+      if (!connector.isConnected) {
+        logger.warn(`Connection lost for '${connection.name}', attempting reconnect...`);
+        await this.connect(connection);
+      }
+    }, 30000); // Check every 30 seconds
+    
+    this.reconnectTimers.set(connectionId, checkInterval);
+  }
+
+  scheduleReconnect(connectionId, connection, attempt = 1) {
+    if (attempt > 3) {
+      logger.error(`Max reconnect attempts reached for '${connection.name}'`);
+      return;
+    }
+    
+    const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000); // Exponential backoff, max 10s
+    logger.info(`Scheduling reconnect attempt ${attempt} for '${connection.name}' in ${delay}ms`);
+    
+    const timer = setTimeout(async () => {
+      const success = await this.connect(connection);
+      if (!success) {
+        this.scheduleReconnect(connectionId, connection, attempt + 1);
+      }
+    }, delay);
+    
+    this.reconnectTimers.set(connectionId, timer);
+  }
+
+  clearReconnectTimer(connectionId) {
+    const timer = this.reconnectTimers.get(connectionId);
+    if (timer) {
+      clearTimeout(timer);
+      clearInterval(timer);
+      this.reconnectTimers.delete(connectionId);
     }
   }
 
