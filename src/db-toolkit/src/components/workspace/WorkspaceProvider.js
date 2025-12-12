@@ -1,7 +1,7 @@
 /**
  * Workspace Context Provider
  */
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const WorkspaceContext = createContext(null);
@@ -100,6 +100,8 @@ export function WorkspaceProvider({ children }) {
         }
     }, [workspaces, navigate]);
 
+    const saveTimerRef = useRef({});
+
     const updateWorkspaceState = useCallback(async (workspaceId, stateUpdates) => {
         try {
             const result = await ipc.invoke('workspace:updateState', workspaceId, stateUpdates);
@@ -117,18 +119,47 @@ export function WorkspaceProvider({ children }) {
         }
     }, []);
 
+    const getWorkspaceState = useCallback((key) => {
+        const workspace = workspaces.find(w => w.id === activeWorkspaceId);
+        return workspace?.state?.[key];
+    }, [workspaces, activeWorkspaceId]);
+
+    const setWorkspaceState = useCallback((key, value) => {
+        if (!activeWorkspaceId) return;
+
+        // Update in-memory immediately
+        setWorkspaces(prev => prev.map(w => 
+            w.id === activeWorkspaceId 
+                ? { ...w, state: { ...w.state, [key]: value } }
+                : w
+        ));
+
+        // Debounced save to backend
+        if (saveTimerRef.current[activeWorkspaceId]) {
+            clearTimeout(saveTimerRef.current[activeWorkspaceId]);
+        }
+        saveTimerRef.current[activeWorkspaceId] = setTimeout(() => {
+            updateWorkspaceState(activeWorkspaceId, { [key]: value });
+        }, 1000);
+    }, [activeWorkspaceId, updateWorkspaceState]);
+
     const getActiveWorkspace = useCallback(() => {
         return workspaces.find(w => w.id === activeWorkspaceId);
     }, [workspaces, activeWorkspaceId]);
 
-    // Save active route when location changes
+    // Save active route when location changes (debounced)
     useEffect(() => {
         if (activeWorkspaceId && location.pathname) {
-            updateWorkspaceState(activeWorkspaceId, {
-                activeRoute: location.pathname
-            });
+            setWorkspaceState('activeRoute', location.pathname);
         }
-    }, [location.pathname, activeWorkspaceId]);
+    }, [location.pathname, activeWorkspaceId, setWorkspaceState]);
+
+    // Cleanup timers on unmount
+    useEffect(() => {
+        return () => {
+            Object.values(saveTimerRef.current).forEach(timer => clearTimeout(timer));
+        };
+    }, []);
 
     const updateWorkspace = useCallback(async (workspaceId, updates) => {
         try {
@@ -155,7 +186,9 @@ export function WorkspaceProvider({ children }) {
         switchWorkspace,
         updateWorkspaceState,
         updateWorkspace,
-        loadWorkspaces
+        loadWorkspaces,
+        getWorkspaceState,
+        setWorkspaceState
     };
 
     return (
