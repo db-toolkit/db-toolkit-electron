@@ -92,7 +92,7 @@ function Layout({ children }) {
 
   return (
     <div className="h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
-      <CustomTitleBar />
+      <CustomTitleBar onToggleSidebar={() => setShowSidebar(prev => !prev)} />
       {showSidebar ? (
         <Split
           sizes={[sidebarWidth, 100 - sidebarWidth]}
