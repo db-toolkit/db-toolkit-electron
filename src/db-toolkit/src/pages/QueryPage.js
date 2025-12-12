@@ -326,7 +326,7 @@ function QueryPage() {
 
 
 
-      <div className="flex-1 min-h-0 flex relative">
+      <div className="flex-1 flex relative">
         <Split
           sizes={showAiAssistant ? [75, 25] : [100, 0]}
           minSize={showAiAssistant ? [400, 300] : [0, 0]}
