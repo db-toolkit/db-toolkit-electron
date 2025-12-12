@@ -1,7 +1,7 @@
 /**
  * ERD Diagram toolbar component
  */
-import { Download, Minimize2, ArrowDown, ArrowRight, ArrowUp, ArrowLeft, Search, RotateCcw } from 'lucide-react';
+import { Download, Minimize2, ArrowDown, ArrowRight, ArrowUp, ArrowLeft, Search, RotateCcw, Tag } from 'lucide-react';
 import { Button } from '../../common/Button';
 
 export function ERDToolbar({
@@ -9,6 +9,8 @@ export function ERDToolbar({
     onLayoutChange,
     searchQuery,
     onSearchChange,
+    showLabels,
+    onToggleLabels,
     onToggleExpand,
     onToggleCollapse,
     onReset,
@@ -28,8 +30,8 @@ export function ERDToolbar({
                     <button
                         onClick={() => onLayoutChange('SMART')}
                         className={`px-3 py-1.5 text-xs rounded transition ${layoutDirection === 'SMART'
-                                ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400 font-semibold'
-                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                            ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400 font-semibold'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                             }`}
                         title="Smart 2D Layout"
                     >
@@ -38,8 +40,8 @@ export function ERDToolbar({
                     <button
                         onClick={() => onLayoutChange('TB')}
                         className={`p-1.5 rounded transition ${layoutDirection === 'TB'
-                                ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400'
-                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                            ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                             }`}
                         title="Top to Bottom"
                     >
@@ -48,8 +50,8 @@ export function ERDToolbar({
                     <button
                         onClick={() => onLayoutChange('LR')}
                         className={`p-1.5 rounded transition ${layoutDirection === 'LR'
-                                ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400'
-                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                            ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                             }`}
                         title="Left to Right"
                     >
@@ -58,8 +60,8 @@ export function ERDToolbar({
                     <button
                         onClick={() => onLayoutChange('BT')}
                         className={`p-1.5 rounded transition ${layoutDirection === 'BT'
-                                ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400'
-                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                            ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                             }`}
                         title="Bottom to Top"
                     >
@@ -68,8 +70,8 @@ export function ERDToolbar({
                     <button
                         onClick={() => onLayoutChange('RL')}
                         className={`p-1.5 rounded transition ${layoutDirection === 'RL'
-                                ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400'
-                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                            ? 'bg-white dark:bg-gray-700 shadow text-green-600 dark:text-green-400'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                             }`}
                         title="Right to Left"
                     >
@@ -107,6 +109,15 @@ export function ERDToolbar({
                     </button>
                 </div>
 
+                <Button
+                    variant={showLabels ? "primary" : "secondary"}
+                    size="sm"
+                    icon={<Tag size={16} />}
+                    onClick={onToggleLabels}
+                    title="Toggle relationship labels"
+                >
+                    Labels
+                </Button>
                 <Button
                     variant="secondary"
                     size="sm"
