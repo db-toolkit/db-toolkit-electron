@@ -8,6 +8,7 @@ import {
   useEffect,
   useCallback,
   useRef,
+  useMemo,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useWorkspaceIPC } from "../../hooks/useWorkspaceIPC";
@@ -292,7 +293,7 @@ export function WorkspaceProvider({ children }) {
     );
   }, []);
 
-  const getActiveWorkspace = useCallback(() => {
+  const activeWorkspace = useMemo(() => {
     return workspaces.find((w) => w.id === activeWorkspaceId);
   }, [workspaces, activeWorkspaceId]);
 
@@ -347,7 +348,7 @@ export function WorkspaceProvider({ children }) {
   const value = {
     workspaces,
     activeWorkspaceId,
-    activeWorkspace: getActiveWorkspace(),
+    activeWorkspace,
     loading,
     createWorkspace,
     closeWorkspace,
