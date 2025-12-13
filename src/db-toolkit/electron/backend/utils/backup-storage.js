@@ -21,11 +21,46 @@ async function ensureStorage() {
 async function readMetadata() {
   await ensureStorage();
   const data = await fs.readFile(METADATA_FILE, 'utf8');
-  return JSON.parse(data);
+  
+  try {
+    return JSON.parse(data);
+  } catch (error) {
+    // JSON parse error - file is corrupted
+    console.error('Corrupted backups.json detected:', error.message);
+    
+    // Save corrupted file for recovery
+    const corruptedPath = `${METADATA_FILE}.corrupted.${Date.now()}`;
+    await fs.writeFile(corruptedPath, data, 'utf8');
+    console.log(`Corrupted file saved to: ${corruptedPath}`);
+    
+    // Try to repair by finding valid JSON end
+    try {
+      // Find the last valid closing brace
+      const lastBrace = data.lastIndexOf('}');
+      if (lastBrace > 0) {
+        const repairedData = data.substring(0, lastBrace + 1);
+        const parsed = JSON.parse(repairedData);
+        
+        // Save repaired version
+        await writeMetadata(parsed);
+        console.log('Successfully repaired backups.json');
+        return parsed;
+      }
+    } catch (repairError) {
+      console.error('Failed to repair backups.json:', repairError.message);
+    }
+    
+    // If repair fails, return empty structure
+    console.warn('Returning empty backup structure');
+    return { backups: [], schedules: [] };
+  }
 }
 
 async function writeMetadata(data) {
-  await fs.writeFile(METADATA_FILE, JSON.stringify(data, null, 2));
+  // Write to temp file first, then rename (atomic operation)
+  const tempFile = `${METADATA_FILE}.tmp`;
+  await fs.writeFile(tempFile, JSON.stringify(data, null, 2), 'utf8');
+  await fs.rename(tempFile, METADATA_FILE);
 }
 
 async function addBackup(connectionId, name, backupType, filePath, tables = null, compressed = false, scheduleId = null) {
