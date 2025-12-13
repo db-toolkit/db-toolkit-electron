@@ -27,20 +27,13 @@ export function useAnalytics(connectionId) {
     }
 
     try {
-      console.log(
-        "[Analytics] Fetching analytics for connectionId:",
-        connectionId,
-      );
       const result = await ipc.invoke("analytics:get", connectionId);
-      console.log("[Analytics] Result:", result);
 
       if (!result.success) {
-        console.error("[Analytics] Fetch failed:", result.error);
         if (
           result.error?.includes("Connection not found") ||
           result.error?.includes("Connection not active")
         ) {
-          console.error("[Analytics] Connection lost detected, redirecting...");
           setConnectionLost(true);
           toast.error(
             "Database connection lost. Redirecting to connections...",
@@ -52,11 +45,6 @@ export function useAnalytics(connectionId) {
         setLoading(false);
         return;
       }
-
-      console.log(
-        "[Analytics] Fetch successful, active connections:",
-        result.active_connections,
-      );
 
       setAnalytics(result);
       setHistory((prev) => [
@@ -79,15 +67,9 @@ export function useAnalytics(connectionId) {
     if (!connectionId) return;
 
     try {
-      console.log("[Analytics] Checking connection health for:", connectionId);
       const health = await ipc.invoke("connections:checkHealth", connectionId);
-      console.log("[Analytics] Health check result:", health);
 
       if (!health.active) {
-        console.error(
-          "[Analytics] Health check failed, redirecting. Error:",
-          health.error,
-        );
         setConnectionLost(true);
         toast.error("Database connection lost. Redirecting...");
         setTimeout(() => navigate("/connections"), 2000);
@@ -99,11 +81,9 @@ export function useAnalytics(connectionId) {
         if (healthCheckRef.current) {
           clearInterval(healthCheckRef.current);
         }
-      } else {
-        console.log("[Analytics] Health check passed");
       }
     } catch (error) {
-      console.error("[Analytics] Health check exception:", error);
+      console.error("Health check failed:", error);
     }
   };
 
@@ -114,10 +94,6 @@ export function useAnalytics(connectionId) {
     }
 
     // Initial fetch
-    console.log(
-      "[Analytics] Setting up analytics polling for connectionId:",
-      connectionId,
-    );
     fetchAnalytics();
 
     // Set up polling for real-time updates (every 5 seconds)
@@ -125,7 +101,6 @@ export function useAnalytics(connectionId) {
 
     // Set up health checks (every 30 seconds)
     healthCheckRef.current = setInterval(checkConnectionHealth, 30000);
-    console.log("[Analytics] Polling and health checks configured");
 
     return () => {
       if (intervalRef.current) {

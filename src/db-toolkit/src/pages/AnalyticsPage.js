@@ -35,16 +35,8 @@ function AnalyticsPage() {
   // Sync with workspace state when workspace changes
   // Only depends on activeWorkspaceId to avoid re-running when getWorkspaceState changes
   useEffect(() => {
-    console.log(
-      "[AnalyticsPage] Workspace sync effect triggered, activeWorkspaceId:",
-      activeWorkspaceId,
-    );
     const savedConnectionId = getWorkspaceState("analyticsConnectionId");
     const savedConnectionName = getWorkspaceState("analyticsConnectionName");
-    console.log("[AnalyticsPage] Loaded from workspace state:", {
-      savedConnectionId,
-      savedConnectionName,
-    });
 
     // Only update if we don't already have a connectionId (prevents overwriting on re-render)
     if (!connectionId && savedConnectionId) {
@@ -105,39 +97,21 @@ function AnalyticsPage() {
   const handleConnect = async (id) => {
     setConnecting(id);
     try {
-      console.log("[AnalyticsPage] Connecting to database:", id);
       await connectToDatabase(id, true);
       const conn = connections.find((c) => c.id === id);
-      console.log(
-        "[AnalyticsPage] Setting connectionId and saving to workspace:",
-        id,
-        conn?.name,
-      );
       setConnectionId(id);
       setConnectionName(conn?.name || "");
       setWorkspaceState("analyticsConnectionId", id);
       setWorkspaceState("analyticsConnectionName", conn?.name || "");
-      console.log("[AnalyticsPage] Connection state saved");
       toast.success("Connected successfully");
     } catch (err) {
-      console.error("[AnalyticsPage] Connection failed:", err);
       toast.error("Failed to connect");
     } finally {
       setConnecting(null);
     }
   };
 
-  console.log(
-    "[AnalyticsPage] Render check - connectionId:",
-    connectionId,
-    "connectionName:",
-    connectionName,
-  );
-
   if (!connectionId) {
-    console.log(
-      "[AnalyticsPage] No connectionId, showing connection selection",
-    );
     if (connections.length === 0) {
       return (
         <motion.div
