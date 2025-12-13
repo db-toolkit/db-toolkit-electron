@@ -18,12 +18,13 @@ export function AlertsPanel({ analytics, onDismissAlert }) {
   const [alerts, setAlerts] = useState([]);
   const [showSettings, setShowSettings] = useState(false);
   const [thresholds, setThresholds] = useState({
-    maxConnections: 80, // Percentage
-    longRunningQueryDuration: 300, // Seconds (5 minutes)
-    slowQueryThreshold: 1, // Seconds
-    cacheHitRatioMin: 90, // Percentage
-    blockedQueriesMax: 5,
-    idleConnectionsMax: 50,
+    maxConnections: 100, // Warning when active connections exceed this count
+    longRunningQueryDuration: 300, // Queries running longer than this (seconds) - 5 minutes
+    slowQueryThreshold: 5, // Query execution time threshold (seconds)
+    failedQueryRate: 5, // Failed queries per minute
+    lockWaitTime: 1, // Lock wait time in seconds
+    connectionPoolUsage: 80, // Connection pool usage percentage
+    idleConnectionsMax: 50, // Maximum idle connections allowed
   });
 
   // Check for alerts based on current analytics
@@ -35,8 +36,7 @@ export function AlertsPanel({ analytics, onDismissAlert }) {
 
     // Connection count alert
     if (analytics.active_connections) {
-      const connectionUsage =
-        (analytics.active_connections / 100) * 100; // Assuming max 100 connections
+      const connectionUsage = (analytics.active_connections / 100) * 100; // Assuming max 100 connections
       if (connectionUsage > thresholds.maxConnections) {
         newAlerts.push({
           id: `conn-${timestamp}`,
@@ -104,7 +104,10 @@ export function AlertsPanel({ analytics, onDismissAlert }) {
     }
 
     // Database size alert (if approaching limit)
-    if (analytics.database_size && analytics.database_size > 10 * 1024 * 1024 * 1024) {
+    if (
+      analytics.database_size &&
+      analytics.database_size > 10 * 1024 * 1024 * 1024
+    ) {
       // 10GB
       newAlerts.push({
         id: `size-${timestamp}`,
@@ -207,7 +210,7 @@ export function AlertsPanel({ analytics, onDismissAlert }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Max Connections (%)
+                Max Connections (count)
               </label>
               <input
                 type="number"
@@ -220,7 +223,7 @@ export function AlertsPanel({ analytics, onDismissAlert }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Long-Running Query (seconds)
+                Long-Running Query Duration (seconds)
               </label>
               <input
                 type="number"
@@ -262,26 +265,39 @@ export function AlertsPanel({ analytics, onDismissAlert }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Max Blocked Queries
+                Failed Query Rate (per minute)
               </label>
               <input
                 type="number"
-                value={thresholds.blockedQueriesMax}
+                value={thresholds.failedQueryRate}
                 onChange={(e) =>
-                  handleThresholdChange("blockedQueriesMax", e.target.value)
+                  handleThresholdChange("failedQueryRate", e.target.value)
                 }
                 className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Min Cache Hit Ratio (%)
+                Lock Wait Time (seconds)
               </label>
               <input
                 type="number"
-                value={thresholds.cacheHitRatioMin}
+                value={thresholds.lockWaitTime}
                 onChange={(e) =>
-                  handleThresholdChange("cacheHitRatioMin", e.target.value)
+                  handleThresholdChange("lockWaitTime", e.target.value)
+                }
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Connection Pool Usage (%)
+              </label>
+              <input
+                type="number"
+                value={thresholds.connectionPoolUsage}
+                onChange={(e) =>
+                  handleThresholdChange("connectionPoolUsage", e.target.value)
                 }
                 className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
               />

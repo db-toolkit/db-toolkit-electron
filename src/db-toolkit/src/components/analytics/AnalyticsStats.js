@@ -1,16 +1,7 @@
 /**
  * Analytics statistics cards with sparklines and trends
  */
-import {
-  Activity,
-  Database,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Zap,
-  Clock,
-  HardDrive,
-} from "lucide-react";
+import { Activity, Zap, Clock, HardDrive } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { useEffect, useState } from "react";
 
@@ -30,31 +21,6 @@ export function AnalyticsStats({ analytics, history = [] }) {
     const sizes = ["B", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
-  };
-
-  const calculateTrend = (current, previous) => {
-    if (!previous || previous === 0)
-      return { direction: "stable", percentage: 0 };
-    const change = ((current - previous) / previous) * 100;
-    if (Math.abs(change) < 1) return { direction: "stable", percentage: 0 };
-    return {
-      direction: change > 0 ? "up" : "down",
-      percentage: Math.abs(change).toFixed(1),
-    };
-  };
-
-  const getTrendIcon = (direction) => {
-    if (direction === "up")
-      return <TrendingUp size={16} className="text-green-500" />;
-    if (direction === "down")
-      return <TrendingDown size={16} className="text-red-500" />;
-    return <Minus size={16} className="text-gray-400" />;
-  };
-
-  const getTrendColor = (direction) => {
-    if (direction === "up") return "text-green-600 dark:text-green-400";
-    if (direction === "down") return "text-red-600 dark:text-red-400";
-    return "text-gray-600 dark:text-gray-400";
   };
 
   // Generate sparkline data from history
@@ -128,11 +94,6 @@ export function AnalyticsStats({ analytics, history = [] }) {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
-        const trend = calculateTrend(
-          stat.numericValue || stat.value,
-          stat.previousValue,
-        );
-        const TrendIcon = getTrendIcon(trend.direction);
 
         return (
           <div
@@ -148,14 +109,6 @@ export function AnalyticsStats({ analytics, history = [] }) {
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {stat.value}
                   </p>
-                  {trend.percentage > 0 && (
-                    <div
-                      className={`flex items-center gap-1 text-sm ${getTrendColor(trend.direction)}`}
-                    >
-                      {TrendIcon}
-                      <span className="font-medium">{trend.percentage}%</span>
-                    </div>
-                  )}
                 </div>
               </div>
               <div className={`p-2 rounded-lg ${stat.bgColor}`}>
