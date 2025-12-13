@@ -1,23 +1,23 @@
 /**
  * Main visual query builder component
  */
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import { useNodesState, useEdgesState, addEdge } from 'reactflow';
-import 'reactflow/dist/style.css';
-import { X } from 'lucide-react';
-import { Button } from '../common/Button';
-import QueryTableNode from './QueryTableNode';
-import { TableSelector } from './TableSelector';
-import { QueryCanvas } from './QueryCanvas';
-import { QueryConfigSidebar } from './QueryConfigSidebar';
-import { EdgeConfigPanel } from './EdgeConfigPanel';
-import { useQueryBuilderState } from './useQueryBuilderState';
-import { useTableOperations } from './useTableOperations';
-import { useColumnFilterOperations } from './useColumnFilterOperations';
-import { generateSQL, validateQuery } from '../../utils/queryBuilder';
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { useNodesState, useEdgesState, addEdge } from "reactflow";
+import "reactflow/dist/style.css";
+import { X } from "lucide-react";
+import { Button } from "../common/Button";
+import QueryTableNode from "./QueryTableNode";
+import { TableSelector } from "./TableSelector";
+import { QueryCanvas } from "./QueryCanvas";
+import { QueryConfigSidebar } from "./QueryConfigSidebar";
+import { EdgeConfigPanel } from "./EdgeConfigPanel";
+import { useQueryBuilderState } from "./useQueryBuilderState";
+import { useTableOperations } from "./useTableOperations";
+import { useColumnFilterOperations } from "./useColumnFilterOperations";
+import { generateSQL, validateQuery } from "../../utils/queryBuilder";
 
 const nodeTypes = {
-  queryTable: QueryTableNode
+  queryTable: QueryTableNode,
 };
 
 export function QueryBuilder({ schema, onClose, onExecuteQuery }) {
@@ -30,17 +30,38 @@ export function QueryBuilder({ schema, onClose, onExecuteQuery }) {
   const [selectedEdge, setSelectedEdge] = useState(null);
 
   // Use custom hooks
-  const { groupBy, setGroupBy, orderBy, setOrderBy, limit, setLimit, offset, setOffset, queryState } =
-    useQueryBuilderState(nodes, edges, selectedColumns, filters);
+  const {
+    groupBy,
+    setGroupBy,
+    orderBy,
+    setOrderBy,
+    limit,
+    setLimit,
+    offset,
+    setOffset,
+    queryState,
+  } = useQueryBuilderState(nodes, edges, selectedColumns, filters);
 
-  const { handleColumnToggle, handleRemoveTable, handleAddTable: addTableToCanvas } =
-    useTableOperations(nodes, setNodes, setEdges, setSelectedColumns);
+  const {
+    handleColumnToggle,
+    handleRemoveTable,
+    handleAddTable: addTableToCanvas,
+  } = useTableOperations(nodes, setNodes, setEdges, setSelectedColumns);
 
-  const { handleUpdateColumn, handleRemoveColumn, handleReorderColumn, handleAddFilter, handleUpdateFilter, handleRemoveFilter } =
-    useColumnFilterOperations(setSelectedColumns, setFilters);
+  const {
+    handleUpdateColumn,
+    handleRemoveColumn,
+    handleReorderColumn,
+    handleAddFilter,
+    handleUpdateFilter,
+    handleRemoveFilter,
+  } = useColumnFilterOperations(setSelectedColumns, setFilters);
 
   // Track added tables
-  const addedTables = useMemo(() => nodes.map(node => node.data.tableName), [nodes]);
+  const addedTables = useMemo(
+    () => nodes.map((node) => node.data.tableName),
+    [nodes],
+  );
 
   // Generate SQL with parameters
   const sqlResult = useMemo(() => generateSQL(queryState), [queryState]);
@@ -48,36 +69,44 @@ export function QueryBuilder({ schema, onClose, onExecuteQuery }) {
   const params = sqlResult.params;
 
   // Wrapper for handleAddTable to pass required callbacks
-  const handleAddTable = useCallback((table) => {
-    addTableToCanvas(table, handleColumnToggle, handleRemoveTable);
-  }, [addTableToCanvas, handleColumnToggle, handleRemoveTable]);
+  const handleAddTable = useCallback(
+    (table) => {
+      addTableToCanvas(table, handleColumnToggle, handleRemoveTable);
+    },
+    [addTableToCanvas, handleColumnToggle, handleRemoveTable],
+  );
 
   // Update nodes when columns change
   useEffect(() => {
-    setNodes(nds => nds.map(node => ({
-      ...node,
-      data: {
-        ...node.data,
-        selectedColumns: selectedColumns.map(c => `${c.table}.${c.name}`),
-        onRemove: handleRemoveTable
-      }
-    })));
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          selectedColumns: selectedColumns.map((c) => `${c.table}.${c.name}`),
+          onRemove: handleRemoveTable,
+        },
+      })),
+    );
   }, [selectedColumns, setNodes, handleRemoveTable]);
 
   // Handle edge connection
-  const onConnect = useCallback((params) => {
-    const newEdge = {
-      ...params,
-      type: 'smoothstep',
-      animated: true,
-      data: {
-        joinType: 'INNER JOIN',
-        sourceColumn: 'id',
-        targetColumn: 'id'
-      }
-    };
-    setEdges(eds => addEdge(newEdge, eds));
-  }, [setEdges]);
+  const onConnect = useCallback(
+    (params) => {
+      const newEdge = {
+        ...params,
+        type: "smoothstep",
+        animated: true,
+        data: {
+          joinType: "INNER JOIN",
+          sourceColumn: "id",
+          targetColumn: "id",
+        },
+      };
+      setEdges((eds) => addEdge(newEdge, eds));
+    },
+    [setEdges],
+  );
 
   // Handle edge click for configuration
   const onEdgeClick = useCallback((event, edge) => {
@@ -86,15 +115,20 @@ export function QueryBuilder({ schema, onClose, onExecuteQuery }) {
   }, []);
 
   // Handle edge update
-  const handleEdgeUpdate = useCallback((updates) => {
-    if (!selectedEdge) return;
+  const handleEdgeUpdate = useCallback(
+    (updates) => {
+      if (!selectedEdge) return;
 
-    setEdges(eds => eds.map(e =>
-      e.id === selectedEdge.id
-        ? { ...e, data: { ...e.data, ...updates } }
-        : e
-    ));
-  }, [selectedEdge, setEdges]);
+      setEdges((eds) =>
+        eds.map((e) =>
+          e.id === selectedEdge.id
+            ? { ...e, data: { ...e.data, ...updates } }
+            : e,
+        ),
+      );
+    },
+    [selectedEdge, setEdges],
+  );
 
   // Execute query
   const handleExecute = async () => {
@@ -112,20 +146,32 @@ export function QueryBuilder({ schema, onClose, onExecuteQuery }) {
       // Pass SQL with parameters to execution handler
       await onExecuteQuery(sql, params);
     } catch (error) {
-      setValidationErrors([error.message || 'Failed to execute query']);
+      setValidationErrors([error.message || "Failed to execute query"]);
     } finally {
       setIsExecuting(false);
     }
   };
 
+  const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+
   return (
-    <div className="fixed inset-0 z-50 bg-white dark:bg-gray-900 flex flex-col">
+    <div
+      className="fixed inset-0 z-50 bg-white dark:bg-gray-900 flex flex-col"
+      style={{ WebkitAppRegion: "no-drag" }}
+    >
       {/* Header */}
-      <div className="h-14 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
+      <div
+        className={`h-14 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 ${isMac ? "pl-20" : ""}`}
+      >
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
           Visual Query Builder
         </h2>
-        <Button variant="secondary" size="sm" icon={<X size={16} />} onClick={onClose}>
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={<X size={16} />}
+          onClick={onClose}
+        >
           Close
         </Button>
       </div>
