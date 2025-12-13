@@ -7,6 +7,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { registerSqlSnippets } from './sqlSnippets';
 import { createSQLCompletionProvider, clearCompletionCache } from '../../utils/monacoCompletions';
+import { createSQLHoverProvider } from '../../utils/monacoHoverProvider';
+import recentItemsTracker from '../../utils/recentItemsTracker';
 import { FixSuggestionCard } from './FixSuggestionCard';
 import './QueryEditor.css';
 
@@ -20,6 +22,11 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema, error
   const { settings } = useSettingsContext();
 
   const handleExecuteWithFormat = () => {
+    // Track query usage for autocomplete
+    if (query && query.trim()) {
+      recentItemsTracker.trackFromQuery(query);
+    }
+
     // Format query before execution if setting is enabled
     if (settings?.auto_format_on_paste && query && query.trim()) {
       try {
@@ -116,9 +123,13 @@ export function QueryEditor({ query, onChange, onExecute, loading, schema, error
     // Register schema-aware autocomplete
     // Use a getter that accesses the ref to ensure we always get the latest schema
     const getSchema = () => Promise.resolve(schemaRef.current);
-    const completionProvider = createSQLCompletionProvider(getSchema, monaco);
+    const completionProvider = createSQLCompletionProvider(getSchema, monaco, recentItemsTracker);
     providerRef.current = completionProvider;
     monaco.languages.registerCompletionItemProvider('sql', completionProvider);
+
+    // Register hover provider
+    const hoverProvider = createSQLHoverProvider(getSchema, monaco);
+    monaco.languages.registerHoverProvider('sql', hoverProvider);
   };
 
   // Highlight errors in editor

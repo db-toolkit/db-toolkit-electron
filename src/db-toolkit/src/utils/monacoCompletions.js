@@ -5,7 +5,7 @@
 /**
  * Parse schema data into completion items
  */
-export function parseSchemaToCompletions(schema, monaco) {
+export function parseSchemaToCompletions(schema, monaco, recentTracker) {
   const suggestions = [];
 
   if (!schema?.schemas) return suggestions;
@@ -16,6 +16,9 @@ export function parseSchemaToCompletions(schema, monaco) {
 
     // Iterate over tables in the schema
     Object.entries(schemaData.tables).forEach(([tableName, tableData]) => {
+      const tablePriority = recentTracker?.getTablePriority(tableName) || 0;
+      const sortPrefix = tablePriority > 0 ? `0_${String(100 - tablePriority).padStart(3, '0')}` : `0_999`;
+
       // Add table suggestion
       suggestions.push({
         label: tableName,
@@ -23,18 +26,21 @@ export function parseSchemaToCompletions(schema, monaco) {
         insertText: tableName,
         detail: `Table in ${schemaName}`,
         documentation: `${tableData.column_count || 0} columns`,
-        sortText: `0_${tableName}`, // Tables first
+        sortText: `${sortPrefix}_${tableName}`,
       });
 
       // Add column suggestions
       tableData.columns?.forEach(column => {
+        const columnPriority = recentTracker?.getColumnPriority(column.column_name) || 0;
+        const colSortPrefix = columnPriority > 0 ? `1_${String(100 - columnPriority).padStart(3, '0')}` : `1_999`;
+
         suggestions.push({
           label: `${tableName}.${column.column_name}`,
           kind: monaco.languages.CompletionItemKind.Field,
           insertText: `${tableName}.${column.column_name}`,
           detail: `${column.data_type}`,
           documentation: `Column in ${tableName}`,
-          sortText: `1_${tableName}_${column.column_name}`, // Columns second
+          sortText: `${colSortPrefix}_${tableName}_${column.column_name}`,
         });
 
         // Add column name only (for use after table is specified)
@@ -44,7 +50,7 @@ export function parseSchemaToCompletions(schema, monaco) {
           insertText: column.column_name,
           detail: `${column.data_type} - ${tableName}`,
           documentation: column.is_nullable === 'YES' ? 'Nullable' : 'Not null',
-          sortText: `2_${column.column_name}`, // Column names third
+          sortText: `2_${String(100 - columnPriority).padStart(3, '0')}_${column.column_name}`,
         });
       });
     });
@@ -127,11 +133,12 @@ export function filterByContext(suggestions, context, monaco) {
 /**
  * Create Monaco completion provider
  */
-export function createSQLCompletionProvider(getSchema, monaco) {
+export function createSQLCompletionProvider(getSchema, monaco, recentTracker) {
   const provider = {
     cachedSuggestions: [],
     cachedKeywords: getSQLKeywords(monaco),
     triggerCharacters: ['.', ' '],
+    recentTracker,
 
     provideCompletionItems: async function(model, position) {
       const word = model.getWordUntilPosition(position);
@@ -154,7 +161,7 @@ export function createSQLCompletionProvider(getSchema, monaco) {
       if (this.cachedSuggestions.length === 0) {
         try {
           const schema = await getSchema();
-          this.cachedSuggestions = parseSchemaToCompletions(schema, monaco);
+          this.cachedSuggestions = parseSchemaToCompletions(schema, monaco, this.recentTracker);
         } catch (error) {
           console.error('Failed to fetch schema for autocomplete:', error);
         }
