@@ -2,12 +2,25 @@
  * IPC handlers for issue reporting.
  */
 
-const { ipcMain } = require('electron');
+const { ipcMain, app } = require('electron');
 const { Resend } = require('resend');
 const fs = require('fs').promises;
 const path = require('path');
 const os = require('os');
 const { logger } = require('../utils/logger.js');
+const dotenv = require('dotenv');
+
+// Load .env file
+const envPath = app.isPackaged
+  ? path.join(process.resourcesPath, '.env')
+  : path.join(__dirname, '../../../../../.env');
+
+try {
+  dotenv.config({ path: envPath });
+  logger.info(`[Issues] Loaded .env from: ${envPath}`);
+} catch (error) {
+  logger.warn(`[Issues] Failed to load .env: ${error.message}`);
+}
 
 const issuesDb = [];
 
