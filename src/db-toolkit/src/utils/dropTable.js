@@ -58,16 +58,27 @@ export async function dropTable(tableName, connectionId, onSuccess, toast) {
 
                 if (forceDelete) {
                     try {
-                        // Disable foreign keys, drop table, re-enable foreign keys
-                        const forceQuery = `PRAGMA foreign_keys = OFF; DROP TABLE IF EXISTS ${tableName}; PRAGMA foreign_keys = ON;`;
-                        const forceResult = await window.electron.ipcRenderer.invoke('query:execute', connectionId, {
-                            query: forceQuery,
+                        // Execute queries separately for SQLite
+                        await window.electron.ipcRenderer.invoke('query:execute', connectionId, {
+                            query: 'PRAGMA foreign_keys = OFF',
                             limit: 0,
                             offset: 0
                         });
 
-                        if (forceResult.data && !forceResult.data.success) {
-                            throw new Error(forceResult.data.error || 'Force delete failed');
+                        const dropResult = await window.electron.ipcRenderer.invoke('query:execute', connectionId, {
+                            query: `DROP TABLE IF EXISTS ${tableName}`,
+                            limit: 0,
+                            offset: 0
+                        });
+
+                        await window.electron.ipcRenderer.invoke('query:execute', connectionId, {
+                            query: 'PRAGMA foreign_keys = ON',
+                            limit: 0,
+                            offset: 0
+                        });
+
+                        if (dropResult.data && !dropResult.data.success) {
+                            throw new Error(dropResult.data.error || 'Force delete failed');
                         }
 
                         if (toast) {
@@ -79,6 +90,16 @@ export async function dropTable(tableName, connectionId, onSuccess, toast) {
                         }
                     } catch (forceError) {
                         console.error('Force delete error:', forceError);
+                        // Re-enable foreign keys even on error
+                        try {
+                            await window.electron.ipcRenderer.invoke('query:execute', connectionId, {
+                                query: 'PRAGMA foreign_keys = ON',
+                                limit: 0,
+                                offset: 0
+                            });
+                        } catch (e) {
+                            console.error('Failed to re-enable foreign keys:', e);
+                        }
                         if (toast) {
                             toast.error(`Failed to force delete table: ${forceError.message}`);
                         }
