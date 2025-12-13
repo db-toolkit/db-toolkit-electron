@@ -11,9 +11,10 @@ export async function dropTable(tableName, connectionId, onSuccess, toast) {
 
     try {
         const query = `DROP TABLE IF EXISTS ${tableName}`;
-        await window.electron.ipcRenderer.invoke('query:execute', {
-            connectionId,
-            query
+        await window.electron.ipcRenderer.invoke('query:execute', connectionId, {
+            query,
+            limit: 0,
+            offset: 0
         });
 
         if (toast) {
