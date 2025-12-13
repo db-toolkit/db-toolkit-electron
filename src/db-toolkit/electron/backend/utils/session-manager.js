@@ -38,11 +38,29 @@ class SessionManager {
   async loadSession() {
     try {
       const data = await fs.readFile(this.sessionFile, 'utf-8');
+      
+      // Check if file is empty or corrupted
+      if (!data || data.trim() === '') {
+        logger.warn('Session file is empty, resetting...');
+        await this.clearSession();
+        return { active_connection_ids: [], last_active_connection: null, settings: {} };
+      }
+      
       return JSON.parse(data);
     } catch (error) {
-      if (error.code !== 'ENOENT') {
-        logger.error('Failed to load session:', error);
+      if (error.code === 'ENOENT') {
+        // File doesn't exist, return empty session
+        return { active_connection_ids: [], last_active_connection: null, settings: {} };
       }
+      
+      // JSON parse error or corrupted file
+      if (error instanceof SyntaxError) {
+        logger.warn('Corrupted session file detected, resetting...', error.message);
+        await this.clearSession();
+        return { active_connection_ids: [], last_active_connection: null, settings: {} };
+      }
+      
+      logger.error('Failed to load session:', error);
       return { active_connection_ids: [], last_active_connection: null, settings: {} };
     }
   }
