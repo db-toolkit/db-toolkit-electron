@@ -1,39 +1,50 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Database, Home, Table, HardDrive, Menu, X, BookOpen, FolderGit2, BarChart3, Code } from 'lucide-react';
-import { Tooltip } from './Tooltip';
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Database,
+  Home,
+  Table,
+  HardDrive,
+  Menu,
+  X,
+  BookOpen,
+  FolderGit2,
+  BarChart3,
+  Code,
+} from "lucide-react";
+import { Tooltip } from "./Tooltip";
 
 function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   const navItems = [
-    { path: '/', icon: Home, label: 'Overview' },
-    { path: '/connections', icon: Database, label: 'Connections' },
-    { path: '/query-editor', icon: Code, label: 'Query Editor' },
-    { path: '/data-explorer', icon: Table, label: 'Data Explorer' },
-    { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-    { path: '/migrations', icon: FolderGit2, label: 'Migrations' },
-    { path: '/backups', icon: HardDrive, label: 'Backups' },
-    { path: '/docs', icon: BookOpen, label: 'Documentation' },
+    { path: "/", icon: Home, label: "Overview" },
+    { path: "/connections", icon: Database, label: "Connections" },
+    { path: "/query-editor", icon: Code, label: "Query Editor" },
+    { path: "/data-explorer", icon: Table, label: "Data Explorer" },
+    { path: "/analytics", icon: BarChart3, label: "Analytics" },
+    { path: "/migrations", icon: FolderGit2, label: "Migrations" },
+    { path: "/backups", icon: HardDrive, label: "Backups" },
+    { path: "/docs", icon: BookOpen, label: "Documentation" },
   ];
 
   const isActive = (path) => {
     const currentPath = location.pathname;
-    if (path === '/') {
-      return currentPath === '/' || currentPath === '';
+    if (path === "/") {
+      return currentPath === "/" || currentPath === "";
     }
     // Special cases for pages with dynamic routes
-    if (path === '/query-editor' && currentPath.startsWith('/query/')) {
+    if (path === "/query-editor" && currentPath.startsWith("/query/")) {
       return true;
     }
-    if (path === '/connections' && currentPath.startsWith('/schema/')) {
+    if (path === "/connections" && currentPath.startsWith("/schema/")) {
       return true;
     }
-    if (path === '/data-explorer' && currentPath.startsWith('/data/')) {
+    if (path === "/data-explorer" && currentPath.startsWith("/data/")) {
       return true;
     }
-    if (path === '/analytics' && currentPath.startsWith('/analytics/')) {
+    if (path === "/analytics" && currentPath.startsWith("/analytics/")) {
       return true;
     }
     return currentPath.startsWith(path);
@@ -42,7 +53,7 @@ function Sidebar() {
   return (
     <>
       {/* Mobile hamburger button */}
-      <Tooltip text={isOpen ? 'Close menu' : 'Open menu'} position="right">
+      <Tooltip text={isOpen ? "Close menu" : "Open menu"} position="right">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white"
@@ -67,12 +78,15 @@ function Sidebar() {
           bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white
           h-screen flex flex-col border-r border-gray-200 dark:border-gray-900
           transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         `}
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-900">
           <div className="flex items-center gap-2">
-            <Database size={28} className="text-green-600 dark:text-green-500" />
+            <Database
+              size={28}
+              className="text-green-600 dark:text-green-500"
+            />
             <h1 className="text-xl font-bold">DB Toolkit</h1>
           </div>
         </div>
@@ -84,9 +98,10 @@ function Sidebar() {
               onClick={() => setIsOpen(false)}
               className={`
                 flex items-center gap-3 px-4 py-3 rounded-lg transition
-                ${isActive(path)
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-                  : 'hover:bg-gray-200 dark:hover:bg-gray-900'
+                ${
+                  isActive(path)
+                    ? "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+                    : "hover:bg-gray-200 dark:hover:bg-gray-900"
                 }
               `}
             >
